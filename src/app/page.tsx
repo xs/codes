@@ -1,4 +1,4 @@
-import { Text, Em, Flex, Kbd, Separator } from "@radix-ui/themes";
+import { Em, Flex, Kbd, Separator, Text } from "@radix-ui/themes";
 
 export default function Home() {
   return (

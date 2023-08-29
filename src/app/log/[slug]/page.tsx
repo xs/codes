@@ -1,6 +1,7 @@
-import { notFound } from "next/navigation";
-import { Index, fetchPostIndex } from "@/utils/log";
 import { Code } from "@radix-ui/themes";
+import { notFound } from "next/navigation";
+
+import { Index, fetchPostIndex } from "@/utils/log";
 
 export default async function Page({ params }: { params: { slug: string } }) {
   const postIndex: Index = await fetchPostIndex();
