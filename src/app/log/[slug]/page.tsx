@@ -1,6 +1,7 @@
 import { Code, Heading, Link } from "@radix-ui/themes";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 
@@ -28,6 +29,15 @@ export default async function Page({ params }: { params: { slug: string } }) {
         h4: ({ children, ...props }) => <Heading size="3">{children}</Heading>,
         h5: ({ children, ...props }) => <Heading size="2">{children}</Heading>,
         h6: ({ children, ...props }) => <Heading size="1">{children}</Heading>,
+        code: function ({ children, inline, ...props }) {
+          return (
+            <SyntaxHighlighter
+              PreTag="div"
+              language="ruby"
+              children={String(children)}
+            />
+          );
+        },
       }}
     />
   );
