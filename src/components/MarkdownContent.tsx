@@ -53,22 +53,21 @@ export default function (props: Props) {
           hr: ({ color, ...props }) => <Separator size="4" {...props} />,
           // img
           // li - TODO: radix themes have no native support for this
-          ol: ({ color, ...props }) => (
+          ol: ({ color, ordered, depth, ...props }) => (
             <ol
-              className={`list-decimal list-inside indent-${props.depth * 3}`}
+              className={`list-decimal list-inside indent-${depth * 4}`}
               {...props}
             />
           ),
           p: ({ color, ...props }) => <Text size="3" {...props} />,
           // pre - we ignore this because we use SyntaxHighlighter
           strong: ({ color, ...props }) => <Strong {...props} />,
-          ul: ({ color, ...props }) => (
+          ul: ({ color, ordered, depth, ...props }) => (
             <ul
-              className={`list-disc list-inside indent-${props.depth * 3}`}
+              className={`list-disc list-inside indent-${depth * 4}`}
               {...props}
             />
           ),
-          // ul - TODO: radix themes have no native support for this
         }}
       />
     </Container>

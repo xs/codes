@@ -1,8 +1,10 @@
 import fs from "fs";
 import path from "path";
+import rehypeStringify from "rehype-stringify";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
 import { Processor, unified } from "unified";
 import { matter } from "vfile-matter";
 
@@ -45,6 +47,8 @@ export async function fetchPostIndex(): Promise<PostIndex> {
       .use(remarkParse)
       .use(remarkFrontmatter)
       .use(remarkGfm)
+      .use(remarkRehype)
+      .use(rehypeStringify)
       .use(handleFrontmatter)
       .process(markdown);
 
