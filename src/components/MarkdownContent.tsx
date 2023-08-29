@@ -22,6 +22,31 @@ type Props = {
   post: Post;
 };
 
+function indent(depth: number) {
+  switch (depth) {
+    case 0:
+      return "indent-0";
+    case 1:
+      return "indent-4";
+    case 2:
+      return "indent-8";
+    case 3:
+      return "indent-12";
+    case 4:
+      return "indent-16";
+    case 5:
+      return "indent-20";
+    case 6:
+      return "indent-24";
+    case 7:
+      return "indent-28";
+    case 8:
+      return "indent-32";
+    default:
+      return "indent-36";
+  }
+}
+
 export default function (props: Props) {
   return (
     <Container>
@@ -55,7 +80,7 @@ export default function (props: Props) {
           // li - TODO: radix themes have no native support for this
           ol: ({ color, ordered, depth, ...props }) => (
             <ol
-              className={`list-decimal list-inside indent-${depth * 4}`}
+              className={`list-decimal list-inside ${indent(depth)}`}
               {...props}
             />
           ),
@@ -64,7 +89,7 @@ export default function (props: Props) {
           strong: ({ color, ...props }) => <Strong {...props} />,
           ul: ({ color, ordered, depth, ...props }) => (
             <ul
-              className={`list-disc list-inside indent-${depth * 4}`}
+              className={`list-disc list-inside ${indent(depth)}`}
               {...props}
             />
           ),
