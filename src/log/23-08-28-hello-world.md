@@ -13,4 +13,6 @@ def hello
 end
 ```
 
+---
+
 [^1]: Will these footnotes work? I guess we'll find out.

@@ -1,4 +1,4 @@
-import { Theme } from "@radix-ui/themes";
+import { Container, Theme } from "@radix-ui/themes";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
@@ -20,7 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Theme>{children}</Theme>
+        <Theme>
+          <Container size="4" height="100%" className="break-words">
+            {children}
+          </Container>
+        </Theme>
       </body>
     </html>
   );

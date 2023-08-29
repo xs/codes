@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 
 import MarkdownContent from "@/components/MarkdownContent";
-import { Index, Post, fetchPostIndex } from "@/utils/log";
+import { Post, PostIndex, fetchPostIndex } from "@/utils/log";
 
 export default async function Page({ params }: { params: { slug: string } }) {
-  const postIndex: Index = await fetchPostIndex();
+  const postIndex: PostIndex = await fetchPostIndex();
   console.log(postIndex);
 
   if (!(params.slug in postIndex)) {
@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
 
   const post: Post = postIndex[params.slug];
 
-  return <MarkdownContent markdown={post.markdown} />;
+  return <MarkdownContent post={post} />;
 }
 
 export async function generateStaticParams() {

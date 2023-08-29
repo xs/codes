@@ -6,25 +6,40 @@ import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
-import { unified } from "unified";
+import { Processor, unified } from "unified";
+import { matter } from "vfile-matter";
 
 export type Post = {
   markdown: string;
   html: string;
+  metadata: PostMetadata;
+  id: string;
 };
 
-export type Index = {
+export type PostMetadata = {
+  title?: string;
+  date?: string;
+};
+
+export type PostIndex = {
   [key: string]: Post;
 };
 
 const logDir = path.join(process.cwd(), "src/log");
 
-export async function fetchPostIndex(): Promise<Index> {
+// write the .md file's frontmatter to file.data.matter
+function handleFrontmatter() {
+  return (_: Processor, file: any) => {
+    matter(file);
+  };
+}
+
+export async function fetchPostIndex(): Promise<PostIndex> {
   let slugs = fs
     .readdirSync(logDir)
     .map((filename) => path.basename(filename, ".md"));
 
-  const index: Index = {};
+  const index: PostIndex = {};
 
   slugs.forEach(async (slug) => {
     const filePath = path.join(logDir, slug);
@@ -37,11 +52,14 @@ export async function fetchPostIndex(): Promise<Index> {
       .use(remarkRehype)
       .use(rehypeSantize)
       .use(rehypeStringify)
+      .use(handleFrontmatter)
       .process(markdown);
 
     index[slug] = {
       markdown: markdown,
       html: String(file),
+      metadata: file.data.matter || {},
+      id: slug,
     };
   });
 
