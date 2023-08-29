@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
-import { postIndex } from "@/utils/log";
+import { Index, fetchPostIndex } from "@/utils/log";
 import { Code } from "@radix-ui/themes";
 
-export default function Page({ params }: { params: { slug: string } }) {
+export default async function Page({ params }: { params: { slug: string } }) {
+  const postIndex: Index = await fetchPostIndex();
+  console.log(postIndex);
+
   if (!(params.slug in postIndex)) {
     notFound();
   }
@@ -10,8 +13,8 @@ export default function Page({ params }: { params: { slug: string } }) {
   return (
     <div>
       My Post: {params.slug}
-      {Object.values(postIndex)[0]}
-      <Code>{postIndex[params.slug]}</Code>
+      {Object.values(postIndex)[0].html}
+      <Code>{postIndex[params.slug].markdown}</Code>
     </div>
   );
 }
