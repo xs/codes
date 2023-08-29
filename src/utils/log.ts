@@ -4,8 +4,8 @@ import remarkGfm from "remark-gfm";
 import path from "path";
 import fs from "fs";
 import remarkParse from "remark-parse";
-import remarkStringify from "remark-stringify";
 import remarkRehype from "remark-rehype";
+import rehypeStringify from "rehype-stringify";
 
 export type Post = {
   markdown: string;
@@ -28,17 +28,18 @@ export async function fetchPostIndex(): Promise<Index> {
   slugs.forEach(async (slug) => {
     const filePath = path.join(logDir, slug);
     const markdown = fs.readFileSync(filePath + ".md", "utf-8");
-    const html = await unified()
+
+    const file = await unified()
       .use(remarkParse)
       .use(remarkFrontmatter)
       .use(remarkGfm)
       .use(remarkRehype)
-      .use(remarkStringify)
+      .use(rehypeStringify)
       .process(markdown);
 
     index[slug] = {
       markdown: markdown,
-      html: String(html),
+      html: String(file),
     };
   });
 
