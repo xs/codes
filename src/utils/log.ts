@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
+import rehypeSantize from "rehype-sanitize";
 import rehypeStringify from "rehype-stringify";
 
 export type Post = {
@@ -34,6 +35,7 @@ export async function fetchPostIndex(): Promise<Index> {
       .use(remarkFrontmatter)
       .use(remarkGfm)
       .use(remarkRehype)
+      .use(rehypeSantize)
       .use(rehypeStringify)
       .process(markdown);
 
