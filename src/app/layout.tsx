@@ -20,11 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Theme>
-          <Container size="4" height="100%" className="break-words">
-            {children}
-          </Container>
-        </Theme>
+        <Theme>{children}</Theme>
       </body>
     </html>
   );

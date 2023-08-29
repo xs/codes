@@ -1,17 +1,13 @@
 import fs from "fs";
 import path from "path";
-import rehypeSantize from "rehype-sanitize";
-import rehypeStringify from "rehype-stringify";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
 import { Processor, unified } from "unified";
 import { matter } from "vfile-matter";
 
 export type Post = {
   markdown: string;
-  html: string;
   metadata: PostMetadata;
   id: string;
 };
@@ -49,15 +45,11 @@ export async function fetchPostIndex(): Promise<PostIndex> {
       .use(remarkParse)
       .use(remarkFrontmatter)
       .use(remarkGfm)
-      .use(remarkRehype)
-      .use(rehypeSantize)
-      .use(rehypeStringify)
       .use(handleFrontmatter)
       .process(markdown);
 
     index[slug] = {
       markdown: markdown,
-      html: String(file),
       metadata: file.data.matter || {},
       id: slug,
     };

@@ -1,9 +1,10 @@
 ---
-title: hello world! (part two)
+title: hello world! (part 2)
 date: 2023-08-28
+time: 18:00
 ---
 
-# Hello world!
+# Hello world again!
 
 If this goes well, this should render as a readable[^1] web page, a second time.
 

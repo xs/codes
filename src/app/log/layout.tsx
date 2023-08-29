@@ -1,4 +1,4 @@
-import { Box, Flex, Section, Text } from "@radix-ui/themes";
+import { Box, Flex, Link, Section } from "@radix-ui/themes";
 
 import { PostIndex, fetchPostIndex } from "@/utils/log";
 
@@ -14,7 +14,7 @@ export default async function LogLayout({
       <Section>
         {Object.values(postIndex).map((post) => (
           <Box key={post.id}>
-            <Text size="3">{post.metadata.title}</Text>
+            <Link href={`/log/${post.id}`}>{post.metadata.title}</Link>
           </Box>
         ))}
       </Section>
