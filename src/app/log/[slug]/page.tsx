@@ -1,7 +1,7 @@
 import { Code } from "@radix-ui/themes";
 import { notFound } from "next/navigation";
 
-import { Index, fetchPostIndex } from "@/utils/log";
+import { Index, Post, fetchPostIndex } from "@/utils/log";
 
 export default async function Page({ params }: { params: { slug: string } }) {
   const postIndex: Index = await fetchPostIndex();
@@ -11,13 +11,9 @@ export default async function Page({ params }: { params: { slug: string } }) {
     notFound();
   }
 
-  return (
-    <div>
-      My Post: {params.slug}
-      {Object.values(postIndex)[0].html}
-      <Code>{postIndex[params.slug].markdown}</Code>
-    </div>
-  );
+  const post: Post = postIndex[params.slug];
+
+  return <div dangerouslySetInnerHTML={{ __html: post.html }} />;
 }
 
 export async function generateStaticParams() {
