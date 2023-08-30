@@ -45,4 +45,16 @@ sky = Sky.new('blue')
 sun = Sun.new('bright')
 ```
 
+## This is what the blog looks like to me
+
+```md
+---
+title: a quote
+date: 2023-08-30
+time: 17:25
+---
+
+> It does not matter how slow you go so long as you do not stop.
+```
+
 [^1]: As supported by Github-flavored markdown
