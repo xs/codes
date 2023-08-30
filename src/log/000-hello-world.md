@@ -1,95 +1,48 @@
 ---
-title: hello world!
-date: 2023-08-28
-time: 17:00
+title: hello world
+date: 2023-08-30
+time: 16:20
 ---
 
-# Hi, it's me.
+# An Introduction
 
-If this goes well, this should render as a readable[^1] web page.
+If this goes well, this should render as a readable blog entry.
 
 ## Purpose
 
-I'm essentially using this as my test Markdown file – this file is intended to contain a mix of elements, including, but not limited to, the following:
+I'm essentially using this as my test Markdown file – this file is intended to contain a mix of elements[^1].
 
-- headers of all kinds
-- lists that are...
-  - ordered
-  - unordered
-- images?
-- a whole bunch of typographic styles
-- and more! (like special Github-flavored markdown)
-
-### A todo list for your daily life
+### Most days
 
 - [x] wake up
-- [ ] get up
-- [ ] get out there
+- [x] get up
+- [x] get out there
+
+### Today, specifically
+
+#### On my plans
+
+I'm working on setting up this blog.
+
+> It does not matter how slow you go so long as you do not stop.
+
+#### On the weather
 
 ```ruby
-def hello
-  puts "hi, it's good to be here"
+class Sky
+  def initialize(color)
+    @color = color
+  end
 end
+
+class Sun
+  def initialize(brightness)
+    @brightness = brightness
+  end
+end
+
+sky = Sky.new('blue')
+sun = Sun.new('bright')
 ```
 
-## Code
-
-Inline `code`
-
-Indented code
-
-    // Some comments
-    line 1 of code
-    line 2 of code
-    line 3 of code
-
-Block code "fences"
-
-```
-Sample text here...
-```
-
-Syntax highlighting
-
-```js
-var foo = function (bar) {
-  return bar++;
-};
-
-console.log(foo(5));
-```
-
-## Tables
-
-| Option | Description                                                               |
-| ------ | ------------------------------------------------------------------------- |
-| data   | path to data files to supply the data that will be passed into templates. |
-| engine | engine to be used for processing templates. Handlebars is the default.    |
-| ext    | extension to be used for dest files.                                      |
-
-Right aligned columns
-
-| Option |                                                               Description |
-| -----: | ------------------------------------------------------------------------: |
-|   data | path to data files to supply the data that will be passed into templates. |
-| engine |    engine to be used for processing templates. Handlebars is the default. |
-|    ext |                                      extension to be used for dest files. |
-
-## Links
-
-[link text](http://dev.nodeca.com)
-
-[link with title](http://nodeca.github.io/pica/demo/ "title text!")
-
-Footnote 2 link[^first].
-
-Footnote 3 link[^second].
-
-Duplicated footnote reference[^second].
-
-[^first]: Footnote **can have markup**
-
-    and should be able to have multiple paragraphs.
-
-[^second]: Footnote text.
-[^1]: Will these footnotes work? I guess we'll find out.
+[^1]: As supported by Github-flavored markdown

@@ -2,6 +2,7 @@
 
 import {
   Blockquote,
+  Box,
   Container,
   Em,
   Heading,
@@ -47,17 +48,25 @@ function indent(depth: number) {
   }
 }
 
-export default function (props: Props) {
+// TODO: tables
+export default function ({ post }: Props) {
   return (
     <Container className="whitespace-normal">
+      <Box className="flex justify-between items-end">
+        <Heading size="8" as="h1" className="pt-4">
+          {post.metadata.title}
+        </Heading>
+        <Text className="ml-2 pt-5 text-gray-500">{post.metadata.date}</Text>
+      </Box>
+      <Separator size="4" />
       <ReactMarkdown
-        children={props.post.markdown}
+        children={post.markdown}
         remarkPlugins={[remarkFrontmatter, remarkGfm]}
         components={{
           a: ({ color, node, ...props }) => <Link {...props} />,
           blockquote: ({ color, node, ...props }) => <Blockquote {...props} />,
           // br - TODO: radix themes have no native support for this
-          code: function ({ children, inline, node, ...props }) {
+          code: ({ children, inline, node, ...props }) => {
             if (inline) {
               return (
                 <code className="bg-gray-100 text-gray-900 rounded-md px-1 py-0.5">
@@ -104,7 +113,21 @@ export default function (props: Props) {
               {...props}
             />
           ),
-          p: ({ color, node, ...props }) => <Text as="p" size="3" {...props} />,
+          p: ({ color, node, ...props }) => {
+            return <Text as="p" {...props} />;
+          },
+          section: ({ color, className, node, ...props }) => {
+            if (className === "footnotes") {
+              className =
+                "mt-4 [&_p]:inline [&_p]:text-xs [&_li]:text-xs [&_p]:text-gray-700";
+            }
+            return (
+              <section className={className}>
+                <Separator size="4" />
+                {props.children}
+              </section>
+            );
+          },
           // pre - we ignore this because we use SyntaxHighlighter
           strong: ({ color, node, ...props }) => <Strong {...props} />,
           ul: ({ color, ordered, depth, node, ...props }) => (

@@ -5,8 +5,11 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <Text size="3">
         <Flex gap="3">
-          log <Separator size="2" color="amber" orientation="vertical" />
+          log
+          <Separator size="2" color="amber" orientation="vertical" />
           sketches
+          <Separator size="2" color="cyan" orientation="vertical" />
+          about
         </Flex>
       </Text>
     </main>
