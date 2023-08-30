@@ -49,45 +49,63 @@ function indent(depth: number) {
 
 export default function (props: Props) {
   return (
-    <Container>
+    <Container className="whitespace-normal">
       <ReactMarkdown
         children={props.post.markdown}
         remarkPlugins={[remarkFrontmatter, remarkGfm]}
         components={{
-          a: ({ color, ...props }) => <Link {...props} />,
-          blockquote: ({ color, ...props }) => <Blockquote {...props} />,
+          a: ({ color, node, ...props }) => <Link {...props} />,
+          blockquote: ({ color, node, ...props }) => <Blockquote {...props} />,
           // br - TODO: radix themes have no native support for this
-          code: function ({ children, inline, ...props }) {
-            return (
-              <SyntaxHighlighter
-                {...props}
-                PreTag="div"
-                language="ruby"
-                style={oneDark}
-                children={String(children)}
-              />
-            );
+          code: function ({ children, inline, node, ...props }) {
+            if (inline) {
+              return (
+                <code className="bg-gray-100 text-gray-900 rounded-md px-1 py-0.5">
+                  {children}
+                </code>
+              );
+            } else {
+              return (
+                <SyntaxHighlighter
+                  {...props}
+                  PreTag="div"
+                  language="ruby"
+                  style={oneDark}
+                  children={String(children)}
+                />
+              );
+            }
           },
-          em: ({ ...props }) => <Em {...props} />,
-          h1: ({ color, ...props }) => <Heading size="6" {...props} />,
-          h2: ({ color, ...props }) => <Heading size="5" as="h2" {...props} />,
-          h3: ({ color, ...props }) => <Heading size="4" as="h3" {...props} />,
-          h4: ({ color, ...props }) => <Heading size="3" as="h4" {...props} />,
-          h5: ({ color, ...props }) => <Heading size="3" as="h5" {...props} />,
-          h6: ({ color, ...props }) => <Heading size="3" as="h6" {...props} />,
-          hr: ({ color, ...props }) => <Separator size="4" {...props} />,
+          em: ({ node, ...props }) => <Em {...props} />,
+          h1: ({ color, node, ...props }) => <Heading size="6" {...props} />,
+          h2: ({ color, node, ...props }) => (
+            <Heading size="5" as="h2" {...props} />
+          ),
+          h3: ({ color, node, ...props }) => (
+            <Heading size="4" as="h3" {...props} />
+          ),
+          h4: ({ color, node, ...props }) => (
+            <Heading size="3" as="h4" {...props} />
+          ),
+          h5: ({ color, node, ...props }) => (
+            <Heading size="3" as="h5" {...props} />
+          ),
+          h6: ({ color, node, ...props }) => (
+            <Heading size="3" as="h6" {...props} />
+          ),
+          hr: ({ color, node, ...props }) => <Separator size="4" {...props} />,
           // img
           // li - TODO: radix themes have no native support for this
-          ol: ({ color, ordered, depth, ...props }) => (
+          ol: ({ color, ordered, depth, node, ...props }) => (
             <ol
               className={`list-decimal list-inside ${indent(depth)}`}
               {...props}
             />
           ),
-          p: ({ color, ...props }) => <Text size="3" {...props} />,
+          p: ({ color, node, ...props }) => <Text as="p" size="3" {...props} />,
           // pre - we ignore this because we use SyntaxHighlighter
-          strong: ({ color, ...props }) => <Strong {...props} />,
-          ul: ({ color, ordered, depth, ...props }) => (
+          strong: ({ color, node, ...props }) => <Strong {...props} />,
+          ul: ({ color, ordered, depth, node, ...props }) => (
             <ul
               className={`list-disc list-inside ${indent(depth)}`}
               {...props}

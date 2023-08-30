@@ -10,15 +10,20 @@ export default async function LogLayout({
   const postIndex: PostIndex = await fetchPostIndex();
 
   return (
-    <Flex direction="row" gap="4" className="overflow-hidden">
-      <Section>
+    <Flex
+      gap="4"
+      className="overflow-hidden flex-col sm:flex-row flex-shrink-0"
+    >
+      <Section className="order-2 sm:order-1 p-2 bg-gray-300">
         {Object.values(postIndex).map((post) => (
           <Box key={post.id}>
             <Link href={`/log/${post.id}`}>{post.metadata.title}</Link>
           </Box>
         ))}
       </Section>
-      <Section grow="1">{children}</Section>
+      <Section className="order-1 sm:order-2 p-2 bg-gray-200 flex-grow flex-shrink">
+        {children}
+      </Section>
     </Flex>
   );
 }
