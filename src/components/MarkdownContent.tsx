@@ -77,12 +77,14 @@ export default function (props: Props) {
             }
           },
           em: ({ node, ...props }) => <Em {...props} />,
-          h1: ({ color, node, ...props }) => <Heading size="6" {...props} />,
+          h1: ({ color, node, ...props }) => (
+            <Heading size="6" as="h1" className="pt-4" {...props} />
+          ),
           h2: ({ color, node, ...props }) => (
-            <Heading size="5" as="h2" {...props} />
+            <Heading size="5" as="h2" className="pt-3 pb-1" {...props} />
           ),
           h3: ({ color, node, ...props }) => (
-            <Heading size="4" as="h3" {...props} />
+            <Heading size="4" as="h3" className="pt-2 pb-1" {...props} />
           ),
           h4: ({ color, node, ...props }) => (
             <Heading size="3" as="h4" {...props} />
