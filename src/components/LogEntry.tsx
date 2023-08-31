@@ -49,7 +49,8 @@ function indent(depth: number) {
   }
 }
 
-const DEFAULT_CLASSES = "whitespace-normal";
+const DEFAULT_CLASSES =
+  "whitespace-normal border-gray-400 rounded-md border p-2 max-w-screen-md";
 
 // TODO: tables
 export default function ({ post, className }: Props) {
@@ -59,8 +60,8 @@ export default function ({ post, className }: Props) {
     : DEFAULT_CLASSES;
   return (
     <Container className={containerClassName}>
-      <Box className="flex justify-between items-end font-ser">
-        <Heading size="8" as="h1" className="pt-4">
+      <Box className="flex justify-between items-end">
+        <Heading size="8" as="h1">
           {post.metadata.title}
         </Heading>
         <Text className="ml-2 pt-5 text-gray-500">{post.metadata.date}</Text>
@@ -71,7 +72,9 @@ export default function ({ post, className }: Props) {
         remarkPlugins={[remarkFrontmatter, remarkGfm]}
         components={{
           a: ({ color, node, ...props }) => <Link {...props} />,
-          blockquote: ({ color, node, ...props }) => <Blockquote {...props} />,
+          blockquote: ({ color, node, ...props }) => (
+            <Blockquote my="2" {...props} />
+          ),
           // br - TODO: radix themes have no native support for this
           code: ({ children, inline, node, ...props }) => {
             if (inline) {
@@ -84,6 +87,9 @@ export default function ({ post, className }: Props) {
               return (
                 <SyntaxHighlighter
                   {...props}
+                  codeTagProps={{
+                    className: "[&_span]:font-serif",
+                  }}
                   PreTag="div"
                   language="ruby"
                   style={oneDark}

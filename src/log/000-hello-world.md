@@ -24,7 +24,7 @@ I'm essentially using this as my test Markdown file – this file is intended t
 
 I'm working on setting up this blog.
 
-> It does not matter how slow you go so long as you do not stop.
+> The only thing that is constant is change.
 
 #### On the weather
 
