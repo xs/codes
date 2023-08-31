@@ -54,7 +54,7 @@ const DEFAULT_CLASSES =
   "whitespace-normal border-gray-400 rounded-md border p-2 max-w-screen-md";
 
 // TODO: tables
-export default function ({ post, className }: Props) {
+export default function LogEntry({ post, className }: Props) {
   // add whitespace-normal to the container
   const containerClassName = className
     ? `${className} ${DEFAULT_CLASSES}`
@@ -69,7 +69,6 @@ export default function ({ post, className }: Props) {
       </Box>
       <Separator size="4" />
       <ReactMarkdown
-        children={post.markdown}
         remarkPlugins={[remarkFrontmatter, remarkGfm]}
         components={{
           a: ({ color, node, ...props }) => <Link {...props} />,
@@ -99,8 +98,9 @@ export default function ({ post, className }: Props) {
                   language={language}
                   style={solarizedDark}
                   showLineNumbers
-                  children={String(children)}
-                />
+                >
+                  {String(children)}
+                </SyntaxHighlighter>
               );
             }
           },
@@ -156,7 +156,9 @@ export default function ({ post, className }: Props) {
             />
           ),
         }}
-      />
+      >
+        {post.markdown}
+      </ReactMarkdown>
     </Container>
   );
 }
