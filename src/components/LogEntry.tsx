@@ -14,7 +14,6 @@ import {
 import ReactMarkdown from "react-markdown";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { solarizedDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 
 import { inconsolata } from "@/app/fonts";
@@ -54,6 +53,7 @@ const DEFAULT_CLASSES =
   "whitespace-normal border-gray-400 rounded-md border p-2 max-w-screen-md";
 
 // TODO: tables
+// TODO: rehype-slug for headings
 export default function LogEntry({ post, className }: Props) {
   // add whitespace-normal to the container
   const containerClassName = className
@@ -69,7 +69,13 @@ export default function LogEntry({ post, className }: Props) {
       </Box>
       <Separator size="4" />
       <ReactMarkdown
-        remarkPlugins={[remarkFrontmatter, remarkGfm]}
+        remarkPlugins={[remarkGfm]}
+        remarkRehypeOptions={{
+          clobberPrefix: `${post.id}-`,
+          footnoteLabelProperties: {
+            className: "hidden",
+          },
+        }}
         components={{
           a: ({ color, node, ...props }) => <Link {...props} />,
           blockquote: ({ color, node, ...props }) => (

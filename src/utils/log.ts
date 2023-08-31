@@ -12,6 +12,7 @@ export type Post = {
   markdown: string;
   metadata: PostMetadata;
   id: string;
+  slug: string;
 };
 
 export type PostMetadata = {
@@ -46,8 +47,12 @@ async function makePost(filename: string): Promise<Post> {
     .use(handleFrontmatter)
     .process(markdown);
 
+  // set the id to the first three digits of the filename
+  // e.g. 000-hello-world.md -> 000
+
   return {
-    id: path.basename(filename, ".md"),
+    id: filename.slice(0, 3),
+    slug: path.basename(filename, ".md"),
     markdown: markdown,
     metadata: file.data.matter || {},
   };
@@ -60,7 +65,7 @@ export async function fetchPostIndex(): Promise<PostIndex> {
 
   await logFilenames.forEach(async (filename) => {
     const post = await makePost(filename);
-    index[post.id] = post;
+    index[post.slug] = post;
   });
 
   return index;

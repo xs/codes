@@ -24,7 +24,7 @@ export default async function LogLayout({
         <ul className="list-disc list-inside">
           {Object.values(postIndex).map((post, index) => (
             <li key={post.id}>
-              <Link href={`/log/${post.id}`}>{post.metadata.title}</Link>
+              <Link href={`/log/${post.slug}`}>{post.metadata.title}</Link>
             </li>
           ))}
         </ul>
