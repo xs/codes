@@ -21,6 +21,7 @@ import { Post } from "@/utils/log";
 
 type Props = {
   post: Post;
+  className?: string;
 };
 
 function indent(depth: number) {
@@ -48,11 +49,17 @@ function indent(depth: number) {
   }
 }
 
+const DEFAULT_CLASSES = "whitespace-normal";
+
 // TODO: tables
-export default function ({ post }: Props) {
+export default function ({ post, className }: Props) {
+  // add whitespace-normal to the container
+  const containerClassName = className
+    ? `${className} ${DEFAULT_CLASSES}`
+    : DEFAULT_CLASSES;
   return (
-    <Container className="whitespace-normal">
-      <Box className="flex justify-between items-end">
+    <Container className={containerClassName}>
+      <Box className="flex justify-between items-end font-ser">
         <Heading size="8" as="h1" className="pt-4">
           {post.metadata.title}
         </Heading>

@@ -60,11 +60,8 @@ export async function fetchPostIndex(): Promise<PostIndex> {
 
   await logFilenames.forEach(async (filename) => {
     const post = await makePost(filename);
-    console.log("setting post id", post.id);
     index[post.id] = post;
   });
-
-  console.log(index);
 
   return index;
 }

@@ -10,8 +10,8 @@ export default async function LogLayout({
   const postIndex: PostIndex = await fetchPostIndex();
 
   return (
-    <Flex className="overflow-hidden flex-col sm:flex-row flex-shrink-0 items-stretch w-screen h-screen">
-      <Section className="order-2 sm:order-1 p-4 bg-gray-300 w-full sm:w-72">
+    <Flex className="flex-col sm:flex-row flex-shrink-0 items-stretch w-screen h-screen overflow-x-hidden">
+      <Section className="order-2 sm:order-1 p-4 bg-gray-300 w-full sm:w-72 overflow-y-auto sm:h-screen">
         <ul className="list-disc list-inside">
           {Object.values(postIndex).map((post, index) => (
             <li key={post.id}>
@@ -20,7 +20,7 @@ export default async function LogLayout({
           ))}
         </ul>
       </Section>
-      <Section className="order-1 sm:order-2 p-4 bg-gray-200 flex-grow flex-shrink">
+      <Section className="order-1 sm:order-2 p-4 bg-gray-200 flex-grow flex-shrink overflow-y-auto sm:h-screen">
         {children}
       </Section>
     </Flex>
