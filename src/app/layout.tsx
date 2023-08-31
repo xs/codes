@@ -1,11 +1,9 @@
+import { inconsolata, inter } from "./fonts";
 import { Container, Theme } from "@radix-ui/themes";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 
 import "./globals.css";
 import "@radix-ui/themes/styles.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "xs.codes",
@@ -19,7 +17,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} overscroll-none`}>
+      <body
+        className={`${inter.className} ${inconsolata.variable} overscroll-none`}
+      >
         <Theme>{children}</Theme>
       </body>
     </html>

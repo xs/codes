@@ -17,8 +17,8 @@ export default async function LogLayout({
   const postIndex: PostIndex = await fetchPostIndex();
 
   return (
-    <Flex className="flex-col sm:flex-row flex-shrink-0 items-stretch w-screen h-screen overflow-x-hidden">
-      <Section className="order-2 sm:order-1 p-4 bg-gray-300 w-full sm:w-72 overflow-y-auto sm:h-screen">
+    <Flex className="flex-col md:flex-row flex-shrink-0 items-stretch w-screen h-screen overflow-x-hidden">
+      <Section className="order-2 md:order-1 p-4 bg-gray-300 w-full md:w-72 overflow-y-auto md:h-screen">
         <Heading>Entries</Heading>
         <Separator size="4" className="mb-4" />
         <ul className="list-disc list-inside">
@@ -29,7 +29,7 @@ export default async function LogLayout({
           ))}
         </ul>
       </Section>
-      <Section className="order-1 sm:order-2 p-4 bg-gray-200 flex-grow flex-shrink overflow-y-auto sm:h-screen">
+      <Section className="order-1 md:order-2 p-4 bg-gray-200 flex-grow flex-shrink overflow-y-auto md:h-screen">
         {children}
       </Section>
     </Flex>

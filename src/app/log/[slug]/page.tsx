@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import LogEntry from "@/components/LogEntry";
 import { Post, PostIndex, fetchPostIndex } from "@/utils/log";
@@ -7,7 +7,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
   const postIndex: PostIndex = await fetchPostIndex();
 
   if (!(params.slug in postIndex)) {
-    notFound();
+    redirect("/log");
   }
 
   const post: Post = postIndex[params.slug];

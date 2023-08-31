@@ -12,11 +12,12 @@ import {
   Text,
 } from "@radix-ui/themes";
 import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { solarizedDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 
+import { inconsolata } from "@/app/fonts";
 import { Post } from "@/utils/log";
 
 type Props = {
@@ -76,7 +77,7 @@ export default function ({ post, className }: Props) {
             <Blockquote my="2" {...props} />
           ),
           // br - TODO: radix themes have no native support for this
-          code: ({ children, inline, node, ...props }) => {
+          code: ({ children, inline, node, className, ...props }) => {
             if (inline) {
               return (
                 <code className="bg-gray-100 text-gray-900 rounded-md px-1 py-0.5">
@@ -84,15 +85,20 @@ export default function ({ post, className }: Props) {
                 </code>
               );
             } else {
+              const match = /language-(\w+)/.exec(className || "");
+              let language = match ? match[1] : "text";
               return (
                 <SyntaxHighlighter
                   {...props}
                   codeTagProps={{
-                    className: "[&_span]:font-serif",
+                    className: `${inconsolata.className} rounded-md`,
                   }}
-                  PreTag="div"
-                  language="ruby"
-                  style={oneDark}
+                  PreTag={(props: any) => (
+                    <div className="rounded-md m-1" {...props} />
+                  )}
+                  language={language}
+                  style={solarizedDark}
+                  showLineNumbers
                   children={String(children)}
                 />
               );
