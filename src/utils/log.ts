@@ -5,7 +5,7 @@ import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
-import { Processor, unified } from "unified";
+import { Processor, VFileWithOutput, unified } from "unified";
 import { matter } from "vfile-matter";
 
 export type Post = {
@@ -17,6 +17,7 @@ export type Post = {
 export type PostMetadata = {
   title?: string;
   date?: string;
+  time?: string;
 };
 
 export type PostIndex = {
@@ -32,32 +33,38 @@ function handleFrontmatter() {
   };
 }
 
+async function makePost(filename: string): Promise<Post> {
+  const filePath = path.join(logDir, filename);
+  const markdown = fs.readFileSync(filePath, "utf-8");
+
+  const file = await unified()
+    .use(remarkParse)
+    .use(remarkFrontmatter)
+    .use(remarkGfm)
+    .use(remarkRehype)
+    .use(rehypeStringify)
+    .use(handleFrontmatter)
+    .process(markdown);
+
+  return {
+    id: path.basename(filename, ".md"),
+    markdown: markdown,
+    metadata: file.data.matter || {},
+  };
+}
+
 export async function fetchPostIndex(): Promise<PostIndex> {
-  let slugs = fs
-    .readdirSync(logDir)
-    .map((filename) => path.basename(filename, ".md"));
+  let logFilenames = fs.readdirSync(logDir);
 
   const index: PostIndex = {};
 
-  slugs.forEach(async (slug) => {
-    const filePath = path.join(logDir, slug);
-    const markdown = fs.readFileSync(filePath + ".md", "utf-8");
-
-    const file = await unified()
-      .use(remarkParse)
-      .use(remarkFrontmatter)
-      .use(remarkGfm)
-      .use(remarkRehype)
-      .use(rehypeStringify)
-      .use(handleFrontmatter)
-      .process(markdown);
-
-    index[slug] = {
-      markdown: markdown,
-      metadata: file.data.matter || {},
-      id: slug,
-    };
+  await logFilenames.forEach(async (filename) => {
+    const post = await makePost(filename);
+    console.log("setting post id", post.id);
+    index[post.id] = post;
   });
+
+  console.log(index);
 
   return index;
 }
