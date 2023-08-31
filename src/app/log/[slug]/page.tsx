@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import LogEntry from "@/components/LogEntry";
 import { Post, PostIndex, fetchPostIndex } from "@/utils/log";

@@ -14,7 +14,6 @@ import {
 import ReactMarkdown from "react-markdown";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { solarizedDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 
 import { inconsolata } from "@/app/fonts";
@@ -70,7 +69,7 @@ export default function LogEntry({ post, className }: Props) {
       </Box>
       <Separator size="4" />
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkFrontmatter]}
+        remarkPlugins={[remarkGfm]}
         remarkRehypeOptions={{
           clobberPrefix: `${post.id}-`,
           footnoteLabelProperties: {
