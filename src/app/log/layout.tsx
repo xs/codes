@@ -18,7 +18,7 @@ export default async function LogLayout({
 
   return (
     <Flex className="flex-col md:flex-row flex-shrink-0 items-stretch w-screen h-screen overflow-x-hidden">
-      <Section className="order-2 md:order-1 p-4 bg-gray-200 w-full md:w-72 overflow-y-auto md:h-screen">
+      <Section className="order-2 md:order-1 p-4 bg-gray-200 w-full md:w-72 md:overflow-y-auto md:h-screen">
         <Heading>Entries</Heading>
         <Separator size="4" className="mb-4" />
         <ul className="list-disc list-inside">
@@ -29,7 +29,7 @@ export default async function LogLayout({
           ))}
         </ul>
       </Section>
-      <Section className="order-1 md:order-2 p-4 bg-gray-100 flex-grow flex-shrink overflow-y-auto md:h-screen">
+      <Section className="order-1 md:order-2 p-4 bg-gray-100 flex-grow flex-shrink md:overflow-y-auto md:h-screen">
         {children}
       </Section>
     </Flex>

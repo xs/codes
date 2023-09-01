@@ -1,15 +1,15 @@
-import { Em, Flex, Kbd, Separator, Text } from "@radix-ui/themes";
+import { Em, Flex, Link, Separator, Text } from "@radix-ui/themes";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <Text size="3">
         <Flex gap="3">
-          log
+          <Link href="/log">log</Link>
           <Separator size="2" color="amber" orientation="vertical" />
-          sketches
+          sketches (coming soon)
           <Separator size="2" color="cyan" orientation="vertical" />
-          about
+          about (coming soon)
         </Flex>
       </Text>
     </main>
