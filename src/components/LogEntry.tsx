@@ -144,7 +144,7 @@ export default function LogEntry({ post, className }: Props) {
           section: ({ color, className, node, ...props }) => {
             if (className === "footnotes") {
               className =
-                "mt-4 [&_p]:inline [&_p]:text-xs [&_li]:text-xs [&_p]:text-gray-700";
+                "mt-4 [&_p]:inline [&_p]:text-xs [&_li]:text-xs [&_p]:text-gray-500 [&_li]:my-1.5";
             }
             return (
               <section className={className}>
