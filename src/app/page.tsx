@@ -7,9 +7,9 @@ export default function Home() {
         <Flex gap="3">
           <Link href="/log">log</Link>
           <Separator size="2" color="amber" orientation="vertical" />
-          sketches (coming soon)
+          <div className="blur-sm">sketches</div>
           <Separator size="2" color="cyan" orientation="vertical" />
-          about (coming soon)
+          <div className="blur-sm">about</div>
         </Flex>
       </Text>
     </main>
