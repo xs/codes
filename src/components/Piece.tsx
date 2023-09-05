@@ -15,7 +15,8 @@ void main() {
 
 const defaultFragmentShader = `
 void main() {
-  gl_FragColor = vec4(.05, .13, .55, 1.0);
+  vec2 uv = gl_FragCoord.xy / resolution.xy;
+  gl_FragColor = vec4(uv.x, .13, .55, 1.0);
 }
 `;
 
@@ -24,7 +25,7 @@ const CubeMesh = () => {
 
   return (
     <mesh ref={mesh}>
-      <planeGeometry args={[4, 6]} />
+      <boxGeometry args={[4, 6, 0.01]} />
       <shaderMaterial
         vertexShader={defaultVertexShader}
         fragmentShader={defaultFragmentShader}
