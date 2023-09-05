@@ -52,10 +52,12 @@ export default function Piece(): JSX.Element {
   return (
     <Canvas>
       <ambientLight />
-      <pointLight position={[0, 0, 2]} intensity={1} />
-      <pointLight position={[0, 0, -1]} intensity={0.5} />
+      <pointLight position={[0, 0, 2]} intensity={3} />
       <CubeMesh />
-      <OrbitControls />
+      <OrbitControls
+        minAzimuthAngle={-Math.PI / 4}
+        maxAzimuthAngle={Math.PI / 4}
+      />
     </Canvas>
   );
 }
