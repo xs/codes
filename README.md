@@ -1,4 +1,4 @@
-This is a personal site built with [Next.js 13](https://nextjs.org/). There will be more to come!
+This is a personal site built with [Next.js 13](https://nextjs.org/). There will be more to come.
 
 ## Installation and usage
 
