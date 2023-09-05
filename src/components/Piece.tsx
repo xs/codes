@@ -8,15 +8,21 @@ import { Mesh } from "three";
 // See https://threejs.org/docs/#api/en/renderers/webgl/WebGLProgram for information
 // on attributes and uniforms available to the vertex shader.
 const defaultVertexShader = `
+varying vec4 vPosition;
+
+
 void main() {
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  vPosition = vec4(position, 1.0);
+  gl_Position = projectionMatrix * modelViewMatrix * vPosition;
 }
 `;
 
 const defaultFragmentShader = `
+uniform vec2 resolution;
+varying vec4 vPosition;
+
 void main() {
-  vec2 uv = gl_FragCoord.xy / resolution.xy;
-  gl_FragColor = vec4(uv.x, .13, .55, 1.0);
+  gl_FragColor = vec4(.05, .13, .55, 1.0);
 }
 `;
 
@@ -25,10 +31,13 @@ const CubeMesh = () => {
 
   return (
     <mesh ref={mesh}>
-      <boxGeometry args={[4, 6, 0.01]} />
+      <boxGeometry args={[4, 6, 0.001]} />
       <shaderMaterial
         vertexShader={defaultVertexShader}
         fragmentShader={defaultFragmentShader}
+        uniforms={{
+          resolution: { value: [4, 6] },
+        }}
       />
     </mesh>
   );
