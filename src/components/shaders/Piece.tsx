@@ -42,7 +42,7 @@ export default function Piece({ shader, index }: Props): JSX.Element {
     "csm_DiffuseColor",
   );
 
-  const position = new Vector3(index * 6, 0, 0);
+  const position = new Vector3(index * 6 - 3, 0, 0);
   const lightPos = new Vector3(0, 0, 2);
 
   return (

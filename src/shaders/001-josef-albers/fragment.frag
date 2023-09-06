@@ -8,6 +8,8 @@ precision mediump float;
 uniform vec2 u_resolution;
 uniform float u_time;
 
+varying vec4 vPosition;
+
 float seed = sin(floor(u_time / 1.160 )) + sin(1.);
 float width = 0.45;
 float height = 0.1;
@@ -75,7 +77,7 @@ void main() {
     order[7] = 8;
     order[8] = 7;
     
-    vec2 st = gl_FragCoord.xy/u_resolution.xy;
+    vec2 st = vPosition.xy/u_resolution.xy;
     vec3 color = vec3(1.);
     
     float hue = rand(cos(seed));

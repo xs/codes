@@ -2,6 +2,5 @@ uniform float u_time;
 varying vec4 vPosition;
 
 void main() {
-  // comment
-  gl_FragColor = vec4(fract(u_time / 2.), .13, .55, 1.0);
+  gl_FragColor = vec4(vec3(vPosition.x), 1.0);
 }
