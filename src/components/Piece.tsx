@@ -18,42 +18,34 @@ void main() {
 }
 `;
 
-// need to declare csm_FragColor as a vec4 in the fragment shader because
-// three-custom-shader-material expects this rather than gl_FragColor
-const defaultFragmentShader = `
-uniform vec2 resolution;
-varying vec4 vPosition;
-
-void main() {
-  csm_DiffuseColor = vec4(.05, .13, .55, 1.0);
+interface Props {
+  fragmentShader: string;
 }
-`;
 
-const CubeMesh = () => {
+export default function Piece({ fragmentShader }: Props): JSX.Element {
   const mesh = useRef<Mesh>(null);
 
-  return (
-    <mesh ref={mesh}>
-      <boxGeometry args={[4, 6, 0.001]} />
-      <CustomShaderMaterial
-        baseMaterial={MeshPhongMaterial}
-        vertexShader={defaultVertexShader}
-        fragmentShader={defaultFragmentShader}
-        shininess={2}
-        uniforms={{
-          resolution: { value: [4, 6] },
-        }}
-      />
-    </mesh>
+  const csmFragmentShader = fragmentShader?.replace(
+    "gl_FragColor",
+    "csm_DiffuseColor",
   );
-};
 
-export default function Piece(): JSX.Element {
   return (
     <Canvas>
       <ambientLight />
       <pointLight position={[0, 0, 2]} intensity={3} />
-      <CubeMesh />
+      <mesh ref={mesh}>
+        <boxGeometry args={[4, 6, 0.001]} />
+        <CustomShaderMaterial
+          baseMaterial={MeshPhongMaterial}
+          vertexShader={defaultVertexShader}
+          fragmentShader={csmFragmentShader}
+          shininess={2}
+          uniforms={{
+            resolution: { value: [4, 6] },
+          }}
+        />
+      </mesh>
       <OrbitControls
         minAzimuthAngle={-Math.PI / 4}
         maxAzimuthAngle={Math.PI / 4}
