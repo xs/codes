@@ -5,6 +5,7 @@ import { matter } from "vfile-matter";
 
 export type Shader = {
   fragmentShader: string;
+  uniforms: object;
   vertexShader?: string;
   id: string;
   slug: string;
@@ -27,6 +28,7 @@ async function makeShader(filename: string): Promise<Shader> {
     id: filename.slice(0, 3),
     slug: path.basename(filename, ".frag"),
     fragmentShader: String(file),
+    uniforms: {},
   };
 }
 
