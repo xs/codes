@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useFrame } from "@react-three/fiber";
+import { useRef } from "react";
 import { Mesh, MeshPhongMaterial, Vector3 } from "three";
 import CustomShaderMaterial from "three-custom-shader-material";
 
@@ -25,6 +26,17 @@ interface Props {
 export default function Piece({ shader, index }: Props): JSX.Element {
   const mesh = useRef<Mesh>(null);
 
+  const uniforms = useRef<Uniforms>({
+    u_time: { value: 0 },
+  });
+
+  useFrame(({ clock }) => {
+    if (!mesh.current) return;
+
+    const time = clock.getElapsedTime();
+    uniforms.current.u_time.value = time;
+  });
+
   const csmFragmentShader = shader.fragmentShader.replace(
     "gl_FragColor",
     "csm_DiffuseColor",
@@ -42,7 +54,7 @@ export default function Piece({ shader, index }: Props): JSX.Element {
         vertexShader={defaultVertexShader}
         fragmentShader={csmFragmentShader}
         shininess={2}
-        uniforms={uniforms}
+        uniforms={uniforms.current}
       />
     </mesh>
   );

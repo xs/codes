@@ -8,7 +8,7 @@ export default async function Page() {
 
   const yvesShader = shaderIndex["000-yves-klein"];
   const albersShader = shaderIndex["001-josef-albers"];
-  const shaders: Shader[] = [yvesShader, albersShader, yvesShader];
+  const shaders: Shader[] = [yvesShader, albersShader];
 
   return (
     <Box className="h-screen">

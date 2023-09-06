@@ -6,7 +6,6 @@ import { read } from "to-vfile";
 
 export type Shader = {
   fragmentShader: string;
-  makeUniforms?: (input?: any) => Uniforms;
   vertexShader?: string;
   id: string;
   slug: string;
