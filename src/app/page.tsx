@@ -1,4 +1,4 @@
-import { Em, Flex, Link, Separator, Text } from "@radix-ui/themes";
+import { Flex, Link, Separator, Text } from "@radix-ui/themes";
 
 export default function Home() {
   return (

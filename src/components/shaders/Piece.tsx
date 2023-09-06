@@ -1,8 +1,10 @@
-import { useRef } from "react";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { Mesh, MeshPhongMaterial, Vector3 } from "three";
 import CustomShaderMaterial from "three-custom-shader-material";
 
-import { Shader } from "@/utils/shaders";
+import { Shader, Uniforms } from "@/utils/shaders";
 
 // See https://threejs.org/docs/#api/en/renderers/webgl/WebGLProgram for information
 // on attributes and uniforms available to the vertex shader.
@@ -22,12 +24,6 @@ interface Props {
 
 export default function Piece({ shader, index }: Props): JSX.Element {
   const mesh = useRef<Mesh>(null);
-
-  // merge resolution uniform with user-defined uniforms
-  const uniforms = {
-    resolution: { value: [4, 6] },
-    ...shader.uniforms,
-  };
 
   const csmFragmentShader = shader.fragmentShader.replace(
     "gl_FragColor",

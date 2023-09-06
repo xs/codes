@@ -1,14 +1,19 @@
+"use server";
+
 import fs from "fs";
 import path from "path";
 import { read } from "to-vfile";
-import { matter } from "vfile-matter";
 
 export type Shader = {
   fragmentShader: string;
-  uniforms: object;
+  makeUniforms?: (input?: any) => Uniforms;
   vertexShader?: string;
   id: string;
   slug: string;
+};
+
+export type Uniforms = {
+  [key: string]: any;
 };
 
 export type ShaderIndex = {
@@ -18,17 +23,15 @@ export type ShaderIndex = {
 const shadersDir = path.join(process.cwd(), "src/shaders");
 
 async function makeShader(filename: string): Promise<Shader> {
-  const filePath = path.join(shadersDir, filename);
-  const file = await read(filePath, "utf-8");
-
-  // set the id to the first three digits of the filename
-  // e.g. 000-yves-klein.frag -> 000
+  const fragmentPath = path.join(shadersDir, filename, "fragment.frag");
+  const fragmentShader = await read(fragmentPath, "utf-8");
+  // set the id to the first three digits of the folder name
+  // e.g. 000-yves-klein/ -> 000
 
   return {
     id: filename.slice(0, 3),
-    slug: path.basename(filename, ".frag"),
-    fragmentShader: String(file),
-    uniforms: {},
+    slug: filename,
+    fragmentShader: String(fragmentShader),
   };
 }
 
