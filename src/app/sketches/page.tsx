@@ -11,7 +11,7 @@ export default async function Page() {
 
   return (
     <Box className="h-screen">
-      <Gallery shaders={[albersShader]} />
+      <Gallery shaders={[yvesShader, albersShader]} />
     </Box>
   );
 }
