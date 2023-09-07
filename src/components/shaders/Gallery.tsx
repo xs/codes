@@ -13,7 +13,7 @@ interface Props {
 // TODO: this scene should actually be called a Gallery; each individual mesh is a Piece
 export default function Gallery({ shaders }: Props): JSX.Element {
   return (
-    <Canvas>
+    <Canvas className="cursor-move">
       <ambientLight />(
       {shaders.map((shader, index) => (
         <Piece
