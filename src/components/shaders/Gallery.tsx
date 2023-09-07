@@ -16,7 +16,12 @@ export default function Gallery({ shaders }: Props): JSX.Element {
     <Canvas>
       <ambientLight />(
       {shaders.map((shader, index) => (
-        <Piece key={shader.id} shader={shader} index={index} />
+        <Piece
+          key={shader.id}
+          shader={shader}
+          index={index}
+          totalShaders={shaders.length}
+        />
       ))}
       )
       <OrbitControls />

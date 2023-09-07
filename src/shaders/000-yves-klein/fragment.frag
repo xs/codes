@@ -1,6 +1,3 @@
-uniform float u_time;
-varying vec4 vPosition;
-
 void main() {
-  gl_FragColor = vec4(vec3(vPosition.x), 1.0);
+  csm_DiffuseColor = vec4(.05, .13, .55, 1.0);
 }
