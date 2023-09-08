@@ -22,12 +22,13 @@ export default function Gallery({ shaders }: Props): JSX.Element {
       <Leva hidden={!debug} oneLineLabels />
       <Canvas className="cursor-move">
         <WASDControls />
-        <ambientLight />( ( debug &&
-        <mesh position={[0, -3 / shaders.length, 0]}>
-          <gridHelper args={[40, 40]} />
-          <axesHelper args={[20]} />
-        </mesh>
-        )
+        <ambientLight />
+        {debug && (
+          <mesh position={[0, -3 / shaders.length, 0]}>
+            <gridHelper args={[40, 40]} />
+            <axesHelper args={[20]} />
+          </mesh>
+        )}
         {shaders.map((shader, index) => (
           <Piece
             key={shader.id}
@@ -36,7 +37,6 @@ export default function Gallery({ shaders }: Props): JSX.Element {
             totalShaders={shaders.length}
           />
         ))}
-        )
       </Canvas>
     </>
   );

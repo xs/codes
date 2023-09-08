@@ -4,7 +4,7 @@ import { PointerLockControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useControls } from "leva";
 import { useEffect, useRef } from "react";
-import { Vector3 } from "three";
+import { Vector2, Vector3 } from "three";
 
 type LevaVector3 = { x: number; y: number; z: number };
 
@@ -20,14 +20,16 @@ export default function WASDControls(): JSX.Element {
   const [, setDebug] = useControls(() => ({
     cameraDirection: { value: vec3 },
     position: { value: vec3 },
+    forward: 0,
+    side: 0,
     "sprinting (with shift key)": false,
   }));
 
   // forward is positive, backward is negative
-  const forwardMovement = useRef(0);
-
-  // right is positive, left is negative
-  const sideMovement = useRef(0);
+  const forward = useRef(false);
+  const backward = useRef(false);
+  const right = useRef(false);
+  const left = useRef(false);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -36,16 +38,16 @@ export default function WASDControls(): JSX.Element {
           sprinting.current = true;
           break;
         case "w":
-          forwardMovement.current += 1;
+          forward.current = true;
           break;
         case "a":
-          sideMovement.current -= 1;
+          left.current = true;
           break;
         case "s":
-          forwardMovement.current -= 1;
+          backward.current = true;
           break;
         case "d":
-          sideMovement.current += 1;
+          right.current = true;
           break;
       }
     }
@@ -56,12 +58,16 @@ export default function WASDControls(): JSX.Element {
           sprinting.current = false;
           break;
         case "w":
-        case "s":
-          forwardMovement.current = 0;
+          forward.current = false;
           break;
         case "a":
+          left.current = false;
+          break;
+        case "s":
+          backward.current = false;
+          break;
         case "d":
-          sideMovement.current = 0;
+          right.current = false;
           break;
       }
     }
@@ -80,27 +86,32 @@ export default function WASDControls(): JSX.Element {
     const direction = new Vector3();
     camera.getWorldDirection(direction);
 
+    const speed = sprinting.current ? 0.2 : 0.1;
+
+    const forwardMovement =
+      (forward.current ? 1 : 0) - (backward.current ? 1 : 0);
+    const sideMovement = (right.current ? 1 : 0) - (left.current ? 1 : 0);
+
     setDebug({
       cameraDirection: toLeva(direction),
       position: toLeva(camera.position),
       "sprinting (with shift key)": sprinting.current,
+      forward: forwardMovement,
+      side: sideMovement,
     });
 
-    // use forwardMovement and sideMovement to move the camera
-    const forwardVec = new Vector3(direction.x, 0, direction.z);
-    const sideVec = forwardVec.clone().cross(new Vector3(0, 1, 0));
+    const horizontal = new Vector2(direction.x, direction.z).length();
+    const vertical = direction.y;
 
-    const cameraForward = forwardVec.clone();
-    const cameraSide = sideVec.clone();
+    // "forward" is the direction the camera is looking, which is the negative z axis
+    const forwardVec = new Vector3(0, -vertical, -horizontal);
+    // "side" is the camera's right, which is the positive x axis.
 
-    camera.worldToLocal(cameraForward);
-    camera.worldToLocal(cameraSide);
+    // TODO: bug here where if we look to the side, then left and right are pitched? rolled? yawed?
+    const sideVec = new Vector3(1, 0, 0);
 
-    forwardVec.normalize();
-    sideVec.normalize();
-
-    camera.translateOnAxis(forwardVec, forwardMovement.current * 0.1);
-    camera.translateOnAxis(sideVec, sideMovement.current * 0.1);
+    camera.translateOnAxis(forwardVec, forwardMovement * speed);
+    camera.translateOnAxis(sideVec, sideMovement * speed);
   });
 
   return <PointerLockControls />;
