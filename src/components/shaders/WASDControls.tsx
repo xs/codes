@@ -2,13 +2,26 @@
 
 import { PointerLockControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
+import { useControls } from "leva";
 import { useEffect, useRef } from "react";
 import { Vector3 } from "three";
 
+type LevaVector3 = { x: number; y: number; z: number };
+
 export default function WASDControls(): JSX.Element {
-  const sprinting = useRef<Boolean>(false);
-  const cameraDirection = useRef<Vector3>(new Vector3());
-  const cameraPosition = useRef<Vector3>(new Vector3());
+  const sprinting = useRef<boolean>(false);
+
+  function toLeva(vec: Vector3): LevaVector3 {
+    return { x: vec.x, y: vec.y, z: vec.z };
+  }
+
+  const vec3 = { x: 0, y: 0, z: 0 };
+  // use the leva library to display any debug info
+  const [, setDebug] = useControls(() => ({
+    cameraDirection: { value: vec3 },
+    position: { value: vec3 },
+    "sprinting (with shift key)": false,
+  }));
 
   // forward is positive, backward is negative
   const forwardMovement = useRef(0);
@@ -62,32 +75,26 @@ export default function WASDControls(): JSX.Element {
     };
   }, []);
 
-  function logVec(vec: Vector3, label: string) {
-    // round each component to 2 decimal places
-    const x = Math.round(vec.x * 100) / 100;
-    const y = Math.round(vec.y * 100) / 100;
-    const z = Math.round(vec.z * 100) / 100;
-    console.log(`${label}: (${x}, ${y}, ${z})`);
-  }
-
   useFrame(({ camera }) => {
     // set the camera's direction to the direction the user is looking
     const direction = new Vector3();
     camera.getWorldDirection(direction);
 
-    cameraDirection.current = direction;
-    cameraPosition.current = camera.position;
-
-    // project to xz plane, then normalize
-    cameraDirection.current.y = 0;
-    cameraDirection.current.normalize();
+    setDebug({
+      cameraDirection: toLeva(direction),
+      position: toLeva(camera.position),
+      "sprinting (with shift key)": sprinting.current,
+    });
 
     // use forwardMovement and sideMovement to move the camera
-    const forwardVec = cameraDirection.current.clone();
+    const forwardVec = new Vector3(direction.x, 0, direction.z);
     const sideVec = forwardVec.clone().cross(new Vector3(0, 1, 0));
 
-    camera.worldToLocal(forwardVec);
-    camera.worldToLocal(sideVec);
+    const cameraForward = forwardVec.clone();
+    const cameraSide = sideVec.clone();
+
+    camera.worldToLocal(cameraForward);
+    camera.worldToLocal(cameraSide);
 
     forwardVec.normalize();
     sideVec.normalize();
@@ -96,9 +103,5 @@ export default function WASDControls(): JSX.Element {
     camera.translateOnAxis(sideVec, sideMovement.current * 0.1);
   });
 
-  return (
-    <>
-      <PointerLockControls />
-    </>
-  );
+  return <PointerLockControls />;
 }
