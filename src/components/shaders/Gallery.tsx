@@ -18,12 +18,14 @@ interface Props {
 function Pieces({ shaders }: Props): JSX.Element {
   // keep track of all the meshes in the gallery
   const pieceMeshes = useRef<Record<string, Mesh | null>>({});
+  const pieces: JSX.Element[] = [];
 
-  const pieces = shaders.map((shader, index) => {
+  for (let index: number = 0; index < shaders.length; index++) {
+    const shader = shaders[index];
     const meshRef = useRef<Mesh>(null);
     pieceMeshes.current[shader.id] = meshRef.current;
 
-    return (
+    pieces.push(
       <Piece
         ref={meshRef}
         key={shader.id}
@@ -31,9 +33,9 @@ function Pieces({ shaders }: Props): JSX.Element {
         shader={shader}
         index={index}
         totalShaders={shaders.length}
-      />
+      />,
     );
-  });
+  }
 
   // use the leva library to display any debug info
   const [, setDebug] = useControls(() => ({
