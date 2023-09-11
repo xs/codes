@@ -99,8 +99,13 @@ export default function WASDControls(): JSX.Element {
     // "side" is the camera's right, which is the positive x axis.
     const sideVec = new Vector3(1, 0, 0);
 
-    camera.translateOnAxis(forwardVec, forwardMovement * speed);
-    camera.translateOnAxis(sideVec, sideMovement * speed);
+    // add the movement vectors to the camera's position
+    const movement = new Vector3();
+    movement.addScaledVector(forwardVec, forwardMovement * speed);
+    movement.addScaledVector(sideVec, sideMovement * speed);
+
+    // TODO: collision detection
+    camera.translateOnAxis(movement, 1);
   });
 
   return <PointerLockControls />;
