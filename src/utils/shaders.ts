@@ -8,7 +8,7 @@ export type Shader = {
   fragmentShader: string;
   vertexShader?: string;
   id: string;
-  slug: string;
+  name: string;
 };
 
 export type Uniforms = {
@@ -16,7 +16,12 @@ export type Uniforms = {
 };
 
 export type ShaderIndex = {
-  [key: string]: Shader;
+  byId: {
+    [key: string]: Shader;
+  };
+  byName: {
+    [key: string]: Shader;
+  };
 };
 
 const shadersDir = path.join(process.cwd(), "src/shaders");
@@ -29,7 +34,7 @@ async function makeShader(filename: string): Promise<Shader> {
 
   return {
     id: filename.slice(0, 3),
-    slug: filename,
+    name: filename.slice(4),
     fragmentShader: String(fragmentShader),
   };
 }
@@ -37,11 +42,15 @@ async function makeShader(filename: string): Promise<Shader> {
 export async function fetchShaderIndex(): Promise<ShaderIndex> {
   let shaderFilenames = fs.readdirSync(shadersDir);
 
-  const index: ShaderIndex = {};
+  const index: ShaderIndex = {
+    byId: {},
+    byName: {},
+  };
 
   for (const filename of shaderFilenames) {
     const shader = await makeShader(filename);
-    index[shader.slug] = shader;
+    index.byId[shader.id] = shader;
+    index.byName[shader.name] = shader;
   }
 
   return index;

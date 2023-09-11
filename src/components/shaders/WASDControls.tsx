@@ -7,6 +7,15 @@ import { MutableRefObject, useEffect, useRef } from "react";
 import { Vector2, Vector3 } from "three";
 
 type LevaVector3 = { x: number; y: number; z: number };
+const vec3 = { x: 0, y: 0, z: 0 };
+
+export const wasdControlsDebugInfo = {
+  "camera direction": { value: vec3 },
+  "current position": { value: vec3 },
+  forward: 0,
+  side: 0,
+  "sprinting (with shift key)": false,
+};
 
 // TODO: allow Gallery to use this camera's position to spawn and despawn Pieces
 export default function WASDControls(): JSX.Element {
@@ -14,16 +23,8 @@ export default function WASDControls(): JSX.Element {
     return { x: vec.x, y: vec.y, z: vec.z };
   }
 
-  const vec3 = { x: 0, y: 0, z: 0 };
-
   // use the leva library to display any debug info
-  const [, setDebug] = useControls(() => ({
-    "camera direction": { value: vec3 },
-    "current position": { value: vec3 },
-    forward: 0,
-    side: 0,
-    "sprinting (with shift key)": false,
-  }));
+  const [, setDebug] = useControls(() => wasdControlsDebugInfo);
 
   // forward is positive, backward is negative
   const forward = useRef<boolean>(false);

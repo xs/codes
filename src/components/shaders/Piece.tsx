@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { MutableRefObject, forwardRef, useRef } from "react";
 import { Mesh, MeshPhongMaterial, Vector2, Vector3 } from "three";
 import CustomShaderMaterial from "three-custom-shader-material";
 
@@ -19,6 +19,7 @@ void main() {
 `;
 
 interface Props {
+  name: string;
   shader: Shader;
   index: number;
   totalShaders: number;
@@ -28,12 +29,11 @@ const HEIGHT_UNITS = 6;
 const WIDTH_UNITS = 4;
 const MARGIN_UNITS = 1;
 
-export default function Piece({
-  shader,
-  index,
-  totalShaders,
-}: Props): JSX.Element {
-  const mesh = useRef<Mesh>(null);
+const Piece = forwardRef<Mesh, Props>(function Piece(
+  { name, shader, index, totalShaders }: Props,
+  ref,
+) {
+  const meshRef = ref as MutableRefObject<Mesh>;
 
   const width = WIDTH_UNITS / totalShaders;
   const height = HEIGHT_UNITS / totalShaders;
@@ -45,7 +45,7 @@ export default function Piece({
   });
 
   useFrame(({ clock }) => {
-    if (!mesh.current) return;
+    if (!meshRef.current) return;
 
     const time = clock.getElapsedTime();
     uniforms.current.u_time.value = time;
@@ -65,7 +65,7 @@ export default function Piece({
   const lightPos = new Vector3(0, 0, 2);
 
   return (
-    <mesh ref={mesh} position={position}>
+    <mesh ref={meshRef} name={name} position={position}>
       <pointLight position={lightPos} intensity={6} />
       <boxGeometry args={[width, height, 0.001]} />
       <CustomShaderMaterial
@@ -77,4 +77,6 @@ export default function Piece({
       />
     </mesh>
   );
-}
+});
+
+export default Piece;

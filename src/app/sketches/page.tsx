@@ -6,8 +6,8 @@ import { fetchShaderIndex } from "@/utils/shaders";
 export default async function Page() {
   const shaderIndex = await fetchShaderIndex();
 
-  const yvesShader = shaderIndex["000-yves-klein"];
-  const albersShader = shaderIndex["001-josef-albers"];
+  const yvesShader = shaderIndex.byName["yves-klein"];
+  const albersShader = shaderIndex.byName["josef-albers"];
 
   return (
     <Box className="h-screen">
