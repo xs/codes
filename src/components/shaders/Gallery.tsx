@@ -37,7 +37,7 @@ function Pieces({ shaders }: Props): JSX.Element {
 
   // use the leva library to display any debug info
   const [, setDebug] = useControls(() => ({
-    currentlyLookingAt: "nothing",
+    "currently looking at": "nothing",
     ...wasdControlsDebugInfo,
   }));
 
@@ -48,8 +48,9 @@ function Pieces({ shaders }: Props): JSX.Element {
     ) as Object3D[];
     const intersections = raycaster.intersectObjects(objects);
 
-    const currentlyLookingAt = intersections[0]?.object?.name ?? "nothing";
-    setDebug({ currentlyLookingAt });
+    setDebug({
+      "currently looking at": intersections[0]?.object?.name ?? "nothing",
+    });
   });
 
   return <>{pieces}</>;
@@ -60,7 +61,12 @@ export default function Gallery({ shaders }: Props): JSX.Element {
   const debug = searchParams.get("debug") !== null;
   return (
     <>
-      <Leva hidden={!debug} oneLineLabels />
+      <Leva
+        hidden={!debug}
+        hideCopyButton
+        titleBar={{ filter: false }}
+        oneLineLabels
+      />
       <Canvas>
         <ambientLight />
         <Pieces shaders={shaders} />
