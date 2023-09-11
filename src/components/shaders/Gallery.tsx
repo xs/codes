@@ -10,17 +10,12 @@ import { Mesh, Object3D } from "three";
 
 import { Shader } from "@/utils/shaders";
 
-interface PiecesProps {
-  shaders: Shader[];
-  debug: boolean;
-}
-
-interface GalleryProps {
+interface Props {
   shaders: Shader[];
 }
 
 // TODO: make the gallery decide Piece positions and don't send totalShaders
-function Pieces({ shaders, debug }: PiecesProps): JSX.Element {
+function Pieces({ shaders }: Props): JSX.Element {
   // keep track of all the meshes in the gallery
   const pieceMeshes = useRef<Record<string, Mesh | null>>({});
 
@@ -53,36 +48,29 @@ function Pieces({ shaders, debug }: PiecesProps): JSX.Element {
     ) as Object3D[];
     const intersections = raycaster.intersectObjects(objects);
 
-    console.log("objects", objects);
-    console.log("intersections", intersections);
-
     const currentlyLookingAt = intersections[0]?.object?.name ?? "nothing";
     setDebug({ currentlyLookingAt });
   });
 
-  return (
-    <>
-      <ambientLight />
-      {debug && (
-        <mesh position={[0, -3 / shaders.length, 0]}>
-          <gridHelper args={[40, 40]} />
-          <axesHelper args={[20]} />
-        </mesh>
-      )}
-      {pieces}
-    </>
-  );
+  return <>{pieces}</>;
 }
 
-export default function Gallery({ shaders }: GalleryProps): JSX.Element {
+export default function Gallery({ shaders }: Props): JSX.Element {
   const searchParams = useSearchParams();
   const debug = searchParams.get("debug") !== null;
   return (
     <>
       <Leva hidden={!debug} oneLineLabels />
       <Canvas>
+        <ambientLight />
+        <Pieces shaders={shaders} />
         <WASDControls />
-        <Pieces shaders={shaders} debug={debug} />
+        {debug && (
+          <mesh position={[0, -3 / shaders.length, 0]}>
+            <gridHelper args={[40, 40]} />
+            <axesHelper args={[20]} />
+          </mesh>
+        )}
       </Canvas>
     </>
   );
