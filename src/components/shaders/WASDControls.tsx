@@ -65,7 +65,7 @@ export default function WASDControls(): JSX.Element {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, []);
+  }, [keyMap]);
 
   useFrame(({ camera }) => {
     // set the camera's direction to the direction the user is looking
