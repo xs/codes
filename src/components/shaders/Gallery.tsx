@@ -5,22 +5,22 @@ import WASDControls, { wasdControlsDebugInfo } from "./WASDControls";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Leva, useControls } from "leva";
 import { useSearchParams } from "next/navigation";
-import { MutableRefObject, useRef } from "react";
+import { useRef } from "react";
 import { Mesh, Object3D } from "three";
 
 import { Shader } from "@/utils/shaders";
 
-interface GalleryProps {
+interface PiecesProps {
   shaders: Shader[];
   debug: boolean;
 }
 
-interface GalleryCanvasProps {
+interface GalleryProps {
   shaders: Shader[];
 }
 
 // TODO: make the gallery decide Piece positions and don't send totalShaders
-function Gallery({ shaders, debug }: GalleryProps): JSX.Element {
+function Pieces({ shaders, debug }: PiecesProps): JSX.Element {
   // keep track of all the meshes in the gallery
   const pieceMeshes = useRef<Record<string, Mesh | null>>({});
 
@@ -62,7 +62,6 @@ function Gallery({ shaders, debug }: GalleryProps): JSX.Element {
 
   return (
     <>
-      <WASDControls />
       <ambientLight />
       {debug && (
         <mesh position={[0, -3 / shaders.length, 0]}>
@@ -75,16 +74,15 @@ function Gallery({ shaders, debug }: GalleryProps): JSX.Element {
   );
 }
 
-export default function GalleryCanvas({
-  shaders,
-}: GalleryCanvasProps): JSX.Element {
+export default function Gallery({ shaders }: GalleryProps): JSX.Element {
   const searchParams = useSearchParams();
   const debug = searchParams.get("debug") !== null;
   return (
     <>
       <Leva hidden={!debug} oneLineLabels />
       <Canvas>
-        <Gallery shaders={shaders} debug={debug} />
+        <WASDControls />
+        <Pieces shaders={shaders} debug={debug} />
       </Canvas>
     </>
   );
