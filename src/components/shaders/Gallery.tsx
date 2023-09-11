@@ -22,12 +22,10 @@ function Pieces({ shaders }: Props): JSX.Element {
 
   for (let index: number = 0; index < shaders.length; index++) {
     const shader = shaders[index];
-    const meshRef = useRef<Mesh>(null);
-    pieceMeshes.current[shader.id] = meshRef.current;
 
     pieces.push(
       <Piece
-        ref={meshRef}
+        ref={(mesh) => (pieceMeshes.current[shader.id] = mesh)}
         key={shader.id}
         name={shader.name}
         shader={shader}
