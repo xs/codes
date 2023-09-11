@@ -33,19 +33,19 @@ export default function WASDControls(): JSX.Element {
   const left = useRef<boolean>(false);
   const sprinting = useRef<boolean>(false);
 
-  const keyMap: Record<string, MutableRefObject<boolean>> = {
-    Shift: sprinting,
-    w: forward,
-    W: forward,
-    a: left,
-    A: left,
-    s: backward,
-    S: backward,
-    d: right,
-    D: right,
-  };
-
   useEffect(() => {
+    const keyMap: Record<string, MutableRefObject<boolean>> = {
+      Shift: sprinting,
+      w: forward,
+      W: forward,
+      a: left,
+      A: left,
+      s: backward,
+      S: backward,
+      d: right,
+      D: right,
+    };
+
     function onKeyDown(event: KeyboardEvent) {
       if (event.key in keyMap) {
         keyMap[event.key].current = true;
@@ -65,7 +65,7 @@ export default function WASDControls(): JSX.Element {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [keyMap]);
+  }, []);
 
   useFrame(({ camera }) => {
     // set the camera's direction to the direction the user is looking
