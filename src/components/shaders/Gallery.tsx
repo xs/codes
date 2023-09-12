@@ -6,14 +6,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Leva, useControls } from "leva";
 import { useSearchParams } from "next/navigation";
 import { useRef } from "react";
-import {
-  ACESFilmicToneMapping,
-  Color,
-  LinearSRGBColorSpace,
-  Mesh,
-  Object3D,
-  SRGBColorSpace,
-} from "three";
+import { ACESFilmicToneMapping, Color, Mesh, Object3D } from "three";
 
 import { Shader } from "@/utils/shaders";
 
@@ -21,7 +14,7 @@ interface Props {
   shaders: Shader[];
 }
 
-const BACKGROUND_COLOR = new Color(0xffddee);
+const BACKGROUND_COLOR = new Color(0xeeddff);
 const EXTRA_PIECES = 9;
 
 // TODO: make the gallery decide Piece positions and don't send totalShaders

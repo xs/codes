@@ -4,15 +4,17 @@ uniform vec2 u_resolution;
 
 varying vec4 vPosition;
 
-float seed = fract(sin(floor(1.)));
 float width = 0.6;
 float height = 0.1;
 
 float rand(float value) {
 
-    float s = seed * value * fract(sin(float(u_index) + 1.2));
+    float s = value * fract(sin(float(u_index) + 1.2));
 
-    return fract(sin(100. * s * floor(u_time / 1.5 + 1.)));
+    float jitter = fract(sin(float(u_index) * 12.1) * 100.);
+    float speed = 1.5 + jitter * 0.24;
+
+    return fract(sin(100. * s * floor(u_time / speed + 1.)));
 }
 
 float mRand(float value, float m) {
@@ -112,7 +114,7 @@ void main() {
     // background color
     vec3 color = vec3(1.);
     
-    float hue = rand(cos(seed));
+    float hue = rand(2.);
     float saturation = 0.544;
     float brightness = 0.778;
     

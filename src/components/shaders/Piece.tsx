@@ -34,7 +34,8 @@ interface Props {
 
 const WIDTH = 4;
 const HEIGHT = 6;
-const HALLWAY_RADIUS = 20;
+export const HALLWAY_RADIUS = 20;
+export const PIECE_THICKNESS = 0.1 * WIDTH;
 const LIGHT_DISTANCE = 4;
 const WALL_COLOR = new Color(0xdddddd);
 
@@ -69,7 +70,7 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
     <group position={new Vector3(X_OFFSET, 0, 0)}>
       <mesh ref={ref} name={name} position={shaderPosition}>
         <pointLight position={lightPosition} intensity={10} />
-        <boxGeometry args={[WIDTH, HEIGHT, WIDTH / 10]} />
+        <boxGeometry args={[WIDTH, HEIGHT, PIECE_THICKNESS * 2]} />
         <CustomShaderMaterial
           baseMaterial={MeshPhongMaterial}
           vertexShader={defaultVertexShader}

@@ -1,5 +1,6 @@
 "use client";
 
+import { HALLWAY_RADIUS, PIECE_THICKNESS } from "./Piece";
 import { PointerLockControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useControls } from "leva";
@@ -106,6 +107,14 @@ export default function WASDControls(): JSX.Element {
 
     // TODO: collision detection
     camera.translateOnAxis(movement, 1);
+    camera.position.z = Math.max(
+      camera.position.z,
+      -HALLWAY_RADIUS + PIECE_THICKNESS,
+    );
+    camera.position.z = Math.min(
+      camera.position.z,
+      HALLWAY_RADIUS - PIECE_THICKNESS,
+    );
   });
 
   return <PointerLockControls />;
