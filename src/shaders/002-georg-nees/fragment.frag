@@ -96,7 +96,7 @@ vec2 pointOnCircle(vec2 c, float r, float arc) {
 }
 
 vec3 drawLine(vec2 st, vec2 start, vec2 end, vec3 lineColor, vec3 bgColor) {
-    float thickness = 1.6;
+    float thickness = 1.2;
     if (inLine(st, start, end, thickness / 1000.)) {
         return mix(bgColor, lineColor, 1.);
     }

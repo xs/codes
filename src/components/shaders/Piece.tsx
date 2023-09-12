@@ -33,8 +33,6 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
   { name, shader, index, totalShaders }: Props,
   ref,
 ) {
-  const meshRef = ref as MutableRefObject<Mesh>;
-
   const width = WIDTH_UNITS / totalShaders;
   const height = HEIGHT_UNITS / totalShaders;
   const margin = MARGIN_UNITS / totalShaders;
@@ -45,8 +43,6 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
   });
 
   useFrame(({ clock }) => {
-    if (!meshRef.current) return;
-
     const time = clock.getElapsedTime();
     uniforms.current.u_time.value = time;
   });
@@ -65,7 +61,7 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
   const lightPos = new Vector3(0, 0, 2);
 
   return (
-    <mesh ref={meshRef} name={name} position={position}>
+    <mesh ref={ref} name={name} position={position}>
       <pointLight position={lightPos} intensity={6} />
       <boxGeometry args={[width, height, 0.001]} />
       <CustomShaderMaterial
