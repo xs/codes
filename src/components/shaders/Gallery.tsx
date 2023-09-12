@@ -14,7 +14,7 @@ interface Props {
   shaders: Shader[];
 }
 
-const BACKGROUND_COLOR = new Color(0xeeddff);
+const BACKGROUND_COLOR = new Color(0xddd0ff);
 const EXTRA_PIECES = 9;
 
 type CameraPositionContextType = {
