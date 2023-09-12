@@ -1,4 +1,5 @@
 uniform float u_time;
+uniform int u_index;
 uniform vec2 u_resolution;
 
 varying vec4 vPosition;
@@ -8,7 +9,10 @@ float width = 0.6;
 float height = 0.1;
 
 float rand(float value) {
-    return fract(sin(100. * seed * value * floor(u_time / 1.5 + 1.)));
+
+    float s = seed * value * fract(sin(float(u_index) + 1.2));
+
+    return fract(sin(100. * s * floor(u_time / 1.5 + 1.)));
 }
 
 float mRand(float value, float m) {

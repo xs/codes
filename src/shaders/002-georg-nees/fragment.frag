@@ -96,7 +96,7 @@ vec2 pointOnCircle(vec2 c, float r, float arc) {
 }
 
 vec3 drawLine(vec2 st, vec2 start, vec2 end, vec3 lineColor, vec3 bgColor) {
-    float thickness = 1.2;
+    float thickness = 1.;
     if (inLine(st, start, end, thickness / 1000.)) {
         return mix(bgColor, lineColor, 1.);
     }
@@ -143,7 +143,7 @@ void main() {
     vec2 st = (vPosition.xy + u_resolution * 0.5) / u_resolution;
 
     if (vPosition.z < 0.) {
-        csm_DiffuseColor = vec4(1.);
+        csm_DiffuseColor = vec4(.9);
         return;
     }
 

@@ -6,7 +6,14 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Leva, useControls } from "leva";
 import { useSearchParams } from "next/navigation";
 import { useRef } from "react";
-import { ACESFilmicToneMapping, Mesh, Object3D } from "three";
+import {
+  ACESFilmicToneMapping,
+  Color,
+  LinearSRGBColorSpace,
+  Mesh,
+  Object3D,
+  SRGBColorSpace,
+} from "three";
 
 import { Shader } from "@/utils/shaders";
 
@@ -14,23 +21,27 @@ interface Props {
   shaders: Shader[];
 }
 
+const BACKGROUND_COLOR = new Color(0xffddee);
+const EXTRA_PIECES = 9;
+
 // TODO: make the gallery decide Piece positions and don't send totalShaders
 function Pieces({ shaders }: Props): JSX.Element {
   // keep track of all the meshes in the gallery
   const pieceMeshes = useRef<Record<string, Mesh | null>>({});
   const pieces: JSX.Element[] = [];
 
-  for (let index: number = 0; index < shaders.length; index++) {
-    const shader = shaders[index];
+  for (let index: number = -EXTRA_PIECES; index <= EXTRA_PIECES; index++) {
+    const shaderIndex =
+      ((index % shaders.length) + shaders.length) % shaders.length;
+    const shader = shaders[shaderIndex];
 
     pieces.push(
       <Piece
         ref={(mesh) => (pieceMeshes.current[shader.id] = mesh)}
-        key={shader.id}
+        key={index}
         name={shader.name}
         shader={shader}
         index={index}
-        totalShaders={shaders.length}
       />,
     );
   }
@@ -68,18 +79,25 @@ export default function Gallery({ shaders }: Props): JSX.Element {
         oneLineLabels
       />
       <Canvas
+        scene={{
+          background: BACKGROUND_COLOR,
+        }}
+        camera={{
+          position: [0, 0, 0],
+        }}
         gl={{
           toneMapping: ACESFilmicToneMapping,
           toneMappingExposure: 1.0,
         }}
       >
-        <ambientLight intensity={0.3} />
+        <fog attach="fog" args={[BACKGROUND_COLOR, 20, 160]} />
+        <ambientLight />
         <Pieces shaders={shaders} />
         <WASDControls />
         {debug && (
-          <mesh position={[0, -3 / shaders.length, 0]}>
-            <gridHelper args={[40, 40]} />
-            <axesHelper args={[20]} />
+          <mesh position={[0, -3 * 3, 0]}>
+            <gridHelper args={[200, 200]} />
+            <axesHelper args={[100]} />
           </mesh>
         )}
       </Canvas>

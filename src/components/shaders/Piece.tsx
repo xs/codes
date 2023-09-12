@@ -2,7 +2,15 @@
 
 import { useFrame } from "@react-three/fiber";
 import { MutableRefObject, forwardRef, useRef } from "react";
-import { Mesh, MeshPhongMaterial, Vector2, Vector3 } from "three";
+import {
+  Color,
+  DoubleSide,
+  Euler,
+  Mesh,
+  MeshPhongMaterial,
+  Vector2,
+  Vector3,
+} from "three";
 import CustomShaderMaterial from "three-custom-shader-material";
 
 import { Shader, Uniforms } from "@/utils/shaders";
@@ -22,24 +30,24 @@ interface Props {
   name: string;
   shader: Shader;
   index: number;
-  totalShaders: number;
 }
 
-const HEIGHT_UNITS = 6;
-const WIDTH_UNITS = 4;
-const MARGIN_UNITS = 1;
+const WIDTH = 4;
+const HEIGHT = 6;
+const HALLWAY_RADIUS = 20;
+const LIGHT_DISTANCE = 4;
+const WALL_COLOR = new Color(0xdddddd);
 
 const Piece = forwardRef<Mesh, Props>(function Piece(
-  { name, shader, index, totalShaders }: Props,
+  { name, shader, index }: Props,
   ref,
 ) {
-  const width = WIDTH_UNITS / totalShaders;
-  const height = HEIGHT_UNITS / totalShaders;
-  const margin = MARGIN_UNITS / totalShaders;
+  const X_OFFSET = index * 5 * WIDTH;
 
   const uniforms = useRef<Uniforms>({
     u_time: { type: "f", value: 0.0 },
-    u_resolution: { type: "v2", value: new Vector2(width, height) },
+    u_resolution: { type: "v2", value: new Vector2(WIDTH, HEIGHT) },
+    u_index: { type: "i", value: index },
   });
 
   useFrame(({ clock }) => {
@@ -53,26 +61,54 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
   );
 
   // center the gallery
-  const position = new Vector3(
-    (index - (totalShaders - 1) / 2) * (width + margin),
-    0,
-    0,
-  );
-  const lightPos = new Vector3(0, 0, width);
+
+  const shaderPosition = new Vector3(0, 0, -HALLWAY_RADIUS);
+  const lightPosition = new Vector3(0, 0, LIGHT_DISTANCE);
 
   return (
-    <mesh ref={ref} name={name} position={position}>
-      <pointLight position={lightPos} intensity={2} />
-      <boxGeometry args={[width, height, width / 10]} />
-      <CustomShaderMaterial
-        baseMaterial={MeshPhongMaterial}
-        vertexShader={defaultVertexShader}
-        fragmentShader={csmFragmentShader}
-        shininess={1}
-        reflectivity={2}
-        uniforms={uniforms.current}
-      />
-    </mesh>
+    <group position={new Vector3(X_OFFSET, 0, 0)}>
+      <mesh ref={ref} name={name} position={shaderPosition}>
+        <pointLight position={lightPosition} intensity={10} />
+        <boxGeometry args={[WIDTH, HEIGHT, WIDTH / 10]} />
+        <CustomShaderMaterial
+          baseMaterial={MeshPhongMaterial}
+          vertexShader={defaultVertexShader}
+          fragmentShader={csmFragmentShader}
+          shininess={50}
+          reflectivity={2}
+          uniforms={uniforms.current}
+        />
+      </mesh>
+
+      <mesh position={new Vector3(0, 0.5 * HEIGHT, -HALLWAY_RADIUS)}>
+        <planeGeometry args={[5 * WIDTH, 4 * HEIGHT]} />
+        <meshPhongMaterial color={WALL_COLOR} side={DoubleSide} />
+      </mesh>
+
+      <mesh
+        rotation={new Euler(Math.PI / 2, 0, 0, "XYZ")}
+        position={new Vector3(0, 2.5 * HEIGHT, 0)}
+      >
+        <planeGeometry args={[5 * WIDTH, 2 * HALLWAY_RADIUS]} />
+        <meshPhongMaterial color="white" side={DoubleSide} />
+      </mesh>
+
+      <mesh
+        rotation={new Euler(0, Math.PI, 0, "XYZ")}
+        position={new Vector3(0, 0.5 * HEIGHT, HALLWAY_RADIUS)}
+      >
+        <planeGeometry args={[5 * WIDTH, 4 * HEIGHT]} />
+        <meshPhongMaterial color={WALL_COLOR} side={DoubleSide} />
+      </mesh>
+
+      <mesh
+        rotation={new Euler(Math.PI / 2, 0, 0, "XYZ")}
+        position={new Vector3(0, -1.5 * HEIGHT, 0)}
+      >
+        <planeGeometry args={[5 * WIDTH, 2 * HALLWAY_RADIUS]} />
+        <meshPhongMaterial color="grey" side={DoubleSide} />
+      </mesh>
+    </group>
   );
 });
 
