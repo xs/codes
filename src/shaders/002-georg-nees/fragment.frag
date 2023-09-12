@@ -141,6 +141,12 @@ vec3 drawPoly(vec2 st, vec3 bgColor, vec2 c, float r, int n, float jitter) {
 
 void main() {
     vec2 st = (vPosition.xy + u_resolution * 0.5) / u_resolution;
+
+    if (vPosition.z < 0.) {
+        csm_FragColor = vec4(1.);
+        return;
+    }
+
     // from GLSL: vec2 st = gl_FragCoord.xy/u_resolution.xy;
     vec3 color = vec3(.99,0.23,0.15);
     

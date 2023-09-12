@@ -100,6 +100,11 @@ void main() {
     
     vec2 st = (vPosition.xy + u_resolution * 0.5) / u_resolution;
 
+    if (vPosition.z < 0.) {
+        csm_FragColor = vec4(1.);
+        return;
+    }
+
     // background color
     vec3 color = vec3(1.);
     
