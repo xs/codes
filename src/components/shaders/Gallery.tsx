@@ -41,7 +41,7 @@ function Pieces({ shaders }: Props): JSX.Element {
 
   const pieces: JSX.Element[] = [];
 
-  const currentShaderIndex = Math.floor(cameraPosition.x / (5 * 4));
+  const currentShaderIndex = Math.floor(cameraPosition.x / (3 * 8));
   const minShaderIndex = currentShaderIndex - EXTRA_PIECES;
   const maxShaderIndex = currentShaderIndex + EXTRA_PIECES;
 
