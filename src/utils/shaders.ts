@@ -49,6 +49,7 @@ export async function fetchShaderIndex(): Promise<ShaderIndex> {
 
   for (const filename of shaderFilenames) {
     const shader = await makeShader(filename);
+    console.log(shader.name);
     index.byId[shader.id] = shader;
     index.byName[shader.name] = shader;
   }

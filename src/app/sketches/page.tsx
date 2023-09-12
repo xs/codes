@@ -8,10 +8,11 @@ export default async function Page() {
 
   const yvesShader = shaderIndex.byName["yves-klein"];
   const albersShader = shaderIndex.byName["josef-albers"];
+  const neesShader = shaderIndex.byName["georg-nees"];
 
   return (
     <Box className="h-screen">
-      <Gallery shaders={[yvesShader, albersShader]} />
+      <Gallery shaders={[yvesShader, albersShader, neesShader]} />
     </Box>
   );
 }
