@@ -37,6 +37,8 @@ function Pieces({ shaders }: Props): JSX.Element {
 
   // keep track of all the meshes in the gallery
   const pieceMeshes = useRef<Record<number, Mesh | null>>({});
+  pieceMeshes.current = {};
+
   const pieces: JSX.Element[] = [];
 
   const currentShaderIndex = Math.floor(cameraPosition.x / (5 * 4));
@@ -50,7 +52,7 @@ function Pieces({ shaders }: Props): JSX.Element {
 
     pieces.push(
       <Piece
-        ref={(mesh) => (pieceMeshes.current[shaderIndex] = mesh)}
+        ref={(mesh) => (pieceMeshes.current[index] = mesh)}
         key={index}
         name={shader.name}
         shader={shader}
