@@ -143,7 +143,7 @@ void main() {
     vec2 st = (vPosition.xy + u_resolution * 0.5) / u_resolution;
 
     if (vPosition.z < 0.) {
-        csm_FragColor = vec4(1.);
+        csm_DiffuseColor = vec4(1.);
         return;
     }
 
@@ -172,5 +172,5 @@ void main() {
             color = drawPoly(st, color, c, RADIUS, row * COLS + col + 3, sin(float(n)));
         }
     }
-    csm_FragColor = vec4(color,1.0);
+    csm_DiffuseColor = vec4(color,1.0);
 }

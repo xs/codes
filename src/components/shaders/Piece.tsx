@@ -58,17 +58,18 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
     0,
     0,
   );
-  const lightPos = new Vector3(0, 0, 2);
+  const lightPos = new Vector3(0, 0, width);
 
   return (
     <mesh ref={ref} name={name} position={position}>
-      <pointLight position={lightPos} intensity={6} />
-      <boxGeometry args={[width, height, 0.001]} />
+      <pointLight position={lightPos} intensity={2} />
+      <boxGeometry args={[width, height, width / 10]} />
       <CustomShaderMaterial
         baseMaterial={MeshPhongMaterial}
         vertexShader={defaultVertexShader}
         fragmentShader={csmFragmentShader}
-        shininess={2}
+        shininess={1}
+        reflectivity={2}
         uniforms={uniforms.current}
       />
     </mesh>

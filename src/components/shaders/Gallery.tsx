@@ -6,7 +6,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Leva, useControls } from "leva";
 import { useSearchParams } from "next/navigation";
 import { useRef } from "react";
-import { Mesh, Object3D } from "three";
+import { ACESFilmicToneMapping, Mesh, Object3D } from "three";
 
 import { Shader } from "@/utils/shaders";
 
@@ -67,8 +67,13 @@ export default function Gallery({ shaders }: Props): JSX.Element {
         titleBar={{ filter: false }}
         oneLineLabels
       />
-      <Canvas>
-        <ambientLight />
+      <Canvas
+        gl={{
+          toneMapping: ACESFilmicToneMapping,
+          toneMappingExposure: 1.0,
+        }}
+      >
+        <ambientLight intensity={0.3} />
         <Pieces shaders={shaders} />
         <WASDControls />
         {debug && (
