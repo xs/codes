@@ -65,7 +65,14 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
   // center the gallery
 
   const shaderPosition = new Vector3(0, 1.5, -HALLWAY_RADIUS);
+
   const lightPosition = new Vector3(0, 0, LIGHT_DISTANCE);
+
+  // if index is even, rotate shader and light 180 degrees and place on other side of hallway
+  if (index % 2 !== 0) {
+    shaderPosition.applyAxisAngle(new Vector3(0, 1, 0), Math.PI);
+    lightPosition.applyAxisAngle(new Vector3(0, 1, 0), Math.PI);
+  }
 
   return (
     <group position={new Vector3(X_OFFSET, 0, 0)}>
