@@ -15,7 +15,7 @@ interface Props {
 }
 
 const BACKGROUND_COLOR = new Color(0xddd0ff);
-const EXTRA_PIECES = 9;
+const EXTRA_PIECES = 7;
 
 type CameraPositionContextType = {
   cameraPosition: Vector3;
