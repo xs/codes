@@ -1,10 +1,11 @@
 "use client";
 
+import { CameraPositionContext } from "./Gallery";
 import { HALLWAY_RADIUS, PIECE_THICKNESS } from "./Piece";
 import { PointerLockControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useControls } from "leva";
-import { MutableRefObject, useEffect, useRef } from "react";
+import { MutableRefObject, useContext, useEffect, useRef } from "react";
 import { Vector2, Vector3 } from "three";
 
 type LevaVector3 = { x: number; y: number; z: number };
@@ -20,6 +21,8 @@ export const wasdControlsDebugInfo = {
 
 // TODO: allow Gallery to use this camera's position to spawn and despawn Pieces
 export default function WASDControls(): JSX.Element {
+  const { setCameraPosition } = useContext(CameraPositionContext);
+
   function toLeva(vec: Vector3): LevaVector3 {
     return { x: vec.x, y: vec.y, z: vec.z };
   }
@@ -74,12 +77,14 @@ export default function WASDControls(): JSX.Element {
     camera.getWorldDirection(direction);
 
     // use the shift key to sprint
-    const speed = sprinting.current ? 0.2 : 0.1;
+    const speed = sprinting.current ? 0.4 : 0.1;
 
     // calculate forward and side movement
     const forwardMovement =
       (forward.current ? 1 : 0) - (backward.current ? 1 : 0);
     const sideMovement = (right.current ? 1 : 0) - (left.current ? 1 : 0);
+
+    setCameraPosition(camera.position);
 
     // update the debug info for Leva
     setDebug({

@@ -5,8 +5,8 @@ import WASDControls, { wasdControlsDebugInfo } from "./WASDControls";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Leva, useControls } from "leva";
 import { useSearchParams } from "next/navigation";
-import { useRef } from "react";
-import { ACESFilmicToneMapping, Color, Mesh, Object3D } from "three";
+import { createContext, useContext, useRef, useState } from "react";
+import { ACESFilmicToneMapping, Color, Mesh, Object3D, Vector3 } from "three";
 
 import { Shader } from "@/utils/shaders";
 
@@ -17,20 +17,40 @@ interface Props {
 const BACKGROUND_COLOR = new Color(0xeeddff);
 const EXTRA_PIECES = 9;
 
+type CameraPositionContextType = {
+  cameraPosition: Vector3;
+  setCameraPosition: (cameraPosition: Vector3) => void;
+};
+
+const defaultCameraPositionContext: CameraPositionContextType = {
+  cameraPosition: new Vector3(),
+  setCameraPosition: () => {},
+};
+
+export const CameraPositionContext = createContext<CameraPositionContextType>(
+  defaultCameraPositionContext,
+);
+
 // TODO: make the gallery decide Piece positions and don't send totalShaders
 function Pieces({ shaders }: Props): JSX.Element {
+  const { cameraPosition } = useContext(CameraPositionContext);
+
   // keep track of all the meshes in the gallery
-  const pieceMeshes = useRef<Record<string, Mesh | null>>({});
+  const pieceMeshes = useRef<Record<number, Mesh | null>>({});
   const pieces: JSX.Element[] = [];
 
-  for (let index: number = -EXTRA_PIECES; index <= EXTRA_PIECES; index++) {
+  const currentShaderIndex = Math.floor(cameraPosition.x / (5 * 4));
+  const minShaderIndex = currentShaderIndex - EXTRA_PIECES;
+  const maxShaderIndex = currentShaderIndex + EXTRA_PIECES;
+
+  for (let index: number = minShaderIndex; index <= maxShaderIndex; index++) {
     const shaderIndex =
       ((index % shaders.length) + shaders.length) % shaders.length;
     const shader = shaders[shaderIndex];
 
     pieces.push(
       <Piece
-        ref={(mesh) => (pieceMeshes.current[shader.id] = mesh)}
+        ref={(mesh) => (pieceMeshes.current[shaderIndex] = mesh)}
         key={index}
         name={shader.name}
         shader={shader}
@@ -61,10 +81,14 @@ function Pieces({ shaders }: Props): JSX.Element {
 }
 
 export default function Gallery({ shaders }: Props): JSX.Element {
+  const [cameraPosition, setCameraPosition] = useState<Vector3>(new Vector3());
+
   const searchParams = useSearchParams();
   const debug = searchParams.get("debug") !== null;
   return (
-    <>
+    <CameraPositionContext.Provider
+      value={{ cameraPosition, setCameraPosition }}
+    >
       <Leva
         hidden={!debug}
         hideCopyButton
@@ -89,11 +113,10 @@ export default function Gallery({ shaders }: Props): JSX.Element {
         <WASDControls />
         {debug && (
           <mesh position={[0, -3 * 3, 0]}>
-            <gridHelper args={[200, 200]} />
             <axesHelper args={[100]} />
           </mesh>
         )}
       </Canvas>
-    </>
+    </CameraPositionContext.Provider>
   );
 }
