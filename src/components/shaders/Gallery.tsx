@@ -8,13 +8,13 @@ import { useSearchParams } from "next/navigation";
 import { createContext, useContext, useRef, useState } from "react";
 import { ACESFilmicToneMapping, Color, Mesh, Object3D, Vector3 } from "three";
 
+import ComposeContext from "@/utils/context";
 import { Shader } from "@/utils/shaders";
 
 interface Props {
   shaders: Shader[];
 }
 
-const BACKGROUND_COLOR = new Color(0xddd0ff);
 const EXTRA_PIECES = 9;
 
 type CameraPositionContextType = {
@@ -22,16 +22,21 @@ type CameraPositionContextType = {
   setCameraPosition: (cameraPosition: Vector3) => void;
 };
 
-const defaultCameraPositionContext: CameraPositionContextType = {
+export const CameraPositionContext = createContext<CameraPositionContextType>({
   cameraPosition: new Vector3(),
   setCameraPosition: () => {},
+});
+
+type BackgroundHueContextType = {
+  backgroundHue: number;
+  setBackgroundHue: (hue: number) => void;
 };
 
-export const CameraPositionContext = createContext<CameraPositionContextType>(
-  defaultCameraPositionContext,
-);
+export const BackgroundHueContext = createContext<BackgroundHueContextType>({
+  backgroundHue: 250,
+  setBackgroundHue: () => {},
+});
 
-//
 function Pieces({ shaders }: Props): JSX.Element {
   const { cameraPosition } = useContext(CameraPositionContext);
 
@@ -88,12 +93,22 @@ function Pieces({ shaders }: Props): JSX.Element {
 
 export default function Gallery({ shaders }: Props): JSX.Element {
   const [cameraPosition, setCameraPosition] = useState<Vector3>(new Vector3());
+  const [backgroundHue, setBackgroundHue] = useState(250);
 
   const searchParams = useSearchParams();
   const debug = searchParams.get("debug") !== null;
   return (
-    <CameraPositionContext.Provider
-      value={{ cameraPosition, setCameraPosition }}
+    <ComposeContext
+      contexts={[
+        {
+          ContextProvider: BackgroundHueContext.Provider,
+          value: { backgroundHue, setBackgroundHue },
+        },
+        {
+          ContextProvider: CameraPositionContext.Provider,
+          value: { cameraPosition, setCameraPosition },
+        },
+      ]}
     >
       <Leva
         hidden={!debug}
@@ -103,9 +118,6 @@ export default function Gallery({ shaders }: Props): JSX.Element {
       />
       <Canvas
         className="focus:animate-pulse"
-        scene={{
-          background: BACKGROUND_COLOR,
-        }}
         camera={{
           position: [0, 0, 0],
         }}
@@ -114,7 +126,14 @@ export default function Gallery({ shaders }: Props): JSX.Element {
           toneMappingExposure: 1.0,
         }}
       >
-        <fog attach="fog" args={[BACKGROUND_COLOR, 40, 180]} />
+        <color
+          attach="background"
+          args={[`hsl(${backgroundHue}, 100%, 95%)`]}
+        />
+        <fog
+          attach="fog"
+          args={[new Color(`hsl(${backgroundHue}, 100%, 95%)`), 40, 180]}
+        />
         <ambientLight />
         <Pieces shaders={shaders} />
         <WASDControls />
@@ -124,6 +143,6 @@ export default function Gallery({ shaders }: Props): JSX.Element {
           </mesh>
         )}
       </Canvas>
-    </CameraPositionContext.Provider>
+    </ComposeContext>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { CameraPositionContext } from "./Gallery";
+import { BackgroundHueContext, CameraPositionContext } from "./Gallery";
 import { HALLWAY_RADIUS, PIECE_THICKNESS } from "./Piece";
 import { PointerLockControls } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
@@ -23,6 +23,7 @@ export default function WASDControls(): JSX.Element {
   // the gallery needs to know the camera's position so it can decide which
   // pieces to render
   const { setCameraPosition } = useContext(CameraPositionContext);
+  const { setBackgroundHue } = useContext(BackgroundHueContext);
 
   function toLeva(vec: Vector3): LevaVector3 {
     return { x: vec.x, y: vec.y, z: vec.z };
@@ -73,13 +74,14 @@ export default function WASDControls(): JSX.Element {
     };
   }, []);
 
-  useFrame(({ camera }) => {
+  useFrame(({ camera, clock }) => {
+    // we give WASDControls the job of updating the background color because this component
+    // is initialized once and already has a useFrame hook
+    setBackgroundHue(250 + 40 * Math.sin(clock.getElapsedTime()));
+
     // set the camera's direction to the direction the user is looking
     const direction = new Vector3();
     camera.getWorldDirection(direction);
-
-    // use the shift key to sprint
-    const speed = sprinting.current ? 0.6 : 0.2;
 
     // calculate forward and side movement
     const forwardMovement =
@@ -109,21 +111,26 @@ export default function WASDControls(): JSX.Element {
 
     // add the movement vectors to the camera's position
     const movement = new Vector3();
-    movement.addScaledVector(forwardVec, forwardMovement * speed);
-    movement.addScaledVector(sideVec, sideMovement * speed);
+    movement.addScaledVector(forwardVec, forwardMovement);
+    movement.addScaledVector(sideVec, sideMovement);
 
     // normalize the movement vector so that diagonal movement is not faster
     movement.normalize();
-    camera.translateOnAxis(movement, 1);
 
+    // use the shift key to sprint
+    const speed = sprinting.current ? 0.9 : 0.3;
+
+    camera.translateOnAxis(movement, speed);
+
+    const epsilon = 0.0001;
     // keep the camera in the hallway
     camera.position.z = Math.max(
       camera.position.z,
-      -HALLWAY_RADIUS + PIECE_THICKNESS,
+      -HALLWAY_RADIUS + PIECE_THICKNESS + camera.near + epsilon,
     );
     camera.position.z = Math.min(
       camera.position.z,
-      HALLWAY_RADIUS - PIECE_THICKNESS,
+      HALLWAY_RADIUS - PIECE_THICKNESS - camera.near - epsilon,
     );
   });
 

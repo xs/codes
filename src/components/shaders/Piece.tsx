@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { MutableRefObject, forwardRef, useRef } from "react";
+import { MutableRefObject, forwardRef, useRef, useState } from "react";
 import {
   Color,
   DoubleSide,
@@ -48,6 +48,8 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
 ) {
   const X_OFFSET = index * GALLERY_WIDTH;
 
+  const [lightIntensity, setLightIntensity] = useState(50);
+
   const uniforms = useRef<Uniforms>({
     u_time: { type: "f", value: 0.0 },
     u_resolution: { type: "v2", value: new Vector2(PIECE_WIDTH, PIECE_HEIGHT) },
@@ -57,6 +59,7 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
   useFrame(({ clock }) => {
     const time = clock.getElapsedTime();
     uniforms.current.u_time.value = time;
+    setLightIntensity(50 + 40 * Math.sin(time));
   });
 
   const csmFragmentShader = shader.fragmentShader.replace(
@@ -79,7 +82,7 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
   return (
     <group position={new Vector3(X_OFFSET, 0, 0)}>
       <mesh ref={ref} name={name} position={shaderPosition}>
-        <pointLight position={lightPosition} intensity={10} />
+        <pointLight position={lightPosition} intensity={lightIntensity} />
         <boxGeometry args={[PIECE_WIDTH, PIECE_HEIGHT, PIECE_THICKNESS * 2]} />
         <CustomShaderMaterial
           baseMaterial={MeshPhongMaterial}
