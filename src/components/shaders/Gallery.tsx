@@ -15,7 +15,7 @@ interface Props {
 }
 
 const BACKGROUND_COLOR = new Color(0xddd0ff);
-const EXTRA_PIECES = 7;
+const EXTRA_PIECES = 9;
 
 type CameraPositionContextType = {
   cameraPosition: Vector3;
@@ -109,7 +109,7 @@ export default function Gallery({ shaders }: Props): JSX.Element {
           toneMappingExposure: 1.0,
         }}
       >
-        <fog attach="fog" args={[BACKGROUND_COLOR, 20, 160]} />
+        <fog attach="fog" args={[BACKGROUND_COLOR, 40, 180]} />
         <ambientLight />
         <Pieces shaders={shaders} />
         <WASDControls />

@@ -77,7 +77,7 @@ export default function WASDControls(): JSX.Element {
     camera.getWorldDirection(direction);
 
     // use the shift key to sprint
-    const speed = sprinting.current ? 0.4 : 0.1;
+    const speed = sprinting.current ? 0.6 : 0.2;
 
     // calculate forward and side movement
     const forwardMovement =
