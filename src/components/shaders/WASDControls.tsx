@@ -19,8 +19,9 @@ export const wasdControlsDebugInfo = {
   "sprinting (with shift key)": false,
 };
 
-// TODO: allow Gallery to use this camera's position to spawn and despawn Pieces
 export default function WASDControls(): JSX.Element {
+  // the gallery needs to know the camera's position so it can decide which
+  // pieces to render
   const { setCameraPosition } = useContext(CameraPositionContext);
 
   function toLeva(vec: Vector3): LevaVector3 {
@@ -38,6 +39,7 @@ export default function WASDControls(): JSX.Element {
   const sprinting = useRef<boolean>(false);
 
   useEffect(() => {
+    // TODO: left and right for quick navigation through the gallery
     const keyMap: Record<string, MutableRefObject<boolean>> = {
       Shift: sprinting,
       w: forward,
@@ -110,8 +112,11 @@ export default function WASDControls(): JSX.Element {
     movement.addScaledVector(forwardVec, forwardMovement * speed);
     movement.addScaledVector(sideVec, sideMovement * speed);
 
-    // TODO: collision detection
+    // normalize the movement vector so that diagonal movement is not faster
+    movement.normalize();
     camera.translateOnAxis(movement, 1);
+
+    // keep the camera in the hallway
     camera.position.z = Math.max(
       camera.position.z,
       -HALLWAY_RADIUS + PIECE_THICKNESS,

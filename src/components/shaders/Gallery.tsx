@@ -1,6 +1,6 @@
 "use client";
 
-import Piece from "./Piece";
+import Piece, { GALLERY_WIDTH } from "./Piece";
 import WASDControls, { wasdControlsDebugInfo } from "./WASDControls";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Leva, useControls } from "leva";
@@ -31,23 +31,27 @@ export const CameraPositionContext = createContext<CameraPositionContextType>(
   defaultCameraPositionContext,
 );
 
-// TODO: make the gallery decide Piece positions and don't send totalShaders
+//
 function Pieces({ shaders }: Props): JSX.Element {
   const { cameraPosition } = useContext(CameraPositionContext);
 
   // keep track of all the meshes in the gallery
   const pieceMeshes = useRef<Record<number, Mesh | null>>({});
+
+  // necessary reset when the shaders change
   pieceMeshes.current = {};
 
   const pieces: JSX.Element[] = [];
 
-  const currentShaderIndex = Math.floor(cameraPosition.x / (3 * 8));
+  const currentShaderIndex = Math.floor(cameraPosition.x / GALLERY_WIDTH);
   const minShaderIndex = currentShaderIndex - EXTRA_PIECES;
   const maxShaderIndex = currentShaderIndex + EXTRA_PIECES;
 
   for (let index: number = minShaderIndex; index <= maxShaderIndex; index++) {
+    // wrap around the shaders array; the + shaders.length is to handle negative indices
     const shaderIndex =
       ((index % shaders.length) + shaders.length) % shaders.length;
+
     const shader = shaders[shaderIndex];
 
     pieces.push(
@@ -98,6 +102,7 @@ export default function Gallery({ shaders }: Props): JSX.Element {
         oneLineLabels
       />
       <Canvas
+        className="focus:animate-pulse"
         scene={{
           background: BACKGROUND_COLOR,
         }}

@@ -32,11 +32,13 @@ interface Props {
   index: number;
 }
 
-const WIDTH = 8;
-const HEIGHT = 12;
+const PIECE_WIDTH = 8;
+const PIECE_HEIGHT = 12;
+
 const CEILING_HEIGHT = 30;
+export const GALLERY_WIDTH = 3 * PIECE_WIDTH;
 export const HALLWAY_RADIUS = 20;
-export const PIECE_THICKNESS = 0.1 * WIDTH;
+export const PIECE_THICKNESS = 0.1 * PIECE_WIDTH;
 const LIGHT_DISTANCE = 4;
 const WALL_COLOR = new Color(0xdddddd);
 
@@ -44,11 +46,11 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
   { name, shader, index }: Props,
   ref,
 ) {
-  const X_OFFSET = index * 3 * WIDTH;
+  const X_OFFSET = index * GALLERY_WIDTH;
 
   const uniforms = useRef<Uniforms>({
     u_time: { type: "f", value: 0.0 },
-    u_resolution: { type: "v2", value: new Vector2(WIDTH, HEIGHT) },
+    u_resolution: { type: "v2", value: new Vector2(PIECE_WIDTH, PIECE_HEIGHT) },
     u_index: { type: "i", value: index },
   });
 
@@ -78,7 +80,7 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
     <group position={new Vector3(X_OFFSET, 0, 0)}>
       <mesh ref={ref} name={name} position={shaderPosition}>
         <pointLight position={lightPosition} intensity={10} />
-        <boxGeometry args={[WIDTH, HEIGHT, PIECE_THICKNESS * 2]} />
+        <boxGeometry args={[PIECE_WIDTH, PIECE_HEIGHT, PIECE_THICKNESS * 2]} />
         <CustomShaderMaterial
           baseMaterial={MeshPhongMaterial}
           vertexShader={defaultVertexShader}
@@ -91,36 +93,36 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
 
       <mesh
         name="art wall"
-        position={new Vector3(0, 0.5 * HEIGHT, -HALLWAY_RADIUS)}
+        position={new Vector3(0, 0.5 * PIECE_HEIGHT, -HALLWAY_RADIUS)}
       >
-        <planeGeometry args={[3 * WIDTH, CEILING_HEIGHT]} />
+        <planeGeometry args={[3 * PIECE_WIDTH, CEILING_HEIGHT]} />
         <meshPhongMaterial color={WALL_COLOR} side={DoubleSide} />
       </mesh>
 
       <mesh
         name="ceiling"
         rotation={new Euler(Math.PI / 2, 0, 0, "XYZ")}
-        position={new Vector3(0, 1.75 * HEIGHT, 0)}
+        position={new Vector3(0, 1.75 * PIECE_HEIGHT, 0)}
       >
-        <planeGeometry args={[3 * WIDTH, 2 * HALLWAY_RADIUS]} />
+        <planeGeometry args={[3 * PIECE_WIDTH, 2 * HALLWAY_RADIUS]} />
         <meshPhongMaterial color="white" side={DoubleSide} />
       </mesh>
 
       <mesh
         name="back wall"
         rotation={new Euler(0, Math.PI, 0, "XYZ")}
-        position={new Vector3(0, 0.5 * HEIGHT, HALLWAY_RADIUS)}
+        position={new Vector3(0, 0.5 * PIECE_HEIGHT, HALLWAY_RADIUS)}
       >
-        <planeGeometry args={[3 * WIDTH, CEILING_HEIGHT]} />
+        <planeGeometry args={[3 * PIECE_WIDTH, CEILING_HEIGHT]} />
         <meshPhongMaterial color={WALL_COLOR} side={DoubleSide} />
       </mesh>
 
       <mesh
         name="floor"
         rotation={new Euler(Math.PI / 2, 0, 0, "XYZ")}
-        position={new Vector3(0, -0.75 * HEIGHT, 0)}
+        position={new Vector3(0, -0.75 * PIECE_HEIGHT, 0)}
       >
-        <planeGeometry args={[3 * WIDTH, 2 * HALLWAY_RADIUS]} />
+        <planeGeometry args={[3 * PIECE_WIDTH, 2 * HALLWAY_RADIUS]} />
         <meshPhongMaterial color="grey" side={DoubleSide} />
       </mesh>
     </group>

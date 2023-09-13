@@ -96,6 +96,9 @@ vec2 pointOnCircle(vec2 c, float r, float arc) {
 }
 
 vec3 drawLine(vec2 st, vec2 start, vec2 end, vec3 lineColor, vec3 bgColor) {
+    if (lineColor == bgColor) {
+        return bgColor;
+    }
     float thickness = 1.;
     if (inLine(st, start, end, thickness / 1000.)) {
         return mix(bgColor, lineColor, 1.);
@@ -105,13 +108,23 @@ vec3 drawLine(vec2 st, vec2 start, vec2 end, vec3 lineColor, vec3 bgColor) {
 
 vec3 drawPoly(vec2 st, vec3 bgColor, vec2 c, float r, int n, float jitter) {
     // given a center c and radius r, draw a georg nees n-gon
+    vec3 lineColor = vec3(0);
     vec3 color = bgColor;
+
     float rX = r * u_resolution.y / u_resolution.x;
     float rY = r;
         
     if(st.x < c.x - rX || st.x > c.x + rX || st.y < c.y - rY || st.y > c.y + rY) {
         return bgColor;
     }
+
+    float SPEED_FACTOR = 0.25;
+    float noiseSpeed = SPEED_FACTOR + SPEED_FACTOR / 5. * jitter;
+
+    float prevAngle = noise(jitter, noiseSpeed);
+    float nextAngle;
+    vec2 prevPoint = pointOnCircle(c, r, prevAngle);
+    vec2 nextPoint;
 
     // hardcoding 100 here as MAX_VERTICES
     for(int i = 0; i < 100; ++i) {
@@ -122,18 +135,16 @@ vec3 drawPoly(vec2 st, vec3 bgColor, vec2 c, float r, int n, float jitter) {
         
         float fracA = float(i) / float(n);
         float fracB = float(j) / float(n);
+
+        nextAngle = float(j) * fracB + noise(float(j) * 10. + jitter, noiseSpeed);
+        nextPoint = pointOnCircle(c, r, nextAngle);
         
-        float SPEED_FACTOR = 0.25;
-        
-        float noiseSpeed = SPEED_FACTOR + SPEED_FACTOR / 5. * jitter;
-        
-        float angle0 = float(i) * fracA + noise(float(i) * 10. + jitter, noiseSpeed);
-        float angle1 = float(j) * fracB + noise(float(j) * 10. + jitter, noiseSpeed);
-        
-        vec2 p0 = pointOnCircle(c, r, angle0);
-        vec2 p1 = pointOnCircle(c, r, angle1);
-        
-        color = drawLine(st, p0, p1, vec3(0), color);
+        color = drawLine(st, prevPoint, nextPoint, lineColor, color);
+        if (color == lineColor) {
+            return color;
+        }
+
+        prevPoint = nextPoint;
     }
     
     return color;
