@@ -1,3 +1,5 @@
+precision mediump float;
+
 uniform float u_time;
 uniform int u_index;
 uniform vec2 u_resolution;
@@ -141,5 +143,5 @@ void main() {
         }
     }
 
-    csm_DiffuseColor = vec4(color, 1.0);
+    gl_FragColor = vec4(color, 1.0);
 }

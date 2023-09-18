@@ -1,3 +1,7 @@
+#ifdef GL_ES
+precision mediump float;
+#endif
+
 uniform vec2 u_resolution;
 uniform float u_time;
 
@@ -90,7 +94,7 @@ bool inLine(vec2 st, vec2 start, vec2 end, float thickness) {
 }
 
 vec2 pointOnCircle(vec2 c, float r, float arc) {
-    float theta = arc * 2. * PI;
+    float theta = arc * 2. * 3.141592654;
     
     return c + vec2(cos(theta) * u_resolution.y / u_resolution.x, sin(theta) * 1.) * r;;
 }
@@ -180,5 +184,5 @@ void main() {
             color = drawPoly(st, color, c, RADIUS, row * COLS + col + 3, sin(float(n)));
         }
     }
-    csm_DiffuseColor = vec4(color,1.0);
+    gl_FragColor = vec4(color,1.0);
 }

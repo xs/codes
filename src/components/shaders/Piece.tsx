@@ -64,7 +64,7 @@ const Piece = forwardRef<Mesh, Props>(function Piece(
 
   const csmFragmentShader = shader.fragmentShader.replace(
     "gl_FragColor",
-    "csm_FragColor",
+    "csm_DiffuseColor",
   );
 
   // center the gallery
