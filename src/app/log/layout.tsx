@@ -1,11 +1,4 @@
-import {
-  Flex,
-  Heading,
-  Link,
-  Section,
-  Separator,
-  Text,
-} from "@radix-ui/themes";
+import { Flex, Heading, Link, Section, Separator } from "@radix-ui/themes";
 
 import { PostIndex, fetchPostIndex } from "@/utils/log";
 
@@ -22,7 +15,7 @@ export default async function LogLayout({
         <Heading>Entries</Heading>
         <Separator size="4" className="mb-4" />
         <ul className="list-disc list-inside">
-          {Object.values(postIndex).map((post, index) => (
+          {Object.values(postIndex).map((post) => (
             <li key={post.id}>
               <Link href={`/log/${post.slug}`}>{post.metadata.title}</Link>
             </li>
