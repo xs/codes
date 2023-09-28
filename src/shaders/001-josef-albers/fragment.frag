@@ -1,4 +1,6 @@
+#ifdef GL_ES
 precision mediump float;
+#endif
 
 uniform float u_time;
 uniform int u_index;
@@ -24,24 +26,8 @@ float mRand(float value, float m) {
     return rand(value) * m * 2. - m;
 }
 
-float rand(int value) {
-    return rand(float(value));
-}
-
 vec3 rand3(float value) {
     return vec3(rand(value), rand(3. * value), rand(5. * value));
-}
-
-vec3 rand3(int value) {
-    return rand3(float(value));
-}
-
-bool inRect(vec2 p, vec2 c, float w, float h) {
-    float right = c.x + w / 2.;
-    float left = c.x - w / 2.;
-    float top = c.y + h / 2.;
-    float bottom = c.y - h / 2.;
-    return (p.x < right && p.x > left && p.y < top && p.y > bottom);
 }
 
 vec3 hsb2rgb( in vec3 c ){
@@ -56,7 +42,7 @@ vec3 hsb2rgb( in vec3 c ){
 bool inRotatedRect(vec2 p, vec2 c, float w, float h, float theta) {
     // rotate point 'p' relative to the center 'c' and angle 'theta'
 
-    // process: 
+    // process:
     //  1. translate the point to the origin
     //  2. scale it by aspect ratio
     //  3. rotate it by theta
@@ -67,7 +53,7 @@ bool inRotatedRect(vec2 p, vec2 c, float w, float h, float theta) {
 
     float cosTheta = cos(theta);
     float sinTheta = sin(theta);
-    
+
     vec2 d = vec2(
         (p.x - c.x) / u_resolution.y,
         (p.y - c.y) / u_resolution.x
@@ -105,19 +91,19 @@ void main() {
     order[6] = 4;
     order[7] = 8;
     order[8] = 7;
-    
+
     vec2 st = (vPosition.xy + u_resolution * 0.5) / u_resolution;
 
     // background color
     vec3 color = vec3(1.);
-    
+
     float hue = rand(2.);
     float saturation = 0.544;
     float brightness = 0.778;
-    
+
     vec3 baseHSB = vec3(hue, saturation, brightness);
     vec3 baseColor = hsb2rgb(baseHSB);
-    
+
     for (int i = 0; i < 9; i++) {
 
         float position = float(order[i] + 1);
@@ -130,14 +116,14 @@ void main() {
         float sign = 1. - 2. * mod(position, 2.);
         vec3 colorJitter = (rand3(position) / 8.) ;
         vec3 rectColor = baseColor + colorJitter * sign;
-        
+
         float horizontal = mRand(position * sin(position), .08);
         float vert = mRand(position * 2., .015);
-        
+
         center += vec2(horizontal, vert);
-        
+
         float theta = mRand(12.1 * cos(position), .12);
-        
+
         if (inRotatedRect(st, center, width, height, theta)) {
             color = mix(color, rectColor, 1.);
         }
