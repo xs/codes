@@ -1,5 +1,6 @@
 "use client";
 
+import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Leva } from "leva";
 import { useSearchParams } from "next/navigation";
@@ -16,10 +17,18 @@ export default function BezierCanvas(): JSX.Element {
         oneLineLabels
       />
       <Canvas
+        orthographic={true}
         camera={{
-          position: [0, 0, 0],
+          position: [0, 0, 1],
         }}
       >
+        <mesh name="dot">
+          <circleGeometry />
+          <meshBasicMaterial color="red" />
+        </mesh>
+
+        <OrbitControls />
+
         <ambientLight />
       </Canvas>
     </>
