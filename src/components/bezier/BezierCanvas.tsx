@@ -8,19 +8,12 @@ import { BufferGeometry, DoubleSide, Vector3 } from "three";
 
 interface ControlPointProps {
   name: string;
-  pos: Vector3;
-  setPos: (pos: Vector3) => void;
+  state: [Vector3, (pos: Vector3) => void];
   color: string;
-  z: number;
 }
 
-function ControlPoint({
-  name,
-  pos,
-  setPos,
-  color,
-  z,
-}: ControlPointProps): JSX.Element {
+function ControlPoint({ name, state, color }: ControlPointProps): JSX.Element {
+  const [pos, setPos] = state;
   const [initialPos] = useState(pos.clone());
   const initX = initialPos.x;
   const initY = initialPos.y;
@@ -32,7 +25,7 @@ function ControlPoint({
     setPos(new Vector3(x / aspect + initX, -y / aspect + initY, pos.z));
   });
 
-  const zOffset = new Vector3(0, 0, z);
+  const zOffset = new Vector3(0, 0, -1 - Math.random() * 0.1);
 
   return (
     <mesh name={`dot-${name}`} position={pos.clone().add(zOffset)} {...bind()}>
@@ -76,34 +69,10 @@ function Curve({ start, midA, midB, end, z }: CurveProps): JSX.Element {
           color="grey"
         />
       </mesh>
-      <ControlPoint
-        name="a"
-        pos={startPos}
-        setPos={setStartPos}
-        color="blue"
-        z={-1}
-      />
-      <ControlPoint
-        name="handleA"
-        pos={midAPos}
-        setPos={setMidAPos}
-        color="magenta"
-        z={-3}
-      />
-      <ControlPoint
-        name="handleB"
-        pos={midBPos}
-        setPos={setMidBPos}
-        color="red"
-        z={-3}
-      />
-      <ControlPoint
-        name="b"
-        pos={endPos}
-        setPos={setEndPos}
-        color="green"
-        z={-2}
-      />
+      <ControlPoint state={[startPos, setStartPos]} color="blue" />
+      <ControlPoint state={[midAPos, setMidAPos]} color="magenta" />
+      <ControlPoint state={[midBPos, setMidBPos]} color="red" />
+      <ControlPoint state={[endPos, setEndPos]} color="green" />
       <mesh name="curve" position={[0, 0, z]}>
         <CubicBezierLine
           start={startPos}
