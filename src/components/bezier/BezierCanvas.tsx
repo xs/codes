@@ -3,17 +3,30 @@
 import { CubicBezierLine, OrthographicCamera } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useState } from "react";
-import { DoubleSide } from "three";
+import { DoubleSide, Vector3 } from "three";
 
-export default function BezierCanvas(): JSX.Element {
-  const [offset, setOffset] = useState(0);
+interface ControlPointProps {
+  name: string;
+  pos: [number, number];
+  color: string;
+  z: number;
+}
 
-  useFrame(({ clock }) => {
-    setOffset(-clock.getElapsedTime());
-  });
+function ControlPoint({ name, pos, color, z }: ControlPointProps): JSX.Element {
+  const [position, setPosition] = useState<Vector3>(new Vector3(...pos, z));
 
   return (
-    <>
+    <mesh name={`dot-${name}`} position={position}>
+      <circleGeometry args={[0.05]} />
+      <meshBasicMaterial color={color} />
+    </mesh>
+  );
+}
+
+export default function BezierCanvas(): JSX.Element {
+  // TODO: draggable: https://maxrohde.com/2019/10/19/creating-a-draggable-shape-with-react-three-fiber
+  return (
+    <Canvas>
       <OrthographicCamera
         makeDefault
         args={[-10, 10, 10, -10]}
@@ -21,22 +34,11 @@ export default function BezierCanvas(): JSX.Element {
         zoom={40}
         position={[0, 0, 10]}
       >
-        <mesh name="dot-ul" position={[-5, 5, -1]}>
-          <circleGeometry args={[0.05]} />
-          <meshBasicMaterial color="blue" />
-        </mesh>
-        <mesh name="dot" position={[-4, 5, -3]}>
-          <circleGeometry args={[0.05]} />
-          <meshBasicMaterial color="magenta" />
-        </mesh>
-        <mesh name="dot" position={[3, -5, -3]}>
-          <circleGeometry args={[0.05]} />
-          <meshBasicMaterial color="red" />
-        </mesh>
-        <mesh name="dot-br" position={[5, -5, -2]}>
-          <circleGeometry args={[0.05]} />
-          <meshBasicMaterial color="green" />
-        </mesh>
+        <ControlPoint name="a" pos={[-5, 5]} color="blue" z={-1} />
+        <ControlPoint name="handleA" pos={[-4, 5]} color="magenta" z={-3} />
+        <ControlPoint name="handleB" pos={[3, -5]} color="red" z={-3} />
+        <ControlPoint name="b" pos={[5, -5]} color="green" z={-2} />
+
         <mesh name="rect" position={[0, 0, -10]}>
           <planeGeometry args={[20, 20]} />
           <meshBasicMaterial color="rgb(.9, .9, .9)" side={DoubleSide} />
@@ -52,13 +54,12 @@ export default function BezierCanvas(): JSX.Element {
             lineWidth={1} // In pixels (default)
             dashed={true} // Default
             dashSize={0.2} // In pixels (default)
-            gapSize={0.1} // In pixels (default)
-            dashOffset={offset}
+            gapSize={0.4} // In pixels (default)
           />
         </mesh>
 
         <ambientLight />
       </OrthographicCamera>
-    </>
+    </Canvas>
   );
 }
