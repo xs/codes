@@ -7,7 +7,6 @@ import { useState } from "react";
 import { BufferGeometry, DoubleSide, Vector3 } from "three";
 
 interface ControlPointProps {
-  name: string;
   state: [Vector3, (pos: Vector3) => void];
   color: string;
 }
