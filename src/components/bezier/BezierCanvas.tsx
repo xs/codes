@@ -11,7 +11,7 @@ interface ControlPointProps {
   color: string;
 }
 
-function ControlPoint({ name, state, color }: ControlPointProps): JSX.Element {
+function ControlPoint({ state, color }: ControlPointProps): JSX.Element {
   const [pos, setPos] = state;
   const [initialPos] = useState(pos.clone());
   const initX = initialPos.x;
@@ -27,7 +27,7 @@ function ControlPoint({ name, state, color }: ControlPointProps): JSX.Element {
   const zOffset = new Vector3(0, 0, -1 - Math.random() * 0.1);
 
   return (
-    <mesh name={`dot-${name}`} position={pos.clone().add(zOffset)} {...bind()}>
+    <mesh position={pos.clone().add(zOffset)} {...bind()}>
       <circleGeometry args={[0.1]} />
       <meshBasicMaterial color={color} />
     </mesh>
