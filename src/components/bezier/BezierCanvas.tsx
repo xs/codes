@@ -1,14 +1,21 @@
 "use client";
 
 import { CubicBezierLine, Line, OrthographicCamera } from "@react-three/drei";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { useDrag } from "@use-gesture/react";
 import { useState } from "react";
-import { BufferGeometry, DoubleSide, Vector3 } from "three";
+import { DoubleSide, Vector3 } from "three";
 
 interface ControlPointProps {
   state: [Vector3, (pos: Vector3) => void];
   color: string;
+}
+
+const LOWER_BOUND: number = -10;
+const UPPER_BOUND: number = 10;
+
+function clamp(num: number): number {
+  return Math.max(LOWER_BOUND, Math.min(num, UPPER_BOUND));
 }
 
 function ControlPoint({ state, color }: ControlPointProps): JSX.Element {
@@ -21,7 +28,9 @@ function ControlPoint({ state, color }: ControlPointProps): JSX.Element {
   const aspect = size.width / viewport.width;
 
   const bind = useDrag(({ offset: [x, y] }) => {
-    setPos(new Vector3(x / aspect + initX, -y / aspect + initY, pos.z));
+    const xClamped = clamp(x / aspect + initX);
+    const yClamped = clamp(-y / aspect + initY);
+    setPos(new Vector3(xClamped, yClamped, pos.z));
   });
 
   const zOffset = new Vector3(0, 0, -1 - Math.random() * 0.1);
