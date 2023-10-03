@@ -1,10 +1,10 @@
 "use client";
 
-import { CubicBezierLine, OrthographicCamera } from "@react-three/drei";
+import { CubicBezierLine, Line, OrthographicCamera } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useDrag } from "@use-gesture/react";
 import { useState } from "react";
-import { DoubleSide, Vector3 } from "three";
+import { BufferGeometry, DoubleSide, Vector3 } from "three";
 
 interface ControlPointProps {
   name: string;
@@ -58,6 +58,24 @@ function Curve({ start, midA, midB, end, z }: CurveProps): JSX.Element {
 
   return (
     <>
+      <mesh name="handleA" position={[0, 0, z]}>
+        <Line
+          points={[startPos, midAPos]}
+          dashed={true}
+          dashSize={0.1}
+          gapSize={0.1}
+          color="grey"
+        />
+      </mesh>
+      <mesh name="handleB" position={[0, 0, z]}>
+        <Line
+          points={[midBPos, endPos]}
+          dashed={true}
+          dashSize={0.1}
+          gapSize={0.1}
+          color="grey"
+        />
+      </mesh>
       <ControlPoint
         name="a"
         pos={startPos}
