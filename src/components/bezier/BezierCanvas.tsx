@@ -27,6 +27,7 @@ function ControlPoint({ state, color }: ControlPointProps): JSX.Element {
   const { size, viewport } = useThree();
   const aspect = size.width / viewport.width;
 
+  // TODO: rework this to figure out in-world pos at the start of the drag: https://use-gesture.netlify.app/docs/state/
   const bind = useDrag(({ offset: [x, y] }) => {
     const xClamped = clamp(x / aspect + initX);
     const yClamped = clamp(-y / aspect + initY);
