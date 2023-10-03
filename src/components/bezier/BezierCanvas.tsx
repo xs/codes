@@ -43,6 +43,9 @@ function ControlPoint({
       const newY = fixY ? initY : clamp(-y / aspect + initY);
       setPos(new Vector3(newX, newY, pos.z));
     },
+    onHover: ({ hovering }) => {
+      setRadius(hovering ? 0.15 : 0.1);
+    },
   });
 
   const zOffset = new Vector3(0, 0, -1 - Math.random() * 0.1);
