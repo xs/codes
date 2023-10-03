@@ -8,26 +8,35 @@ import { DoubleSide, Vector3 } from "three";
 
 interface ControlPointProps {
   name: string;
-  pos: [number, number];
+  pos: Vector3;
+  setPos: (pos: Vector3) => void;
   color: string;
   z: number;
 }
 
-function ControlPoint({ name, pos, color, z }: ControlPointProps): JSX.Element {
-  const [position, setPosition] = useState<Vector3>(new Vector3(...pos, z));
-  const initX = pos[0];
-  const initY = pos[1];
+function ControlPoint({
+  name,
+  pos,
+  setPos,
+  color,
+  z,
+}: ControlPointProps): JSX.Element {
+  const [initialPos] = useState(pos.clone());
+  const initX = initialPos.x;
+  const initY = initialPos.y;
 
   const { size, viewport } = useThree();
   const aspect = size.width / viewport.width;
 
   const bind = useDrag(({ offset: [x, y] }) => {
-    setPosition(new Vector3(x / aspect + initX, -y / aspect + initY, z));
+    setPos(new Vector3(x / aspect + initX, -y / aspect + initY, pos.z));
   });
 
+  const zOffset = new Vector3(0, 0, z);
+
   return (
-    <mesh name={`dot-${name}`} position={position} {...bind()}>
-      <circleGeometry args={[0.2]} />
+    <mesh name={`dot-${name}`} position={pos.clone().add(zOffset)} {...bind()}>
+      <circleGeometry args={[0.1]} />
       <meshBasicMaterial color={color} />
     </mesh>
   );
@@ -42,17 +51,52 @@ interface CurveProps {
 }
 
 function Curve({ start, midA, midB, end, z }: CurveProps): JSX.Element {
+  const [startPos, setStartPos] = useState<Vector3>(new Vector3(...start, 0));
+  const [midAPos, setMidAPos] = useState<Vector3>(new Vector3(...midA, 0));
+  const [midBPos, setMidBPos] = useState<Vector3>(new Vector3(...midB, 0));
+  const [endPos, setEndPos] = useState<Vector3>(new Vector3(...end, 0));
+
   return (
-    <mesh name="curve" position={[0, 0, z]}>
-      <CubicBezierLine
-        start={[...start, 0]}
-        midA={[...midA, 0]}
-        midB={[...midB, 0]}
-        end={[...end, 0]}
-        color="black"
-        lineWidth={1}
+    <>
+      <ControlPoint
+        name="a"
+        pos={startPos}
+        setPos={setStartPos}
+        color="blue"
+        z={-1}
       />
-    </mesh>
+      <ControlPoint
+        name="handleA"
+        pos={midAPos}
+        setPos={setMidAPos}
+        color="magenta"
+        z={-3}
+      />
+      <ControlPoint
+        name="handleB"
+        pos={midBPos}
+        setPos={setMidBPos}
+        color="red"
+        z={-3}
+      />
+      <ControlPoint
+        name="b"
+        pos={endPos}
+        setPos={setEndPos}
+        color="green"
+        z={-2}
+      />
+      <mesh name="curve" position={[0, 0, z]}>
+        <CubicBezierLine
+          start={startPos}
+          midA={midAPos}
+          midB={midBPos}
+          end={endPos}
+          color="black"
+          lineWidth={1}
+        />
+      </mesh>
+    </>
   );
 }
 
@@ -67,10 +111,6 @@ export default function BezierCanvas(): JSX.Element {
         zoom={40}
         position={[0, 0, 10]}
       >
-        <ControlPoint name="a" pos={[-5, 5]} color="blue" z={-1} />
-        <ControlPoint name="handleA" pos={[-4, 5]} color="magenta" z={-3} />
-        <ControlPoint name="handleB" pos={[3, -5]} color="red" z={-3} />
-        <ControlPoint name="b" pos={[5, -5]} color="green" z={-2} />
         <Curve
           start={[-5, 5]}
           midA={[-4, 5]}
