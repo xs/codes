@@ -9,6 +9,8 @@ import { DoubleSide, Vector3 } from "three";
 interface ControlPointProps {
   state: [Vector3, (pos: Vector3) => void];
   color: string;
+  fixY?: boolean;
+  fixX?: boolean;
 }
 
 const LOWER_BOUND: number = -10;
@@ -18,7 +20,12 @@ function clamp(num: number): number {
   return Math.max(LOWER_BOUND, Math.min(num, UPPER_BOUND));
 }
 
-function ControlPoint({ state, color }: ControlPointProps): JSX.Element {
+function ControlPoint({
+  state,
+  color,
+  fixX,
+  fixY,
+}: ControlPointProps): JSX.Element {
   const [pos, setPos] = state;
   const [initialPos] = useState(pos.clone());
   const initX = initialPos.x;
@@ -29,9 +36,9 @@ function ControlPoint({ state, color }: ControlPointProps): JSX.Element {
 
   // TODO: rework this to figure out in-world pos at the start of the drag: https://use-gesture.netlify.app/docs/state/
   const bind = useDrag(({ offset: [x, y] }) => {
-    const xClamped = clamp(x / aspect + initX);
-    const yClamped = clamp(-y / aspect + initY);
-    setPos(new Vector3(xClamped, yClamped, pos.z));
+    const newX = fixX ? initX : clamp(x / aspect + initX);
+    const newY = fixY ? initY : clamp(-y / aspect + initY);
+    setPos(new Vector3(newX, newY, pos.z));
   });
 
   const zOffset = new Vector3(0, 0, -1 - Math.random() * 0.1);
@@ -78,10 +85,10 @@ function Curve({ start, midA, midB, end, z }: CurveProps): JSX.Element {
           color="grey"
         />
       </mesh>
-      <ControlPoint state={[startPos, setStartPos]} color="blue" />
+      <ControlPoint fixX state={[startPos, setStartPos]} color="blue" />
       <ControlPoint state={[midAPos, setMidAPos]} color="magenta" />
       <ControlPoint state={[midBPos, setMidBPos]} color="red" />
-      <ControlPoint state={[endPos, setEndPos]} color="green" />
+      <ControlPoint fixX state={[endPos, setEndPos]} color="green" />
       <mesh name="curve" position={[0, 0, z]}>
         <CubicBezierLine
           start={startPos}
@@ -108,10 +115,10 @@ export default function BezierCanvas(): JSX.Element {
         position={[0, 0, 10]}
       >
         <Curve
-          start={[-5, 5]}
-          midA={[-4, 5]}
-          midB={[3, -5]}
-          end={[5, -5]}
+          start={[-10, 0]}
+          midA={[-4, 9]}
+          midB={[3, -8]}
+          end={[10, 2]}
           z={-9}
         />
 
