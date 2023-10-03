@@ -1,7 +1,8 @@
 "use client";
 
 import { CubicBezierLine, OrthographicCamera } from "@react-three/drei";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useDrag } from "@use-gesture/react";
 import { useState } from "react";
 import { DoubleSide, Vector3 } from "three";
 
@@ -14,11 +15,43 @@ interface ControlPointProps {
 
 function ControlPoint({ name, pos, color, z }: ControlPointProps): JSX.Element {
   const [position, setPosition] = useState<Vector3>(new Vector3(...pos, z));
+  const initX = pos[0];
+  const initY = pos[1];
+
+  const { size, viewport } = useThree();
+  const aspect = size.width / viewport.width;
+
+  const bind = useDrag(({ offset: [x, y] }) => {
+    setPosition(new Vector3(x / aspect + initX, -y / aspect + initY, z));
+  });
 
   return (
-    <mesh name={`dot-${name}`} position={position}>
-      <circleGeometry args={[0.05]} />
+    <mesh name={`dot-${name}`} position={position} {...bind()}>
+      <circleGeometry args={[0.2]} />
       <meshBasicMaterial color={color} />
+    </mesh>
+  );
+}
+
+interface CurveProps {
+  start: [number, number];
+  midA: [number, number];
+  midB: [number, number];
+  end: [number, number];
+  z: number;
+}
+
+function Curve({ start, midA, midB, end, z }: CurveProps): JSX.Element {
+  return (
+    <mesh name="curve" position={[0, 0, z]}>
+      <CubicBezierLine
+        start={[...start, 0]}
+        midA={[...midA, 0]}
+        midB={[...midB, 0]}
+        end={[...end, 0]}
+        color="black"
+        lineWidth={1}
+      />
     </mesh>
   );
 }
@@ -38,24 +71,17 @@ export default function BezierCanvas(): JSX.Element {
         <ControlPoint name="handleA" pos={[-4, 5]} color="magenta" z={-3} />
         <ControlPoint name="handleB" pos={[3, -5]} color="red" z={-3} />
         <ControlPoint name="b" pos={[5, -5]} color="green" z={-2} />
+        <Curve
+          start={[-5, 5]}
+          midA={[-4, 5]}
+          midB={[3, -5]}
+          end={[5, -5]}
+          z={-9}
+        />
 
         <mesh name="rect" position={[0, 0, -10]}>
           <planeGeometry args={[20, 20]} />
           <meshBasicMaterial color="rgb(.9, .9, .9)" side={DoubleSide} />
-        </mesh>
-
-        <mesh name="curve" position={[0, 0, -9]}>
-          <CubicBezierLine
-            start={[-5, 5, 0]} // Starting point
-            midA={[-4, 5, 0]} // First control point
-            midB={[3, -5, 0]} // Second control point
-            end={[5, -5, 0]} // Ending point
-            color="black" // Default
-            lineWidth={1} // In pixels (default)
-            dashed={true} // Default
-            dashSize={0.2} // In pixels (default)
-            gapSize={0.4} // In pixels (default)
-          />
         </mesh>
 
         <ambientLight />
