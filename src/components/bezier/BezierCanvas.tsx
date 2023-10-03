@@ -2,7 +2,7 @@
 
 import { CubicBezierLine, Line, OrthographicCamera } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
-import { useDrag } from "@use-gesture/react";
+import { useGesture } from "@use-gesture/react";
 import { useState } from "react";
 import { DoubleSide, Vector3 } from "three";
 
@@ -26,6 +26,7 @@ function ControlPoint({
   fixX,
   fixY,
 }: ControlPointProps): JSX.Element {
+  const [radius, setRadius] = useState(0.1);
   const [pos, setPos] = state;
   const [initialPos] = useState(pos.clone());
   const initX = initialPos.x;
@@ -35,17 +36,20 @@ function ControlPoint({
   const aspect = size.width / viewport.width;
 
   // TODO: rework this to figure out in-world pos at the start of the drag: https://use-gesture.netlify.app/docs/state/
-  const bind = useDrag(({ offset: [x, y] }) => {
-    const newX = fixX ? initX : clamp(x / aspect + initX);
-    const newY = fixY ? initY : clamp(-y / aspect + initY);
-    setPos(new Vector3(newX, newY, pos.z));
+  // switch to useGesture to do hover-like things
+  const bind = useGesture({
+    onDrag: ({ offset: [x, y] }) => {
+      const newX = fixX ? initX : clamp(x / aspect + initX);
+      const newY = fixY ? initY : clamp(-y / aspect + initY);
+      setPos(new Vector3(newX, newY, pos.z));
+    },
   });
 
   const zOffset = new Vector3(0, 0, -1 - Math.random() * 0.1);
 
   return (
     <mesh position={pos.clone().add(zOffset)} {...bind()}>
-      <circleGeometry args={[0.1]} />
+      <circleGeometry args={[radius]} />
       <meshBasicMaterial color={color} />
     </mesh>
   );
