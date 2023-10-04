@@ -4,12 +4,12 @@ import { animated, useSpring } from "@react-spring/three";
 import {
   CubicBezierLine,
   Line,
-  OrbitControls,
   OrthographicCamera,
   View,
 } from "@react-three/drei";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
+import { Leva, useControls } from "leva";
 import { MutableRefObject, useRef, useState } from "react";
 import { DoubleSide, Vector3 } from "three";
 
@@ -20,6 +20,7 @@ interface ControlPointProps {
   fixX?: boolean;
 }
 
+const MARGIN = 5;
 const LOWER_BOUND: number = -10;
 const UPPER_BOUND: number = 10;
 
@@ -144,7 +145,36 @@ interface BezierControlProps {
   color: string;
 }
 
+function rand10(): number {
+  return Math.random() * 20 - 10;
+}
+
 function BezierControl({ color }: BezierControlProps): JSX.Element {
+  const { viewport, camera, size } = useThree();
+
+  // use the leva library to display any debug info
+  /*
+  const [, setDebug] = useControls(() => ({
+    "viewport width": viewport.width,
+    "viewport height": viewport.height,
+    "zoom": camera.zoom,
+    "size width": size.width,
+    "size height": size.height,
+  }));
+
+  useFrame(({ viewport, camera, size }) => {
+    setDebug({
+      "viewport width": viewport.width,
+      "viewport height": viewport.height,
+      "zoom": camera.zoom,
+      "size width": size.width,
+      "size height": size.height,
+    });
+  });
+  */
+
+  const paddedViewport = UPPER_BOUND - LOWER_BOUND + 2 * MARGIN;
+
   return (
     <>
       <color attach="background" args={[color]} />
@@ -152,14 +182,17 @@ function BezierControl({ color }: BezierControlProps): JSX.Element {
         makeDefault
         args={[-10, 10, 10, -10]}
         // annoyingly, near and far are reversed in orthographic camera
-        zoom={20}
+        zoom={Math.min(
+          size.width / paddedViewport,
+          size.height / paddedViewport,
+        )}
         position={[0, 0, 10]}
       >
         <Curve
-          start={[-10, 0]}
-          midA={[-4, 9]}
-          midB={[3, -8]}
-          end={[10, 2]}
+          start={[-10, rand10()]}
+          midA={[rand10(), rand10()]}
+          midB={[rand10(), rand10()]}
+          end={[10, rand10()]}
           z={-9}
         />
 
@@ -200,16 +233,18 @@ export default function BezierCanvas(): JSX.Element {
             className="landscape:w-full portrait:h-full flex-grow bg-yellow-200"
           />
         </div>
+        <Leva hideCopyButton titleBar={{ filter: false }} oneLineLabels />
         {/* @ts-ignore */}
+
         <Canvas eventSource={ref} style={{ position: "absolute" }}>
           <View track={main as MutableRefObject<HTMLElement>}>
-            <BezierControl color="lightpurple" />
-          </View>
-          <View track={bezierA as MutableRefObject<HTMLElement>}>
             <BezierControl color="lightblue" />
           </View>
+          <View track={bezierA as MutableRefObject<HTMLElement>}>
+            <BezierControl color="white" />
+          </View>
           <View track={bezierB as MutableRefObject<HTMLElement>}>
-            <BezierControl color="lightgreen" />
+            <BezierControl color="white" />
           </View>
         </Canvas>
       </div>
