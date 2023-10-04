@@ -82,7 +82,7 @@ function ControlPoint({
       position={pos.clone().add(zOffset)}
       {...bind()}
     >
-      <circleGeometry args={[0.1]} />
+      <circleGeometry args={[0.2]} />
       <meshBasicMaterial color={color} />
     </animated.mesh>
   );
@@ -176,21 +176,19 @@ function BezierControl({ color }: BezierControlProps): JSX.Element {
 
 export default function BezierCanvas(): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
-  const main = useRef<HTMLDivElement>(null);
   const bezierA = useRef<HTMLDivElement | null>(null);
   const bezierB = useRef<HTMLDivElement | null>(null);
 
-  const eventSource =
-    ref && ref.current ? (ref as MutableRefObject<HTMLElement>) : undefined;
   return (
     <>
       <div ref={ref} className="w-full h-full flex">
-        <div ref={main} className="w-2/3 h-full bg-purple-200" />
+        <div className="w-2/3 h-full bg-purple-200" />
         <div className="flex flex-col flex-grow">
-          <div ref={bezierA} className="w-full flex-grow bg-orange-200" />
-          <div ref={bezierB} className="w-full flex-grow bg-pink-200" />
+          <div ref={bezierA} className="w-full flex-grow" />
+          <div ref={bezierB} className="w-full flex-grow" />
         </div>
-        <Canvas eventSource={eventSource} style={{ position: "absolute" }}>
+        {/* @ts-ignore */}
+        <Canvas eventSource={ref} style={{ position: "absolute" }}>
           <View track={bezierA as MutableRefObject<HTMLElement>}>
             <BezierControl color="lightblue" />
           </View>
