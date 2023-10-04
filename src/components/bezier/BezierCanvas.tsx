@@ -193,6 +193,9 @@ export default function BezierCanvas(): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const bezierA = useRef<HTMLDivElement | null>(null);
   const bezierB = useRef<HTMLDivElement | null>(null);
+
+  const eventSource =
+    ref && ref.current ? (ref as MutableRefObject<HTMLElement>) : undefined;
   return (
     <div className="w-full h-full">
       <div ref={ref} className="flex flex-row w-full h-full bg-blue-200">
@@ -201,14 +204,7 @@ export default function BezierCanvas(): JSX.Element {
           <div ref={bezierA} className="flex-grow bg-orange-200"></div>
           <div ref={bezierB} className="flex-grow bg-pink-200"></div>
         </div>
-
-        <Canvas
-          eventSource={
-            ref && ref.current
-              ? (ref as MutableRefObject<HTMLElement>)
-              : undefined
-          }
-        >
+        <Canvas eventSource={eventSource}>
           <BezierControl ref={bezierA} color="lightblue" />
           <BezierControl ref={bezierB} color="lightgreen" />
         </Canvas>
