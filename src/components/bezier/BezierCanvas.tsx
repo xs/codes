@@ -1,10 +1,15 @@
 "use client";
 
 import { animated, useSpring } from "@react-spring/three";
-import { CubicBezierLine, Line, OrthographicCamera } from "@react-three/drei";
+import {
+  CubicBezierLine,
+  Line,
+  OrthographicCamera,
+  View,
+} from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
-import { useState } from "react";
+import { MutableRefObject, useRef, useState } from "react";
 import { DoubleSide, Vector3 } from "three";
 
 interface ControlPointProps {
@@ -27,8 +32,6 @@ function ControlPoint({
   fixX,
   fixY,
 }: ControlPointProps): JSX.Element {
-  const [radius, setRadius] = useState(0.1);
-  const [hovering, setHovering] = useState(false);
   const [pos, setPos] = state;
   const [initialPos] = useState(pos.clone());
   const initX = initialPos.x;
@@ -72,6 +75,7 @@ function ControlPoint({
   const zOffset = new Vector3(0, 0, -1 - Math.random() * 0.1);
 
   return (
+    // @ts-ignore: bind() differs slightly from the type signature
     <animated.mesh
       scale={spring.scale}
       position={pos.clone().add(zOffset)}
@@ -135,10 +139,15 @@ function Curve({ start, midA, midB, end, z }: CurveProps): JSX.Element {
   );
 }
 
-export default function BezierCanvas(): JSX.Element {
-  // TODO: draggable: https://maxrohde.com/2019/10/19/creating-a-draggable-shape-with-react-three-fiber
+interface BezierControlProps {
+  color: string;
+  ref: MutableRefObject<HTMLElement | null>;
+}
+
+function BezierControl({ color, ref }: BezierControlProps): JSX.Element {
   return (
-    <Canvas>
+    <TrackedView track={ref}>
+      <color attach="background" args={[color]} />
       <OrthographicCamera
         makeDefault
         args={[-10, 10, 10, -10]}
@@ -161,6 +170,49 @@ export default function BezierCanvas(): JSX.Element {
 
         <ambientLight />
       </OrthographicCamera>
-    </Canvas>
+    </TrackedView>
+  );
+}
+
+interface TrackedViewProps {
+  children: React.ReactNode;
+  track: MutableRefObject<HTMLElement | null>;
+}
+
+function TrackedView({ track, children }: TrackedViewProps): JSX.Element {
+  return track && track.current ? (
+    <View track={track as MutableRefObject<HTMLElement>} children={children} />
+  ) : (
+    <> {children} </>
+  );
+}
+/*
+ */
+
+export default function BezierCanvas(): JSX.Element {
+  const ref = useRef<HTMLDivElement>(null);
+  const bezierA = useRef<HTMLDivElement | null>(null);
+  const bezierB = useRef<HTMLDivElement | null>(null);
+  return (
+    <div ref={ref} className="w-full h-full">
+      <div className="flex flex-row w-full h-full bg-red-200">
+        <div className="flex-grow bg-purple-200"></div>
+        <div className="flex flex-col w-1/3">
+          <div ref={bezierA} className="flex-grow bg-orange-200"></div>
+          <div ref={bezierB} className="flex-grow bg-pink-200"></div>
+        </div>
+      </div>
+
+      <Canvas
+        eventSource={
+          ref && ref.current
+            ? (ref as MutableRefObject<HTMLElement>)
+            : undefined
+        }
+      >
+        <BezierControl ref={bezierA} color="lightblue" />
+        <BezierControl ref={bezierB} color="lightgreen" />
+      </Canvas>
+    </div>
   );
 }
