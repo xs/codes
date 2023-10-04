@@ -1,5 +1,6 @@
 "use client";
 
+import { animated, useSpring } from "@react-spring/three";
 import { CubicBezierLine, Line, OrthographicCamera } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
@@ -27,6 +28,7 @@ function ControlPoint({
   fixY,
 }: ControlPointProps): JSX.Element {
   const [radius, setRadius] = useState(0.1);
+  const [hovering, setHovering] = useState(false);
   const [pos, setPos] = state;
   const [initialPos] = useState(pos.clone());
   const initX = initialPos.x;
@@ -34,6 +36,23 @@ function ControlPoint({
 
   const { size, viewport } = useThree();
   const aspect = size.width / viewport.width;
+
+  const [spring, api] = useSpring(
+    () => ({
+      scale: 1,
+      config: (key) => {
+        switch (key) {
+          case "scale":
+            return {
+              mass: 0.2,
+              tension: 200,
+              friction: 10,
+            };
+        }
+      },
+    }),
+    [],
+  );
 
   // TODO: rework this to figure out in-world pos at the start of the drag: https://use-gesture.netlify.app/docs/state/
   // switch to useGesture to do hover-like things
@@ -44,17 +63,23 @@ function ControlPoint({
       setPos(new Vector3(newX, newY, pos.z));
     },
     onHover: ({ hovering }) => {
-      setRadius(hovering ? 0.15 : 0.1);
+      if (typeof hovering === "boolean") {
+        hovering ? api.start({ scale: 1.5 }) : api.start({ scale: 1 });
+      }
     },
   });
 
   const zOffset = new Vector3(0, 0, -1 - Math.random() * 0.1);
 
   return (
-    <mesh position={pos.clone().add(zOffset)} {...bind()}>
-      <circleGeometry args={[radius]} />
+    <animated.mesh
+      scale={spring.scale}
+      position={pos.clone().add(zOffset)}
+      {...bind()}
+    >
+      <circleGeometry args={[0.1]} />
       <meshBasicMaterial color={color} />
-    </mesh>
+    </animated.mesh>
   );
 }
 

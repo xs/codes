@@ -1,5 +1,3 @@
-"use client";
-
 import { Box } from "@radix-ui/themes";
 
 import BezierCanvas from "@/components/bezier/BezierCanvas";
