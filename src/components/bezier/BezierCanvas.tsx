@@ -4,6 +4,7 @@ import { animated, useSpring } from "@react-spring/three";
 import {
   CubicBezierLine,
   Line,
+  OrbitControls,
   OrthographicCamera,
   View,
 } from "@react-three/drei";
@@ -141,18 +142,17 @@ function Curve({ start, midA, midB, end, z }: CurveProps): JSX.Element {
 
 interface BezierControlProps {
   color: string;
-  ref: MutableRefObject<HTMLElement | null>;
 }
 
-function BezierControl({ color, ref }: BezierControlProps): JSX.Element {
+function BezierControl({ color }: BezierControlProps): JSX.Element {
   return (
-    <TrackedView track={ref}>
+    <>
       <color attach="background" args={[color]} />
       <OrthographicCamera
         makeDefault
         args={[-10, 10, 10, -10]}
         // annoyingly, near and far are reversed in orthographic camera
-        zoom={40}
+        zoom={20}
         position={[0, 0, 10]}
       >
         <Curve
@@ -170,45 +170,35 @@ function BezierControl({ color, ref }: BezierControlProps): JSX.Element {
 
         <ambientLight />
       </OrthographicCamera>
-    </TrackedView>
+    </>
   );
 }
-
-interface TrackedViewProps {
-  children: React.ReactNode;
-  track: MutableRefObject<HTMLElement | null>;
-}
-
-function TrackedView({ track, children }: TrackedViewProps): JSX.Element {
-  return track && track.current ? (
-    <View track={track as MutableRefObject<HTMLElement>} children={children} />
-  ) : (
-    <> {children} </>
-  );
-}
-/*
- */
 
 export default function BezierCanvas(): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
+  const main = useRef<HTMLDivElement>(null);
   const bezierA = useRef<HTMLDivElement | null>(null);
   const bezierB = useRef<HTMLDivElement | null>(null);
 
   const eventSource =
     ref && ref.current ? (ref as MutableRefObject<HTMLElement>) : undefined;
   return (
-    <div className="w-full h-full">
-      <div ref={ref} className="flex flex-row w-full h-full bg-blue-200">
-        <div className="flex-grow bg-purple-200"></div>
-        <div className="flex flex-col w-1/3">
-          <div ref={bezierA} className="flex-grow bg-orange-200"></div>
-          <div ref={bezierB} className="flex-grow bg-pink-200"></div>
+    <>
+      <div ref={ref} className="w-full h-full flex">
+        <div ref={main} className="w-2/3 h-full bg-purple-200" />
+        <div className="flex flex-col flex-grow">
+          <div ref={bezierA} className="w-full flex-grow bg-orange-200" />
+          <div ref={bezierB} className="w-full flex-grow bg-pink-200" />
         </div>
-        <Canvas eventSource={eventSource}>
-          <BezierControl ref={bezierA} color="lightblue" />
-          <BezierControl ref={bezierB} color="lightgreen" />
+        <Canvas eventSource={eventSource} style={{ position: "absolute" }}>
+          <View track={bezierA as MutableRefObject<HTMLElement>}>
+            <BezierControl color="lightblue" />
+          </View>
+          <View track={bezierB as MutableRefObject<HTMLElement>}>
+            <BezierControl color="lightgreen" />
+          </View>
         </Canvas>
       </div>
-    </div>
+    </>
   );
 }
