@@ -176,19 +176,35 @@ function BezierControl({ color }: BezierControlProps): JSX.Element {
 
 export default function BezierCanvas(): JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
+  const main = useRef<HTMLDivElement | null>(null);
   const bezierA = useRef<HTMLDivElement | null>(null);
   const bezierB = useRef<HTMLDivElement | null>(null);
 
   return (
     <>
-      <div ref={ref} className="w-full h-full flex">
-        <div className="w-2/3 h-full bg-purple-200" />
-        <div className="flex flex-col flex-grow">
-          <div ref={bezierA} className="w-full flex-grow" />
-          <div ref={bezierB} className="w-full flex-grow" />
+      <div
+        ref={ref}
+        className="w-full h-full flex landscape:flex-row portrait:flex-col"
+      >
+        <div
+          ref={main}
+          className="landscape:w-2/3 landscape:h-full portrait:h-2/3 portrait:w-full bg-purple-200"
+        />
+        <div className="flex landscape:flex-col portrait:flex-row flex-grow">
+          <div
+            ref={bezierA}
+            className="landscape:w-full portrait:h-full flex-grow bg-orange-200"
+          />
+          <div
+            ref={bezierB}
+            className="landscape:w-full portrait:h-full flex-grow bg-yellow-200"
+          />
         </div>
         {/* @ts-ignore */}
         <Canvas eventSource={ref} style={{ position: "absolute" }}>
+          <View track={main as MutableRefObject<HTMLElement>}>
+            <BezierControl color="lightpurple" />
+          </View>
           <View track={bezierA as MutableRefObject<HTMLElement>}>
             <BezierControl color="lightblue" />
           </View>
