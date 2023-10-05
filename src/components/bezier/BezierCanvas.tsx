@@ -4,14 +4,15 @@ import { animated, useSpring } from "@react-spring/three";
 import {
   CubicBezierLine,
   Line,
+  OrbitControls,
   OrthographicCamera,
   View,
 } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
 import { Leva, useControls } from "leva";
-import { MutableRefObject, useRef, useState } from "react";
-import { DoubleSide, Vector3 } from "three";
+import { MutableRefObject, forwardRef, useRef, useState } from "react";
+import { CubicBezierCurve3, DoubleSide, Vector3 } from "three";
 
 interface ControlPointProps {
   state: [Vector3, (pos: Vector3) => void];
@@ -90,24 +91,29 @@ function ControlPoint({
 }
 
 interface CurveProps {
-  start: [number, number];
-  midA: [number, number];
-  midB: [number, number];
-  end: [number, number];
+  state: [Cubic, (curve: Cubic) => void];
   z: number;
 }
 
-function Curve({ start, midA, midB, end, z }: CurveProps): JSX.Element {
-  const [startPos, setStartPos] = useState<Vector3>(new Vector3(...start, 0));
-  const [midAPos, setMidAPos] = useState<Vector3>(new Vector3(...midA, 0));
-  const [midBPos, setMidBPos] = useState<Vector3>(new Vector3(...midB, 0));
-  const [endPos, setEndPos] = useState<Vector3>(new Vector3(...end, 0));
+function Curve({ state, z }: CurveProps): JSX.Element {
+  const [cubic, setCubic] = state;
+
+  const { start, midA, midB, end } = cubic;
+
+  const setPoint = (point: keyof Cubic, pos: Vector3) => {
+    setCubic({ ...cubic, [point]: pos });
+  };
+
+  const setStart = (pos: Vector3) => setPoint("start", pos);
+  const setMidA = (pos: Vector3) => setPoint("midA", pos);
+  const setMidB = (pos: Vector3) => setPoint("midB", pos);
+  const setEnd = (pos: Vector3) => setPoint("end", pos);
 
   return (
     <>
       <mesh name="handleA" position={[0, 0, z]}>
         <Line
-          points={[startPos, midAPos]}
+          points={[start, midA]}
           dashed={true}
           dashSize={0.1}
           gapSize={0.1}
@@ -116,23 +122,23 @@ function Curve({ start, midA, midB, end, z }: CurveProps): JSX.Element {
       </mesh>
       <mesh name="handleB" position={[0, 0, z]}>
         <Line
-          points={[midBPos, endPos]}
+          points={[midB, end]}
           dashed={true}
           dashSize={0.1}
           gapSize={0.1}
           color="grey"
         />
       </mesh>
-      <ControlPoint fixX state={[startPos, setStartPos]} color="blue" />
-      <ControlPoint state={[midAPos, setMidAPos]} color="magenta" />
-      <ControlPoint state={[midBPos, setMidBPos]} color="red" />
-      <ControlPoint fixX state={[endPos, setEndPos]} color="green" />
+      <ControlPoint fixX state={[start, setStart]} color="blue" />
+      <ControlPoint state={[midA, setMidA]} color="magenta" />
+      <ControlPoint state={[midB, setMidB]} color="red" />
+      <ControlPoint fixX state={[end, setEnd]} color="green" />
       <mesh name="curve" position={[0, 0, z]}>
         <CubicBezierLine
-          start={startPos}
-          midA={midAPos}
-          midB={midBPos}
-          end={endPos}
+          start={start}
+          midA={midA}
+          midB={midB}
+          end={end}
           color="black"
           lineWidth={1}
         />
@@ -143,13 +149,14 @@ function Curve({ start, midA, midB, end, z }: CurveProps): JSX.Element {
 
 interface BezierControlProps {
   color: string;
+  state: [Cubic, (cubic: Cubic) => void];
 }
 
 function rand10(): number {
   return Math.random() * 20 - 10;
 }
 
-function BezierControl({ color }: BezierControlProps): JSX.Element {
+function BezierControl({ color, state }: BezierControlProps): JSX.Element {
   const { viewport, camera, size } = useThree();
 
   // use the leva library to display any debug info
@@ -172,7 +179,7 @@ function BezierControl({ color }: BezierControlProps): JSX.Element {
     });
   });
   */
-
+  const [cubic, setCubic] = state;
   const paddedViewport = UPPER_BOUND - LOWER_BOUND + 2 * MARGIN;
 
   return (
@@ -188,13 +195,7 @@ function BezierControl({ color }: BezierControlProps): JSX.Element {
         )}
         position={[0, 0, 10]}
       >
-        <Curve
-          start={[-10, rand10()]}
-          midA={[rand10(), rand10()]}
-          midB={[rand10(), rand10()]}
-          end={[10, rand10()]}
-          z={-9}
-        />
+        <Curve state={[cubic, setCubic]} z={-9} />
 
         <mesh name="rect" position={[0, 0, -10]}>
           <planeGeometry args={[20, 20]} />
@@ -207,44 +208,92 @@ function BezierControl({ color }: BezierControlProps): JSX.Element {
   );
 }
 
+interface Cubic {
+  start: Vector3;
+  midA: Vector3;
+  midB: Vector3;
+  end: Vector3;
+}
+
+interface BezierMeshProps {
+  cubicA: Cubic;
+  cubicB: Cubic;
+}
+
+function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
+  const [, setDebug] = useControls(() => ({
+    startA: [0, 0, 0],
+  }));
+
+  useFrame(() => {
+    setDebug({
+      startA: cubicA.start.toArray(),
+    });
+  });
+
+  return (
+    <>
+      <mesh>
+        <boxGeometry args={[5, 5, 5]} />
+        <meshPhongMaterial color="red" wireframe={true} />
+      </mesh>
+      <ambientLight />
+      <pointLight position={[6, 2, -6]} />
+      <OrbitControls enablePan />
+    </>
+  );
+}
+
+function randCubic(): Cubic {
+  return {
+    start: new Vector3(-10, rand10(), 0),
+    midA: new Vector3(rand10(), rand10(), 0),
+    midB: new Vector3(rand10(), rand10(), 0),
+    end: new Vector3(10, rand10(), 0),
+  };
+}
+
 export default function BezierCanvas(): JSX.Element {
-  const ref = useRef<HTMLDivElement>(null);
-  const main = useRef<HTMLDivElement | null>(null);
-  const bezierA = useRef<HTMLDivElement | null>(null);
-  const bezierB = useRef<HTMLDivElement | null>(null);
+  const eventSource = useRef<HTMLDivElement>(null);
+  const divMain = useRef<HTMLDivElement | null>(null);
+  const divA = useRef<HTMLDivElement | null>(null);
+  const divB = useRef<HTMLDivElement | null>(null);
+
+  const [cubicA, setCubicA] = useState<Cubic>(randCubic());
+  const [cubicB, setCubicB] = useState<Cubic>(randCubic());
 
   return (
     <>
       <div
-        ref={ref}
+        ref={eventSource}
         className="w-full h-full flex landscape:flex-row portrait:flex-col"
       >
         <div
-          ref={main}
+          ref={divMain}
           className="landscape:w-2/3 landscape:h-full portrait:h-2/3 portrait:w-full bg-purple-200"
         />
         <div className="flex landscape:flex-col portrait:flex-row flex-grow">
           <div
-            ref={bezierA}
+            ref={divA}
             className="landscape:w-full portrait:h-full flex-grow bg-orange-200"
           />
           <div
-            ref={bezierB}
+            ref={divB}
             className="landscape:w-full portrait:h-full flex-grow bg-yellow-200"
           />
         </div>
         <Leva hideCopyButton titleBar={{ filter: false }} oneLineLabels />
         {/* @ts-ignore */}
 
-        <Canvas eventSource={ref} style={{ position: "absolute" }}>
-          <View track={main as MutableRefObject<HTMLElement>}>
-            <BezierControl color="lightblue" />
+        <Canvas eventSource={eventSource} style={{ position: "absolute" }}>
+          <View track={divMain as MutableRefObject<HTMLElement>}>
+            <BezierMesh cubicA={cubicA} cubicB={cubicB} />
           </View>
-          <View track={bezierA as MutableRefObject<HTMLElement>}>
-            <BezierControl color="white" />
+          <View track={divA as MutableRefObject<HTMLElement>}>
+            <BezierControl color="white" state={[cubicA, setCubicA]} />
           </View>
-          <View track={bezierB as MutableRefObject<HTMLElement>}>
-            <BezierControl color="white" />
+          <View track={divB as MutableRefObject<HTMLElement>}>
+            <BezierControl color="white" state={[cubicB, setCubicB]} />
           </View>
         </Canvas>
       </div>
