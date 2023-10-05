@@ -11,7 +11,7 @@ import {
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
 import { Leva, useControls } from "leva";
-import { MutableRefObject, forwardRef, useRef, useState } from "react";
+import { MutableRefObject, useRef, useState } from "react";
 import { CubicBezierCurve3, DoubleSide, Vector3 } from "three";
 
 interface ControlPointProps {
@@ -223,7 +223,17 @@ interface BezierMeshProps {
 function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
   const [, setDebug] = useControls(() => ({
     startA: [0, 0, 0],
+    midA: [0, 0, 0],
   }));
+
+  const curve = new CubicBezierCurve3(
+    cubicA.start,
+    cubicA.midA,
+    cubicA.midB,
+    cubicA.end,
+  );
+
+  const points = curve.getPoints(20);
 
   useFrame(() => {
     setDebug({
@@ -233,10 +243,13 @@ function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
 
   return (
     <>
-      <mesh>
-        <boxGeometry args={[5, 5, 5]} />
-        <meshPhongMaterial color="red" wireframe={true} />
-      </mesh>
+      {points.map((point, index) => (
+        <mesh key={index} position={point}>
+          <sphereGeometry args={[0.1]} />
+          <meshBasicMaterial color="blue" />
+        </mesh>
+      ))}
+
       <ambientLight />
       <pointLight position={[6, 2, -6]} />
       <OrbitControls enablePan />
