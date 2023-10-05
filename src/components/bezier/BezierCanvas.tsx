@@ -233,8 +233,17 @@ function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
     cubicA.end,
   );
 
-  const points = curve.getPoints(20);
-
+  const lerpCubics = [];
+  for (let i = 0; i <= 20; i++) {
+    const t = i / 20;
+    const lerpCubic = {
+      start: cubicA.start.lerp(cubicB.start, t),
+      midA: cubicA.midA.lerp(cubicB.midA, t),
+      midB: cubicA.midB.lerp(cubicB.midB, t),
+      end: cubicA.end.lerp(cubicB.end, t),
+    };
+    lerpCubics.push(lerpCubic);
+  }
   useFrame(() => {
     setDebug({
       startA: cubicA.start.toArray(),
@@ -243,7 +252,7 @@ function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
 
   return (
     <>
-      {points.map((point, index) => (
+      {curve.getPoints(20).map((point, index) => (
         <mesh key={index} position={point}>
           <sphereGeometry args={[0.1]} />
           <meshBasicMaterial color="blue" />
