@@ -220,14 +220,17 @@ interface BezierMeshProps {
   cubicB: Cubic;
 }
 
+const RESOLUTION = 40;
+
 function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
   const [debug, setDebug] = useControls(() => ({
     rotate: true,
+    resolution: RESOLUTION,
   }));
 
   const lerpCubics = [];
-  for (let i = 0; i <= 20; i++) {
-    const t = i / 20;
+  for (let i = 0; i <= debug.resolution; i++) {
+    const t = i / debug.resolution;
     const lerpCubic = {
       start: cubicA.start.clone().lerp(cubicB.start, t),
       midA: cubicA.midA.clone().lerp(cubicB.midA, t),
@@ -262,10 +265,16 @@ function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
   return (
     <>
       {lerpCurves.map((curve, curveIndex) =>
-        curve.getPoints(20).map((point, index) => (
+        curve.getPoints(debug.resolution).map((point, index) => (
           <mesh
             key={index}
-            position={point.add(new Vector3(0, 0, curveIndex - 10))}
+            position={point.add(
+              new Vector3(
+                0,
+                0,
+                (curveIndex - debug.resolution / 2) / (debug.resolution / 20),
+              ),
+            )}
           >
             <sphereGeometry args={[0.05]} />
             <meshBasicMaterial color="black" />
