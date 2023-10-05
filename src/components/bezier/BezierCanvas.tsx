@@ -221,43 +221,57 @@ interface BezierMeshProps {
 }
 
 function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
-  const [, setDebug] = useControls(() => ({
-    startA: [0, 0, 0],
-    midA: [0, 0, 0],
+  const [debug, setDebug] = useControls(() => ({
+    rotate: true,
   }));
-
-  const curve = new CubicBezierCurve3(
-    cubicA.start,
-    cubicA.midA,
-    cubicA.midB,
-    cubicA.end,
-  );
 
   const lerpCubics = [];
   for (let i = 0; i <= 20; i++) {
     const t = i / 20;
     const lerpCubic = {
-      start: cubicA.start.lerp(cubicB.start, t),
-      midA: cubicA.midA.lerp(cubicB.midA, t),
-      midB: cubicA.midB.lerp(cubicB.midB, t),
-      end: cubicA.end.lerp(cubicB.end, t),
+      start: cubicA.start.clone().lerp(cubicB.start, t),
+      midA: cubicA.midA.clone().lerp(cubicB.midA, t),
+      midB: cubicA.midB.clone().lerp(cubicB.midB, t),
+      end: cubicA.end.clone().lerp(cubicB.end, t),
     };
     lerpCubics.push(lerpCubic);
   }
-  useFrame(() => {
-    setDebug({
-      startA: cubicA.start.toArray(),
-    });
+
+  const lerpCurves = lerpCubics.map((cubic) => {
+    return new CubicBezierCurve3(
+      cubic.start,
+      cubic.midA,
+      cubic.midB,
+      cubic.end,
+    );
+  });
+
+  useFrame(({ clock, camera }) => {
+    if (!debug.rotate) {
+      return;
+    }
+    const radius = 25;
+    const speed = 0.4;
+    const angle = clock.getElapsedTime() * speed;
+    camera.position.x = radius * Math.cos(angle);
+    camera.position.y = radius * Math.sin(angle);
+    camera.position.z = radius * Math.sin(angle);
+    camera.lookAt(0, 0, 0);
   });
 
   return (
     <>
-      {curve.getPoints(20).map((point, index) => (
-        <mesh key={index} position={point}>
-          <sphereGeometry args={[0.1]} />
-          <meshBasicMaterial color="blue" />
-        </mesh>
-      ))}
+      {lerpCurves.map((curve, curveIndex) =>
+        curve.getPoints(20).map((point, index) => (
+          <mesh
+            key={index}
+            position={point.add(new Vector3(0, 0, curveIndex - 10))}
+          >
+            <sphereGeometry args={[0.05]} />
+            <meshBasicMaterial color="black" />
+          </mesh>
+        )),
+      )}
 
       <ambientLight />
       <pointLight position={[6, 2, -6]} />
@@ -292,19 +306,19 @@ export default function BezierCanvas(): JSX.Element {
       >
         <div
           ref={divMain}
-          className="landscape:w-2/3 landscape:h-full portrait:h-2/3 portrait:w-full bg-purple-200"
+          className="landscape:w-2/3 landscape:h-full portrait:h-2/3 portrait:w-full"
         />
         <div className="flex landscape:flex-col portrait:flex-row flex-grow">
           <div
             ref={divA}
-            className="landscape:w-full portrait:h-full flex-grow bg-orange-200"
+            className="landscape:w-full portrait:h-full flex-grow"
           />
           <div
             ref={divB}
-            className="landscape:w-full portrait:h-full flex-grow bg-yellow-200"
+            className="landscape:w-full portrait:h-full flex-grow"
           />
         </div>
-        <Leva hideCopyButton titleBar={{ filter: false }} oneLineLabels />
+        <Leva hideCopyButton titleBar={{ filter: false }} />
         {/* @ts-ignore */}
 
         <Canvas eventSource={eventSource} style={{ position: "absolute" }}>
