@@ -60,18 +60,30 @@ function ControlPoint({
     [],
   );
 
-  const bind = useGesture({
-    onDrag: ({ offset: [x, y] }) => {
-      const newX = fixX ? initX : clamp(x / aspect + initX);
-      const newY = fixY ? initY : clamp(-y / aspect + initY);
-      setPos(new Vector3(newX, newY, pos.z));
+  const bind = useGesture(
+    {
+      onDrag: ({ offset: [x, y] }) => {
+        const newX = fixX ? initX : clamp(x / aspect + initX);
+        const newY = fixY ? initY : clamp(-y / aspect + initY);
+        setPos(new Vector3(newX, newY, pos.z));
+      },
+      onHover: ({ hovering }) => {
+        if (typeof hovering === "boolean") {
+          hovering ? api.start({ scale: 1.5 }) : api.start({ scale: 1 });
+        }
+      },
     },
-    onHover: ({ hovering }) => {
-      if (typeof hovering === "boolean") {
-        hovering ? api.start({ scale: 1.5 }) : api.start({ scale: 1 });
-      }
+    {
+      drag: {
+        pointer: {
+          touch: true,
+        },
+      },
+      hover: {
+        mouseOnly: false,
+      },
     },
-  });
+  );
 
   const zOffset = new Vector3(0, 0, -1 - Math.random() * 0.1);
 
