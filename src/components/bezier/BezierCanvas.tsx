@@ -16,7 +16,7 @@ import { CubicBezierCurve3, DoubleSide, Vector3 } from "three";
 
 interface ControlPointProps {
   state: [Vector3, (pos: Vector3) => void];
-  color: string;
+  color: string | number;
   fixY?: boolean;
   fixX?: boolean;
 }
@@ -60,8 +60,6 @@ function ControlPoint({
     [],
   );
 
-  // TODO: rework this to figure out in-world pos at the start of the drag: https://use-gesture.netlify.app/docs/state/
-  // switch to useGesture to do hover-like things
   const bind = useGesture({
     onDrag: ({ offset: [x, y] }) => {
       const newX = fixX ? initX : clamp(x / aspect + initX);
@@ -129,10 +127,11 @@ function Curve({ state, z }: CurveProps): JSX.Element {
           color="grey"
         />
       </mesh>
-      <ControlPoint fixX state={[start, setStart]} color="blue" />
-      <ControlPoint state={[midA, setMidA]} color="magenta" />
-      <ControlPoint state={[midB, setMidB]} color="red" />
-      <ControlPoint fixX state={[end, setEnd]} color="green" />
+      {/* red and blue for control points */}
+      <ControlPoint fixX state={[start, setStart]} color={0xdc2626} />
+      <ControlPoint state={[midA, setMidA]} color={0xf87171} />
+      <ControlPoint state={[midB, setMidB]} color={0x60a5fa} />
+      <ControlPoint fixX state={[end, setEnd]} color={0x2563eb} />
       <mesh name="curve" position={[0, 0, z]}>
         <CubicBezierLine
           start={start}
