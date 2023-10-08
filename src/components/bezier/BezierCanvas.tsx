@@ -311,7 +311,7 @@ export default function BezierCanvas(): JSX.Element {
     <>
       <div
         ref={eventSource}
-        className="w-full h-full flex landscape:flex-row portrait:flex-col"
+        className="w-full h-full flex landscape:flex-row portrait:flex-col select-none touch-none"
       >
         <div
           ref={divMain}
