@@ -288,10 +288,11 @@ function PolygonMesh({
 interface BezierMeshProps {
   cubicA: Cubic;
   cubicB: Cubic;
+  aspect: number;
 }
 
-function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
-  const [debug, setDebug] = useControls(() => ({
+function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
+  const [debug, setDebug] = useControls("mesh", () => ({
     color: {
       r: 255 * Math.random(),
       g: 255 * Math.random(),
@@ -303,9 +304,9 @@ function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
       max: 1000,
       step: 50,
     },
-    rotate: true,
+    rotate: false,
     polygon: true,
-    wireframe: { value: false, render: (get) => get("polygon") },
+    wireframe: { value: true, render: (get) => get("mesh.polygon") },
   }));
 
   const lerpCubics = [];
@@ -329,6 +330,12 @@ function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
     );
   });
 
+  useThree(({ camera }) => {
+    camera.position.x = 0;
+    camera.position.y = 25;
+    camera.position.z = 0;
+  });
+
   useFrame(({ clock, camera }) => {
     if (!debug.rotate) {
       return;
@@ -342,12 +349,18 @@ function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
     camera.lookAt(0, 0, 0);
   });
 
+  const height = 20 / aspect;
+
   const points = lerpCurves.map((curve, curveIndex) =>
     curve
       .getPoints(RESOLUTION)
       .map((point) =>
         point.add(
-          new Vector3(0, 0, (curveIndex - RESOLUTION / 2) / (RESOLUTION / 20)),
+          new Vector3(
+            0,
+            0,
+            (curveIndex - RESOLUTION / 2) / (RESOLUTION / height),
+          ),
         ),
       ),
   );
@@ -413,6 +426,69 @@ function randCubic(): Cubic {
   };
 }
 
+interface FramePlaneProps {
+  aspect: number;
+}
+
+function FramePlane({ aspect }: FramePlaneProps): JSX.Element {
+  const [debug, setDebug] = useControls("plane", () => ({
+    planeColor: {
+      r: 255,
+      g: 255,
+      b: 255,
+    },
+    planePosition: {
+      value: 0,
+      min: -10,
+      max: 10,
+      step: 0.1,
+    },
+  }));
+
+  const color =
+    debug.planeColor.r * 256 ** 2 +
+    debug.planeColor.g * 256 +
+    debug.planeColor.b;
+
+  return (
+    <mesh
+      position={[0, debug.planePosition, 0]}
+      rotation={[-Math.PI / 2, 0, 0]}
+    >
+      <planeGeometry args={[20, 20 / aspect]} />
+      <meshBasicMaterial color={color} side={DoubleSide} />
+    </mesh>
+  );
+}
+
+interface SlitscanProps {
+  cubicA: Cubic;
+  cubicB: Cubic;
+}
+
+function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
+  const [debug, setDebug] = useControls("slitscan", () => ({
+    aspect: {
+      value: 4 / 3,
+      options: {
+        "16:9": 16 / 9,
+        "4:3": 4 / 3,
+        "1:1": 1,
+        "3:4": 3 / 4,
+        "9:16": 9 / 16,
+      },
+    },
+  }));
+
+  return (
+    <>
+      <axesHelper args={[12]} />
+      <BezierMesh cubicA={cubicA} cubicB={cubicB} aspect={debug.aspect} />
+      <FramePlane aspect={debug.aspect} />
+    </>
+  );
+}
+
 export default function SlitscanCanvas(): JSX.Element {
   const eventSource = useRef<HTMLDivElement>(null);
   const divMain = useRef<HTMLDivElement | null>(null);
@@ -447,7 +523,7 @@ export default function SlitscanCanvas(): JSX.Element {
 
         <Canvas eventSource={eventSource} style={{ position: "absolute" }}>
           <View track={divMain as MutableRefObject<HTMLElement>}>
-            <BezierMesh cubicA={cubicA} cubicB={cubicB} />
+            <Slitscan cubicA={cubicA} cubicB={cubicB} />
           </View>
           <View track={divA as MutableRefObject<HTMLElement>}>
             <BezierControl color="white" state={[cubicA, setCubicA]} />
