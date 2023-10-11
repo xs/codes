@@ -1,6 +1,6 @@
 import { Box } from "@radix-ui/themes";
 
-import BezierCanvas from "@/components/bezier/BezierCanvas";
+import BezierCanvas from "@/app/bezier/BezierCanvas";
 
 export default async function Page() {
   return (

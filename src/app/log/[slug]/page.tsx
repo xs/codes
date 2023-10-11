@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import LogEntry from "@/components/LogEntry";
+import LogEntry from "@/app/log/LogEntry";
 import { Post, PostIndex, fetchPostIndex } from "@/utils/log";
 
 export default async function Page({ params }: { params: { slug: string } }) {

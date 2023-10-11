@@ -1,6 +1,6 @@
 import { Box } from "@radix-ui/themes";
 
-import LogEntry from "@/components/LogEntry";
+import LogEntry from "@/app/log/LogEntry";
 import { PostIndex, fetchPostIndex } from "@/utils/log";
 
 export default async function Page() {
