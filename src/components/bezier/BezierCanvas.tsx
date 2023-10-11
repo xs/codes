@@ -383,7 +383,11 @@ function PointLightCube({
     <>
       {coords.map((x) =>
         coords.map((z) => (
-          <pointLight position={[x, radius, z]} intensity={intensity} />
+          <pointLight
+            key={`x-${x}-z-${z}`}
+            position={[x, radius, z]}
+            intensity={intensity}
+          />
         )),
       )}
     </>
