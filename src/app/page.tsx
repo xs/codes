@@ -7,7 +7,9 @@ export default function Home() {
         <Flex gap="3">
           <Link href="/log">log</Link>
           <Separator size="2" color="amber" orientation="vertical" />
-          <Link href="/sketches">sketches</Link>
+          <Link href="/sketches">sketch gallery</Link>
+          <Separator size="2" color="grass" orientation="vertical" />
+          <Link href="/bezier">bezier mesh</Link>
           <Separator size="2" color="cyan" orientation="vertical" />
           <div className="blur-sm">about</div>
         </Flex>
