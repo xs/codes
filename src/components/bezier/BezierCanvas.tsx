@@ -227,6 +227,7 @@ const RESOLUTION = 40;
 interface AbstractMeshProps {
   points: Vector3[][];
   color: string; // force to hex code here, because of leva
+  wireframe?: boolean;
 }
 
 function PointsMesh({ points, color }: AbstractMeshProps): JSX.Element {
@@ -244,7 +245,11 @@ function PointsMesh({ points, color }: AbstractMeshProps): JSX.Element {
   );
 }
 
-function PolygonMesh({ points, color }: AbstractMeshProps): JSX.Element {
+function PolygonMesh({
+  points,
+  color,
+  wireframe,
+}: AbstractMeshProps): JSX.Element {
   const vertices = points.flat();
   const geometry = new BufferGeometry().setFromPoints(vertices);
   // set indicies to be triangles based on the dimension of points
@@ -270,7 +275,11 @@ function PolygonMesh({ points, color }: AbstractMeshProps): JSX.Element {
     <>
       <mesh>
         <bufferGeometry attach="geometry" {...geometry} />
-        <meshPhongMaterial color={color} side={DoubleSide} />
+        <meshPhongMaterial
+          wireframe={wireframe}
+          color={color}
+          side={DoubleSide}
+        />
       </mesh>
     </>
   );
@@ -283,10 +292,11 @@ interface BezierMeshProps {
 
 function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
   const [debug, setDebug] = useControls(() => ({
+    color: "#ffcc00",
+    light: 500,
     rotate: true,
     polygon: true,
-    light: 500,
-    color: "#ffcc00",
+    wireframe: { value: false, render: (get) => get("polygon") },
   }));
 
   const lerpCubics = [];
@@ -336,7 +346,11 @@ function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
   return (
     <>
       {debug.polygon ? (
-        <PolygonMesh color={debug.color} points={points} />
+        <PolygonMesh
+          wireframe={debug.wireframe}
+          color={debug.color}
+          points={points}
+        />
       ) : (
         <PointsMesh color={debug.color} points={points} />
       )}
