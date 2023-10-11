@@ -163,10 +163,6 @@ interface BezierControlProps {
   state: [Cubic, (cubic: Cubic) => void];
 }
 
-function rand10(): number {
-  return Math.random() * 20 - 10;
-}
-
 function BezierControl({ color, state }: BezierControlProps): JSX.Element {
   const { viewport, camera, size } = useThree();
 
@@ -226,12 +222,44 @@ interface Cubic {
   end: Vector3;
 }
 
+const RESOLUTION = 40;
+
+interface BezierMeshPointsProps {
+  points: Vector3[][];
+  resolution: number;
+}
+
+function BezierMeshPoints({
+  points,
+  resolution,
+}: BezierMeshPointsProps): JSX.Element {
+  return (
+    <>
+      {points.map((curve, curveIndex) =>
+        curve.map((point, index) => (
+          <mesh
+            key={curveIndex * resolution + index}
+            position={point.add(
+              new Vector3(
+                0,
+                0,
+                (curveIndex - resolution / 2) / (resolution / 20),
+              ),
+            )}
+          >
+            <sphereGeometry args={[0.05]} />
+            <meshBasicMaterial color="black" />
+          </mesh>
+        )),
+      )}
+    </>
+  );
+}
+
 interface BezierMeshProps {
   cubicA: Cubic;
   cubicB: Cubic;
 }
-
-const RESOLUTION = 40;
 
 function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
   const [debug, setDebug] = useControls(() => ({
@@ -273,31 +301,20 @@ function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
     camera.lookAt(0, 0, 0);
   });
 
+  const points = lerpCurves.map((curve) => curve.getPoints(debug.resolution));
+
   return (
     <>
-      {lerpCurves.map((curve, curveIndex) =>
-        curve.getPoints(debug.resolution).map((point, index) => (
-          <mesh
-            key={index}
-            position={point.add(
-              new Vector3(
-                0,
-                0,
-                (curveIndex - debug.resolution / 2) / (debug.resolution / 20),
-              ),
-            )}
-          >
-            <sphereGeometry args={[0.05]} />
-            <meshBasicMaterial color="black" />
-          </mesh>
-        )),
-      )}
-
+      <BezierMeshPoints points={points} resolution={debug.resolution} />
       <ambientLight />
       <pointLight position={[6, 2, -6]} />
       <OrbitControls enablePan />
     </>
   );
+}
+
+function rand10(): number {
+  return Math.random() * 20 - 10;
 }
 
 function randCubic(): Cubic {
