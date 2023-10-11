@@ -12,7 +12,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
 import { Leva, useControls } from "leva";
 import { MutableRefObject, useRef, useState } from "react";
-import { CubicBezierCurve3, DoubleSide, Vector3 } from "three";
+import { BufferGeometry, CubicBezierCurve3, DoubleSide, Vector3 } from "three";
 
 interface ControlPointProps {
   state: [Vector3, (pos: Vector3) => void];
@@ -224,34 +224,54 @@ interface Cubic {
 
 const RESOLUTION = 40;
 
-interface BezierMeshPointsProps {
+interface AbstractMeshProps {
   points: Vector3[][];
-  resolution: number;
+  color: string; // force to hex code here, because of leva
 }
 
-function BezierMeshPoints({
-  points,
-  resolution,
-}: BezierMeshPointsProps): JSX.Element {
+function PointsMesh({ points, color }: AbstractMeshProps): JSX.Element {
   return (
     <>
       {points.map((curve, curveIndex) =>
         curve.map((point, index) => (
-          <mesh
-            key={curveIndex * resolution + index}
-            position={point.add(
-              new Vector3(
-                0,
-                0,
-                (curveIndex - resolution / 2) / (resolution / 20),
-              ),
-            )}
-          >
+          <mesh key={curveIndex * points.length + index} position={point}>
             <sphereGeometry args={[0.05]} />
-            <meshBasicMaterial color="black" />
+            <meshBasicMaterial color={color} />
           </mesh>
         )),
       )}
+    </>
+  );
+}
+
+function PolygonMesh({ points, color }: AbstractMeshProps): JSX.Element {
+  const vertices = points.flat();
+  const geometry = new BufferGeometry().setFromPoints(vertices);
+  // set indicies to be triangles based on the dimension of points
+  const numRows = points.length;
+  const numCols = points[0].length;
+
+  const indices = [];
+  for (let i = 0; i < numRows - 1; i++) {
+    for (let j = 0; j < numCols - 1; j++) {
+      const a = i * numCols + j;
+      const b = i * numCols + j + 1;
+      const c = (i + 1) * numCols + j;
+      const d = (i + 1) * numCols + j + 1;
+      indices.push(a, b, c);
+      indices.push(b, d, c);
+    }
+  }
+  geometry.setIndex(indices);
+
+  geometry.computeVertexNormals();
+
+  return (
+    <>
+      <mesh>
+        <bufferGeometry attach="geometry" {...geometry} />
+        <meshPhongMaterial color={color} side={DoubleSide} />
+      </mesh>
     </>
   );
 }
@@ -264,12 +284,14 @@ interface BezierMeshProps {
 function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
   const [debug, setDebug] = useControls(() => ({
     rotate: true,
-    resolution: RESOLUTION,
+    polygon: true,
+    light: 500,
+    color: "#ffcc00",
   }));
 
   const lerpCubics = [];
-  for (let i = 0; i <= debug.resolution; i++) {
-    const t = i / debug.resolution;
+  for (let i = 0; i <= RESOLUTION; i++) {
+    const t = i / RESOLUTION;
     const lerpCubic = {
       start: cubicA.start.clone().lerp(cubicB.start, t),
       midA: cubicA.midA.clone().lerp(cubicB.midA, t),
@@ -301,14 +323,48 @@ function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
     camera.lookAt(0, 0, 0);
   });
 
-  const points = lerpCurves.map((curve) => curve.getPoints(debug.resolution));
+  const points = lerpCurves.map((curve, curveIndex) =>
+    curve
+      .getPoints(RESOLUTION)
+      .map((point) =>
+        point.add(
+          new Vector3(0, 0, (curveIndex - RESOLUTION / 2) / (RESOLUTION / 20)),
+        ),
+      ),
+  );
 
   return (
     <>
-      <BezierMeshPoints points={points} resolution={debug.resolution} />
-      <ambientLight />
-      <pointLight position={[6, 2, -6]} />
+      {debug.polygon ? (
+        <PolygonMesh color={debug.color} points={points} />
+      ) : (
+        <PointsMesh color={debug.color} points={points} />
+      )}
+      <ambientLight intensity={2} color={0xffffff} />
+      <PointLightCube radius={20} intensity={debug.light} />
       <OrbitControls enablePan />
+    </>
+  );
+}
+
+interface PointLightCubeProps {
+  radius: number;
+  intensity: number;
+}
+
+function PointLightCube({
+  radius,
+  intensity,
+}: PointLightCubeProps): JSX.Element {
+  const coords = [-radius, 0, radius];
+
+  return (
+    <>
+      {coords.map((x) =>
+        coords.map((z) => (
+          <pointLight position={[x, radius, z]} intensity={intensity} />
+        )),
+      )}
     </>
   );
 }
