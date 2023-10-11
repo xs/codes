@@ -389,6 +389,7 @@ function PointLightCube({
           />
         )),
       )}
+      <pointLight position={[0, -radius, 0]} intensity={intensity / 2} />
     </>
   );
 }

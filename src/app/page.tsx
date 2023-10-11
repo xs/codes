@@ -8,7 +8,7 @@ export default function Home() {
           <Link href="/log">log</Link>
           <Separator size="2" color="amber" orientation="vertical" />
           <Link href="/sketches">sketch gallery</Link>
-          <Separator size="2" color="grass" orientation="vertical" />
+          <Separator size="2" color="green" orientation="vertical" />
           <Link href="/bezier">bezier mesh</Link>
           <Separator size="2" color="cyan" orientation="vertical" />
           <div className="blur-sm">about</div>
