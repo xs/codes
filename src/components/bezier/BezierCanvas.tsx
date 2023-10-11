@@ -297,7 +297,12 @@ function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
       g: 255 * Math.random(),
       b: 255 * Math.random(),
     },
-    light: 500,
+    light: {
+      value: 500,
+      min: 50,
+      max: 1000,
+      step: 50,
+    },
     rotate: true,
     polygon: true,
     wireframe: { value: false, render: (get) => get("polygon") },
@@ -378,6 +383,7 @@ function PointLightCube({
 }: PointLightCubeProps): JSX.Element {
   const coords = [-radius, 0, radius];
 
+  // we place nine lights in a 3x3 grid above the origin and one light below the origin
   return (
     <>
       {coords.map((x) =>
