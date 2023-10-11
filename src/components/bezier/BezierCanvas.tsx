@@ -226,7 +226,7 @@ const RESOLUTION = 40;
 
 interface AbstractMeshProps {
   points: Vector3[][];
-  color: string; // force to hex code here, because of leva
+  color: number;
   wireframe?: boolean;
 }
 
@@ -292,7 +292,12 @@ interface BezierMeshProps {
 
 function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
   const [debug, setDebug] = useControls(() => ({
-    color: "#ffcc00",
+    color: {
+      r: 255 * Math.random(),
+      g: 255 * Math.random(),
+      b: 255 * Math.random(),
+      a: 1,
+    },
     light: 500,
     rotate: true,
     polygon: true,
@@ -343,16 +348,18 @@ function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
       ),
   );
 
+  const color = debug.color.r * 256 ** 2 + debug.color.g * 256 + debug.color.b;
+
   return (
     <>
       {debug.polygon ? (
         <PolygonMesh
           wireframe={debug.wireframe}
-          color={debug.color}
+          color={color}
           points={points}
         />
       ) : (
-        <PointsMesh color={debug.color} points={points} />
+        <PointsMesh color={color} points={points} />
       )}
       <ambientLight intensity={2} color={0xffffff} />
       <PointLightCube radius={20} intensity={debug.light} />
