@@ -296,7 +296,6 @@ function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
       r: 255 * Math.random(),
       g: 255 * Math.random(),
       b: 255 * Math.random(),
-      a: 1,
     },
     light: 500,
     rotate: true,
