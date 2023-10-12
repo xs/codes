@@ -171,28 +171,8 @@ interface BezierControlProps {
 }
 
 function BezierControl({ color, state }: BezierControlProps): JSX.Element {
-  const { viewport, camera, size } = useThree();
+  const { size } = useThree();
 
-  // use the leva library to display any debug info
-  /*
-  const [, setDebug] = useControls(() => ({
-    "viewport width": viewport.width,
-    "viewport height": viewport.height,
-    "zoom": camera.zoom,
-    "size width": size.width,
-    "size height": size.height,
-  }));
-
-  useFrame(({ viewport, camera, size }) => {
-    setDebug({
-      "viewport width": viewport.width,
-      "viewport height": viewport.height,
-      "zoom": camera.zoom,
-      "size width": size.width,
-      "size height": size.height,
-    });
-  });
-  */
   const [cubic, setCubic] = state;
   const paddedViewport = UPPER_BOUND - LOWER_BOUND + 2 * MARGIN;
 
@@ -202,7 +182,6 @@ function BezierControl({ color, state }: BezierControlProps): JSX.Element {
       <OrthographicCamera
         makeDefault
         args={[-10, 10, 10, -10]}
-        // annoyingly, near and far are reversed in orthographic camera
         zoom={Math.min(
           size.width / paddedViewport,
           size.height / paddedViewport,
@@ -257,15 +236,17 @@ function PolygonMesh({
   color,
   wireframe,
 }: AbstractMeshProps): JSX.Element {
-  const vertices = points.flat();
-  const geometry = new BufferGeometry().setFromPoints(vertices);
   // set indicies to be triangles based on the dimension of points
   const numRows = points.length;
   const numCols = points[0].length;
-
   const indices = [];
+
   for (let i = 0; i < numRows - 1; i++) {
     for (let j = 0; j < numCols - 1; j++) {
+      // for every square of points in the grid, we add two triangles as follows:
+      // a - b
+      // | / |
+      // c - d
       const a = i * numCols + j;
       const b = i * numCols + j + 1;
       const c = (i + 1) * numCols + j;
@@ -274,8 +255,14 @@ function PolygonMesh({
       indices.push(b, d, c);
     }
   }
+
+  // set geometry from vertices
+  const geometry = new BufferGeometry().setFromPoints(points.flat());
+
+  // use indexed buffer geometry to reuse vertices
   geometry.setIndex(indices);
 
+  // compute normals for lighting
   geometry.computeVertexNormals();
 
   return (
@@ -299,7 +286,7 @@ interface BezierMeshProps {
 }
 
 function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
-  const [debug, setDebug] = useControls("mesh", () => ({
+  const [debug] = useControls("mesh", () => ({
     color: {
       r: 255 * Math.random(),
       g: 255 * Math.random(),
