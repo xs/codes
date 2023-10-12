@@ -1,6 +1,6 @@
 import { Box } from "@radix-ui/themes";
 
-import Gallery from "@/components/shaders/Gallery";
+import Gallery from "@/app/sketches/Gallery";
 import { fetchShaderIndex } from "@/utils/shaders";
 
 export default async function Page() {
