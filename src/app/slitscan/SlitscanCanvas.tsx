@@ -287,20 +287,21 @@ interface BezierMeshProps {
 
 function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
   const [debug] = useControls("mesh", () => ({
+    rotate: true,
     color: {
       r: 255 * Math.random(),
       g: 255 * Math.random(),
       b: 255 * Math.random(),
     },
+    polygon: true,
+    wireframe: { value: true, render: (get) => get("mesh.polygon") },
     light: {
       value: 500,
       min: 50,
       max: 1000,
       step: 50,
+      render: (get) => get("mesh.polygon") && !get("mesh.wireframe"),
     },
-    rotate: true,
-    polygon: true,
-    wireframe: { value: true, render: (get) => get("mesh.polygon") },
   }));
 
   const lerpCubics = [];
@@ -420,19 +421,61 @@ interface FramePlaneProps {
 
 function FramePlane({ aspect }: FramePlaneProps): JSX.Element {
   const [plane] = useControls("plane", () => ({
+    show: true,
     position: {
-      value: 0,
-      min: -10,
+      value: 0.5,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      render: (get) => get("plane.show"),
+    },
+    number: {
+      value: 1,
+      min: 1,
       max: 10,
-      step: 0.1,
+      step: 1,
+      render: (get) => get("plane.show"),
+    },
+    spacing: {
+      value: 0.5,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      render: (get) => get("plane.show") && get("plane.number") > 1,
     },
   }));
 
+  const positions = [];
+
+  // if number is 1, then spacing is irrelevant and position is the only thing that matters; 0 means a y position of -10, 1 means a y position of 10
+  // if number > 1, then:
+  //   - spacing of 0 means planes are in the same place
+  // if number > 1, then spacing of 1 means planes are as far apart as possible, and position is irrelevant
+  // if number > 1, then spacing of 0.5 means planes are spaced at a distance half of if it were 1, and position moves the entire set of planes
+  for (let i = 0; i < plane.number; i++) {
+    let yPosition;
+    if (plane.number === 1) {
+      yPosition = plane.position * 20 - 10;
+    } else {
+      let maxSpacing = 20 / (plane.number - 1);
+      let spacing = maxSpacing * plane.spacing;
+      let maxOffset = 20 - spacing * (plane.number - 1);
+      let offset = maxOffset * plane.position;
+      yPosition = -10 + i * spacing + offset;
+    }
+    positions.push(new Vector3(0, yPosition, 0));
+  }
+
   return (
-    <mesh position={[0, plane.position, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[20, 20 / aspect]} />
-      <meshBasicMaterial color={0xffffff} side={DoubleSide} />
-    </mesh>
+    <>
+      {plane.show &&
+        positions.map((position, index) => (
+          <mesh key={index} position={position} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[20, 20 / aspect]} />
+            <meshBasicMaterial color={0xffffff} side={DoubleSide} />
+          </mesh>
+        ))}
+    </>
   );
 }
 
@@ -461,6 +504,7 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
     axes: true,
     "bounding box": true,
   }));
+  console.table({ cubicA, cubicB, slitscan, helpers });
 
   return (
     <>
