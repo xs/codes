@@ -12,7 +12,14 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
 import { Leva, useControls } from "leva";
 import { MutableRefObject, useRef, useState } from "react";
-import { BufferGeometry, CubicBezierCurve3, DoubleSide, Vector3 } from "three";
+import {
+  Box3,
+  BufferGeometry,
+  Color,
+  CubicBezierCurve3,
+  DoubleSide,
+  Vector3,
+} from "three";
 
 interface ControlPointProps {
   state: [Vector3, (pos: Vector3) => void];
@@ -304,7 +311,7 @@ function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
       max: 1000,
       step: 50,
     },
-    rotate: false,
+    rotate: true,
     polygon: true,
     wireframe: { value: true, render: (get) => get("mesh.polygon") },
   }));
@@ -328,12 +335,6 @@ function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
       cubic.midB,
       cubic.end,
     );
-  });
-
-  useThree(({ camera }) => {
-    camera.position.x = 0;
-    camera.position.y = 25;
-    camera.position.z = 0;
   });
 
   useFrame(({ clock, camera }) => {
@@ -431,13 +432,8 @@ interface FramePlaneProps {
 }
 
 function FramePlane({ aspect }: FramePlaneProps): JSX.Element {
-  const [debug, setDebug] = useControls("plane", () => ({
-    planeColor: {
-      r: 255,
-      g: 255,
-      b: 255,
-    },
-    planePosition: {
+  const [plane] = useControls("plane", () => ({
+    position: {
       value: 0,
       min: -10,
       max: 10,
@@ -445,18 +441,10 @@ function FramePlane({ aspect }: FramePlaneProps): JSX.Element {
     },
   }));
 
-  const color =
-    debug.planeColor.r * 256 ** 2 +
-    debug.planeColor.g * 256 +
-    debug.planeColor.b;
-
   return (
-    <mesh
-      position={[0, debug.planePosition, 0]}
-      rotation={[-Math.PI / 2, 0, 0]}
-    >
+    <mesh position={[0, plane.position, 0]} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[20, 20 / aspect]} />
-      <meshBasicMaterial color={color} side={DoubleSide} />
+      <meshBasicMaterial color={0xffffff} side={DoubleSide} />
     </mesh>
   );
 }
@@ -467,7 +455,8 @@ interface SlitscanProps {
 }
 
 function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
-  const [debug, setDebug] = useControls("slitscan", () => ({
+  // add leva controls in the "slitscan" folder
+  const [slitscan] = useControls("slitscan", () => ({
     aspect: {
       value: 4 / 3,
       options: {
@@ -480,11 +469,28 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
     },
   }));
 
+  // add leva controls in the "helper" folder
+  const [helpers] = useControls("helpers", () => ({
+    axes: true,
+    "bounding box": true,
+  }));
+
   return (
     <>
-      <axesHelper args={[12]} />
-      <BezierMesh cubicA={cubicA} cubicB={cubicB} aspect={debug.aspect} />
-      <FramePlane aspect={debug.aspect} />
+      {helpers.axes && <axesHelper args={[12]} />}
+      {helpers["bounding box"] && (
+        <box3Helper
+          args={[
+            new Box3(
+              new Vector3(-10, -10, -10 / slitscan.aspect),
+              new Vector3(10, 10, 10 / slitscan.aspect),
+            ),
+            new Color("black"),
+          ]}
+        />
+      )}
+      <BezierMesh cubicA={cubicA} cubicB={cubicB} aspect={slitscan.aspect} />
+      <FramePlane aspect={slitscan.aspect} />
     </>
   );
 }
@@ -519,8 +525,7 @@ export default function SlitscanCanvas(): JSX.Element {
           />
         </div>
         <Leva hideCopyButton titleBar={{ filter: false }} />
-        {/* @ts-ignore */}
-
+        {/* @ts-ignore: eventSource not worth dealing with */}
         <Canvas eventSource={eventSource} style={{ position: "absolute" }}>
           <View track={divMain as MutableRefObject<HTMLElement>}>
             <Slitscan cubicA={cubicA} cubicB={cubicB} />
