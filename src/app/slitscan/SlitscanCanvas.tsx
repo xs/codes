@@ -3,6 +3,8 @@
 import { animated, useSpring } from "@react-spring/three";
 import {
   CubicBezierLine,
+  GizmoHelper,
+  GizmoViewport,
   Line,
   OrbitControls,
   OrthographicCamera,
@@ -11,7 +13,7 @@ import {
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
 import { Leva, useControls } from "leva";
-import { MutableRefObject, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import {
   Box3,
   BufferGeometry,
@@ -286,7 +288,7 @@ interface BezierMeshProps {
 }
 
 function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
-  const [debug] = useControls("mesh", () => ({
+  const [debug, setDebug] = useControls("mesh", () => ({
     rotate: true,
     color: {
       r: 255 * Math.random(),
@@ -303,6 +305,21 @@ function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
       render: (get) => get("mesh.polygon") && !get("mesh.wireframe"),
     },
   }));
+
+  // add a keyboard listener to toggle rotation
+  useEffect(() => {
+    function onKeyUp(event: KeyboardEvent) {
+      if (event.key === " ") {
+        setDebug({ rotate: !debug.rotate });
+      }
+    }
+
+    window.addEventListener("keyup", onKeyUp);
+
+    return () => {
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, [debug.rotate]);
 
   const lerpCubics = [];
   for (let i = 0; i <= RESOLUTION; i++) {
@@ -369,7 +386,7 @@ function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
       )}
       <ambientLight intensity={2} color={0xffffff} />
       <PointLightCube radius={20} intensity={debug.light} />
-      <OrbitControls enablePan />
+      <OrbitControls makeDefault />
     </>
   );
 }
