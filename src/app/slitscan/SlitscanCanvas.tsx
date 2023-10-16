@@ -20,6 +20,7 @@ import {
   Color,
   CubicBezierCurve3,
   DoubleSide,
+  TextureLoader,
   Vector3,
 } from "three";
 
@@ -210,7 +211,7 @@ interface Cubic {
   end: Vector3;
 }
 
-const RESOLUTION = 40;
+const RESOLUTION = 20;
 
 interface AbstractMeshProps {
   points: Vector3[][];
@@ -539,7 +540,7 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
     number: {
       value: 1,
       min: 1,
-      max: 10,
+      max: 120,
       step: 1,
       render: (get) => get("plane.show"),
     },
@@ -582,14 +583,14 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
           <mesh key={index}>
             <Geometry computeVertexNormals>
               <Base position={position} rotation={[-Math.PI / 2, 0, 0]}>
-                <boxGeometry args={[20, 20 / aspect, 0.5]} />
+                <boxGeometry args={[20, 20 / aspect, 0.01]} />
               </Base>
               <Subtraction geometry={subtraction} />
             </Geometry>
             <meshBasicMaterial
               transparent
+              map={new TextureLoader().load("/textures/clown.jpeg")}
               opacity={plane.opacity}
-              color={0xffffff}
             />
           </mesh>
         ))}
@@ -678,7 +679,7 @@ export default function SlitscanCanvas(): JSX.Element {
             className="landscape:w-full portrait:h-full flex-grow"
           />
         </div>
-        <Leva hideCopyButton collapsed titleBar={{ filter: false }} />
+        <Leva hideCopyButton titleBar={{ filter: false }} />
         {/* @ts-ignore: eventSource not worth dealing with */}
         <Canvas eventSource={eventSource} style={{ position: "absolute" }}>
           <View track={divMain as MutableRefObject<HTMLElement>}>
