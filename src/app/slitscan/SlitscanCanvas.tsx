@@ -3,8 +3,6 @@
 import { animated, useSpring } from "@react-spring/three";
 import {
   CubicBezierLine,
-  GizmoHelper,
-  GizmoViewport,
   Line,
   OrbitControls,
   OrthographicCamera,
