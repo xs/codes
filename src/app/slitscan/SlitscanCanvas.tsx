@@ -446,6 +446,12 @@ function FramePlane({ aspect }: FramePlaneProps): JSX.Element {
       step: 0.01,
       render: (get) => get("plane.show"),
     },
+    opacity: {
+      value: 0.9,
+      min: 0,
+      max: 1,
+      step: 0.01,
+    },
     number: {
       value: 1,
       min: 1,
@@ -489,7 +495,12 @@ function FramePlane({ aspect }: FramePlaneProps): JSX.Element {
         positions.map((position, index) => (
           <mesh key={index} position={position} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[20, 20 / aspect]} />
-            <meshBasicMaterial color={0xffffff} side={DoubleSide} />
+            <meshBasicMaterial
+              transparent
+              opacity={plane.opacity}
+              color={0xffffff}
+              side={DoubleSide}
+            />
           </mesh>
         ))}
     </>
