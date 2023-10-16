@@ -1,6 +1,7 @@
 "use client";
 
 import { animated, useSpring } from "@react-spring/three";
+import { Base, Geometry, Subtraction } from "@react-three/csg";
 import {
   CubicBezierLine,
   Line,
@@ -14,6 +15,7 @@ import { Leva, useControls } from "leva";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import {
   Box3,
+  BufferAttribute,
   BufferGeometry,
   Color,
   CubicBezierCurve3,
@@ -236,34 +238,7 @@ function PolygonMesh({
   color,
   wireframe,
 }: AbstractMeshProps): JSX.Element {
-  // set indicies to be triangles based on the dimension of points
-  const numRows = points.length;
-  const numCols = points[0].length;
-  const indices = [];
-
-  for (let i = 0; i < numRows - 1; i++) {
-    for (let j = 0; j < numCols - 1; j++) {
-      // for every square of points in the grid, we add two triangles as follows:
-      // a - b
-      // | / |
-      // c - d
-      const a = i * numCols + j;
-      const b = i * numCols + j + 1;
-      const c = (i + 1) * numCols + j;
-      const d = (i + 1) * numCols + j + 1;
-      indices.push(a, b, c);
-      indices.push(b, d, c);
-    }
-  }
-
-  // set geometry from vertices
-  const geometry = new BufferGeometry().setFromPoints(points.flat());
-
-  // use indexed buffer geometry to reuse vertices
-  geometry.setIndex(indices);
-
-  // compute normals for lighting
-  geometry.computeVertexNormals();
+  const geometry = meshGeometry(points, true);
 
   return (
     <>
@@ -285,40 +260,8 @@ interface BezierMeshProps {
   aspect: number;
 }
 
-function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
-  const [debug, setDebug] = useControls("mesh", () => ({
-    rotate: true,
-    color: {
-      r: 255 * Math.random(),
-      g: 255 * Math.random(),
-      b: 255 * Math.random(),
-    },
-    polygon: true,
-    wireframe: { value: true, render: (get) => get("mesh.polygon") },
-    light: {
-      value: 500,
-      min: 50,
-      max: 1000,
-      step: 50,
-      render: (get) => get("mesh.polygon") && !get("mesh.wireframe"),
-    },
-  }));
-
-  // add a keyboard listener to toggle rotation
-  useEffect(() => {
-    function onKeyUp(event: KeyboardEvent) {
-      if (event.key === " ") {
-        setDebug({ rotate: !debug.rotate });
-      }
-    }
-
-    window.addEventListener("keyup", onKeyUp);
-
-    return () => {
-      window.removeEventListener("keyup", onKeyUp);
-    };
-  }, [debug.rotate]);
-
+// returns the points of a mesh between two cubic bezier curves
+function meshPoints({ cubicA, cubicB, aspect }: BezierMeshProps): Vector3[][] {
   const lerpCubics = [];
   for (let i = 0; i <= RESOLUTION; i++) {
     const t = i / RESOLUTION;
@@ -340,6 +283,158 @@ function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
     );
   });
 
+  const height = 20 / aspect;
+
+  return lerpCurves.map((curve, curveIndex) =>
+    curve
+      .getPoints(RESOLUTION)
+      .map((point) =>
+        point.add(
+          new Vector3(
+            0,
+            0,
+            (curveIndex - RESOLUTION / 2) / (RESOLUTION / height),
+          ),
+        ),
+      ),
+  );
+}
+
+// given a grid of points, returns a mesh geometry
+function meshGeometry(points: Vector3[][], solid: Boolean): BufferGeometry {
+  // set indicies to be triangles based on the dimension of points
+  const numRows = points.length;
+  const numCols = points[0].length;
+  const indices = [];
+  const uvs = [];
+
+  for (let i = 0; i < numRows - 1; i++) {
+    for (let j = 0; j < numCols - 1; j++) {
+      uvs.push(i / (numRows - 1), j / (numCols - 1));
+      // for every square of points in the grid, we add two triangles as follows:
+      // a - b
+      // | / |
+      // c - d
+      const a = i * numCols + j;
+      const b = i * numCols + j + 1;
+      const c = (i + 1) * numCols + j;
+      const d = (i + 1) * numCols + j + 1;
+      indices.push(a, b, c);
+      indices.push(b, d, c);
+    }
+  }
+
+  const vertices = points.flat();
+
+  // add vertices that project the first and last rows into the x-z plane at y = 10
+  // then add indices to connect the vertices with triangles
+  if (solid) {
+    const firstRow = vertices.slice(0, numCols);
+    const lastRow = vertices.slice(-numCols);
+    const meshLength = vertices.length;
+
+    const projectedFirstRow = firstRow.map((v) => new Vector3(v.x, 10, v.z));
+    const projectedLastRow = lastRow.map((v) => new Vector3(v.x, 10, v.z));
+
+    vertices.push(...projectedFirstRow, ...projectedLastRow);
+
+    const firstRowIndices = firstRow.map((_, i) => i);
+    const lastRowIndices = lastRow.map((_, i) => i + meshLength - numCols);
+
+    const projectedFirstRowIndices = projectedFirstRow.map(
+      (_, i) => meshLength + i,
+    );
+    const projectedLastRowIndices = projectedLastRow.map(
+      (_, i) => numCols + i + meshLength,
+    );
+
+    for (let i = 0; i < numCols - 1; i++) {
+      const a = firstRowIndices[i];
+      const b = firstRowIndices[i + 1];
+      const c = projectedFirstRowIndices[i];
+      const d = projectedFirstRowIndices[i + 1];
+      const e = lastRowIndices[i];
+      const f = lastRowIndices[i + 1];
+      const g = projectedLastRowIndices[i];
+      const h = projectedLastRowIndices[i + 1];
+      indices.push(a, b, c, b, d, c, e, f, g, f, h, g, c, d, g, d, h, g);
+    }
+
+    // draw triangles to connect the first and last rows
+    indices.push(
+      firstRowIndices[0],
+      projectedFirstRowIndices[0],
+      lastRowIndices[0],
+      projectedFirstRowIndices[0],
+      projectedLastRowIndices[0],
+      lastRowIndices[0],
+      firstRowIndices[numCols - 1],
+      projectedFirstRowIndices[numCols - 1],
+      lastRowIndices[numCols - 1],
+      projectedFirstRowIndices[numCols - 1],
+      projectedLastRowIndices[numCols - 1],
+      lastRowIndices[numCols - 1],
+    );
+  }
+
+  // set geometry from vertices
+  const geometry = new BufferGeometry().setFromPoints(vertices);
+
+  // use indexed buffer geometry to reuse vertices
+  geometry.setIndex(indices);
+
+  // set uvs
+  geometry.setAttribute("uv", new BufferAttribute(Float32Array.from(uvs), 2));
+
+  // compute normals for lighting
+  geometry.computeVertexNormals();
+
+  return geometry;
+}
+
+function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
+  const [debug, setDebug] = useControls("mesh", () => ({
+    rotate: true,
+    show: true,
+    color: {
+      value: {
+        r: 255 * Math.random(),
+        g: 255 * Math.random(),
+        b: 255 * Math.random(),
+      },
+      render: (get) => get("mesh.show"),
+    },
+    polygon: { value: true, render: (get) => get("mesh.show") },
+    wireframe: {
+      value: true,
+      render: (get) => get("mesh.show") && get("mesh.polygon"),
+    },
+    light: {
+      value: 500,
+      min: 50,
+      max: 1000,
+      step: 50,
+      render: (get) =>
+        get("mesh.show") && get("mesh.polygon") && !get("mesh.wireframe"),
+    },
+  }));
+
+  // add a keyboard listener to toggle rotation
+  useEffect(() => {
+    function onKeyUp(event: KeyboardEvent) {
+      if (event.key === " ") {
+        setDebug({ rotate: !debug.rotate });
+      }
+    }
+
+    window.addEventListener("keyup", onKeyUp);
+
+    return () => {
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, [debug.rotate]);
+
+  // rotate the camera around the origin if debug.rotate is true
   useFrame(({ clock, camera }) => {
     if (!debug.rotate) {
       return;
@@ -353,35 +448,21 @@ function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
     camera.lookAt(0, 0, 0);
   });
 
-  const height = 20 / aspect;
-
-  const points = lerpCurves.map((curve, curveIndex) =>
-    curve
-      .getPoints(RESOLUTION)
-      .map((point) =>
-        point.add(
-          new Vector3(
-            0,
-            0,
-            (curveIndex - RESOLUTION / 2) / (RESOLUTION / height),
-          ),
-        ),
-      ),
-  );
-
+  const points = meshPoints({ cubicA, cubicB, aspect });
   const color = debug.color.r * 256 ** 2 + debug.color.g * 256 + debug.color.b;
 
   return (
     <>
-      {debug.polygon ? (
-        <PolygonMesh
-          wireframe={debug.wireframe}
-          color={color}
-          points={points}
-        />
-      ) : (
-        <PointsMesh color={color} points={points} />
-      )}
+      {debug.show &&
+        (debug.polygon ? (
+          <PolygonMesh
+            wireframe={debug.wireframe}
+            color={color}
+            points={points}
+          />
+        ) : (
+          <PointsMesh color={color} points={points} />
+        ))}
       <ambientLight intensity={2} color={0xffffff} />
       <PointLightCube radius={20} intensity={debug.light} />
       <OrbitControls makeDefault />
@@ -432,9 +513,10 @@ function randCubic(): Cubic {
 
 interface FramePlaneProps {
   aspect: number;
+  mesh: BezierMeshProps;
 }
 
-function FramePlane({ aspect }: FramePlaneProps): JSX.Element {
+function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
   const [plane] = useControls("plane", () => ({
     show: true,
     position: {
@@ -487,12 +569,19 @@ function FramePlane({ aspect }: FramePlaneProps): JSX.Element {
     positions.push(new Vector3(0, yPosition, 0));
   }
 
+  const subtraction: BufferGeometry = meshGeometry(meshPoints(mesh), false);
+
   return (
     <>
       {plane.show &&
         positions.map((position, index) => (
-          <mesh key={index} position={position} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[20, 20 / aspect]} />
+          <mesh key={index}>
+            <Geometry computeVertexNormals>
+              <Base position={position} rotation={[-Math.PI / 2, 0, 0]}>
+                <planeGeometry args={[20, 20 / aspect]} />
+              </Base>
+              <Subtraction geometry={subtraction} />
+            </Geometry>
             <meshBasicMaterial
               transparent
               opacity={plane.opacity}
@@ -530,7 +619,12 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
     axes: true,
     "bounding box": true,
   }));
-  console.table({ cubicA, cubicB, slitscan, helpers });
+
+  const meshProps = {
+    cubicA,
+    cubicB,
+    aspect: slitscan.aspect,
+  };
 
   return (
     <>
@@ -547,7 +641,7 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
         />
       )}
       <BezierMesh cubicA={cubicA} cubicB={cubicB} aspect={slitscan.aspect} />
-      <FramePlane aspect={slitscan.aspect} />
+      <FramePlane aspect={slitscan.aspect} mesh={meshProps} />
     </>
   );
 }
@@ -581,7 +675,7 @@ export default function SlitscanCanvas(): JSX.Element {
             className="landscape:w-full portrait:h-full flex-grow"
           />
         </div>
-        <Leva hideCopyButton titleBar={{ filter: false }} />
+        <Leva hideCopyButton collapsed titleBar={{ filter: false }} />
         {/* @ts-ignore: eventSource not worth dealing with */}
         <Canvas eventSource={eventSource} style={{ position: "absolute" }}>
           <View track={divMain as MutableRefObject<HTMLElement>}>
