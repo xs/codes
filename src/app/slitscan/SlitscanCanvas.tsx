@@ -333,8 +333,12 @@ function meshGeometry(points: Vector3[][], solid: Boolean): BufferGeometry {
     const lastRow = vertices.slice(-numCols);
     const meshLength = vertices.length;
 
-    const projectedFirstRow = firstRow.map((v) => new Vector3(v.x, 10, v.z));
-    const projectedLastRow = lastRow.map((v) => new Vector3(v.x, 10, v.z));
+    const projectedFirstRow = firstRow.map(
+      (v) => new Vector3(v.x * 1.001, 10, v.z * 1.001),
+    );
+    const projectedLastRow = lastRow.map(
+      (v) => new Vector3(v.x * 1.001, 10, v.z * 1.001),
+    );
 
     vertices.push(...projectedFirstRow, ...projectedLastRow);
 
@@ -569,7 +573,7 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
     positions.push(new Vector3(0, yPosition, 0));
   }
 
-  const subtraction: BufferGeometry = meshGeometry(meshPoints(mesh), false);
+  const subtraction: BufferGeometry = meshGeometry(meshPoints(mesh), true);
 
   return (
     <>
@@ -578,7 +582,7 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
           <mesh key={index}>
             <Geometry computeVertexNormals>
               <Base position={position} rotation={[-Math.PI / 2, 0, 0]}>
-                <planeGeometry args={[20, 20 / aspect]} />
+                <boxGeometry args={[20, 20 / aspect, 0.5]} />
               </Base>
               <Subtraction geometry={subtraction} />
             </Geometry>
@@ -586,7 +590,6 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
               transparent
               opacity={plane.opacity}
               color={0xffffff}
-              side={DoubleSide}
             />
           </mesh>
         ))}
