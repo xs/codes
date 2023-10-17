@@ -8,6 +8,7 @@ import {
   OrbitControls,
   OrthographicCamera,
   View,
+  useVideoTexture,
 } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
@@ -577,6 +578,8 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
 
   const subtraction: BufferGeometry = meshGeometry(meshPoints(mesh), true);
 
+  const videoTexture: Texture = useVideoTexture("/videos/output.mp4");
+
   return (
     <>
       {plane.show &&
@@ -587,7 +590,7 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
                 <boxGeometry args={[20, 20 / aspect, 0.01]} />
                 <meshBasicMaterial
                   transparent
-                  map={new TextureLoader().load("/textures/clown.jpeg")}
+                  map={videoTexture}
                   opacity={plane.opacity}
                 />
               </Base>
