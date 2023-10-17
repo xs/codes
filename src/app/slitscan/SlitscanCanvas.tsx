@@ -16,6 +16,7 @@ import { Leva, useControls } from "leva";
 import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
 import {
   Box3,
+  BoxGeometry,
   BufferAttribute,
   BufferGeometry,
   Color,
@@ -581,23 +582,29 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
 
   const videoTexture: Texture = useVideoTexture("/videos/waves.mp4");
 
-  const transparentMaterial = new MeshBasicMaterial({
-    transparent: true,
-    opacity: 0,
-  });
-
   // create array of six materials to use for the six sides of the cube
-  const materials = useMemo(
-    () => [
-      videoTexture,
+  const materials = useMemo(() => {
+    const videoMaterial = new MeshBasicMaterial({
+      map: videoTexture,
+    });
+    const transparentMaterial = new MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+    });
+    return [
       transparentMaterial,
       transparentMaterial,
       transparentMaterial,
       transparentMaterial,
+      videoMaterial,
       transparentMaterial,
-    ],
-    [videoTexture],
-  );
+    ];
+  }, [videoTexture]);
+
+  const boxGeometry = new BoxGeometry(20, 20 / aspect, 0.01);
+  boxGeometry.groups.forEach((group, i) => {
+    group.materialIndex = i;
+  });
 
   return (
     <>
@@ -605,14 +612,12 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
         positions.map((position, index) => (
           <mesh key={index}>
             <Geometry computeVertexNormals useGroups>
-              <Base position={position} rotation={[-Math.PI / 2, 0, 0]}>
-                <boxGeometry args={[20, 20 / aspect, 0.01]} />
-                <meshBasicMaterial
-                  transparent
-                  map={videoTexture}
-                  opacity={plane.opacity}
-                />
-              </Base>
+              <Base
+                geometry={boxGeometry}
+                material={materials}
+                position={position}
+                rotation={[-Math.PI / 2, 0, 0]}
+              ></Base>
               <Subtraction geometry={subtraction}>
                 <meshBasicMaterial color="white" transparent opacity={0} />
               </Subtraction>
