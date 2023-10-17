@@ -516,36 +516,38 @@ interface FramePlaneProps {
 }
 
 function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
-  const [plane] = useControls("plane", () => ({
+  const [frames] = useControls("frames", () => ({
     show: true,
-    position: {
-      value: 0.5,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      render: (get) => get("plane.show"),
-    },
     wireframe: {
       value: false,
-      render: (get) => get("plane.show"),
+      render: (get) => get("frames.show"),
     },
     number: {
       value: 120,
       min: 1,
       max: 240,
       step: 1,
-      render: (get) => get("plane.show"),
+      render: (get) => get("frames.show"),
     },
     spacing: {
       value: 1.0,
       min: 0,
       max: 1,
       step: 0.01,
-      render: (get) => get("plane.show") && get("plane.number") > 1,
+      render: (get) => get("frames.show") && get("frames.number") > 1,
+    },
+    position: {
+      value: 0.5,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      render: (get) =>
+        get("frames.show") &&
+        (get("frames.spacing") < 1 || get("frames.number") === 1),
     },
   }));
 
-  const [frames, setFrames] = useState<Texture[]>([]);
+  const [textures, setTextures] = useState<Texture[]>([]);
 
   const positions = [];
 
@@ -554,15 +556,15 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
   //   - spacing of 0 means planes are in the same place
   // if number > 1, then spacing of 1 means planes are as far apart as possible, and position is irrelevant
   // if number > 1, then spacing of 0.5 means planes are spaced at a distance half of if it were 1, and position moves the entire set of planes
-  for (let i = 0; i < plane.number; i++) {
+  for (let i = 0; i < frames.number; i++) {
     let yPosition;
-    if (plane.number === 1) {
-      yPosition = plane.position * 20 - 10;
+    if (frames.number === 1) {
+      yPosition = frames.position * 20 - 10;
     } else {
-      let maxSpacing = 20 / (plane.number - 1);
-      let spacing = maxSpacing * plane.spacing;
-      let maxOffset = 20 - spacing * (plane.number - 1);
-      let offset = maxOffset * plane.position;
+      let maxSpacing = 20 / (frames.number - 1);
+      let spacing = maxSpacing * frames.spacing;
+      let maxOffset = 20 - spacing * (frames.number - 1);
+      let offset = maxOffset * frames.position;
       yPosition = -10 + i * spacing + offset;
     }
     positions.push(new Vector3(0, yPosition, 0));
@@ -576,12 +578,12 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
   const materials = useMemo(() => {
     const videoMaterial = new MeshBasicMaterial({
       map: videoTexture,
-      wireframe: plane.wireframe,
+      wireframe: frames.wireframe,
     });
     const transparentMaterial = new MeshBasicMaterial({
       transparent: true,
       opacity: 0,
-      wireframe: plane.wireframe,
+      wireframe: frames.wireframe,
     });
     return [
       transparentMaterial,
@@ -591,7 +593,7 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
       videoMaterial, // top
       transparentMaterial,
     ];
-  }, [videoTexture, plane.wireframe]);
+  }, [videoTexture, frames.wireframe]);
 
   const boxGeometry = new BoxGeometry(19.8, 19.8 / aspect, 0.01);
   boxGeometry.groups.forEach((group, i) => {
@@ -600,7 +602,7 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
 
   return (
     <>
-      {plane.show &&
+      {frames.show &&
         positions.map((position, index) => (
           <mesh key={index}>
             <Geometry computeVertexNormals useGroups>
@@ -661,11 +663,11 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
     if (!slitscan.rotate) {
       return;
     }
-    const radius = 25;
+    const radius = 20;
     const speed = 0.4;
     const angle = clock.getElapsedTime() * speed;
     camera.position.x = radius * Math.cos(angle);
-    camera.position.y = (radius * Math.sin(angle) + radius) / 2;
+    camera.position.y = 10 + (radius * Math.sin(angle) + radius) / 4;
     camera.position.z = radius * Math.sin(angle);
     camera.lookAt(0, 0, 0);
   });
