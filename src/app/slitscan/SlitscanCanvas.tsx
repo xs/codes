@@ -401,8 +401,7 @@ function meshGeometry(points: Vector3[][], solid: Boolean): BufferGeometry {
 }
 
 function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
-  const [debug, setDebug] = useControls("mesh", () => ({
-    rotate: true,
+  const [mesh, setMesh] = useControls("mesh", () => ({
     show: true,
     color: {
       value: {
@@ -427,44 +426,15 @@ function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
     },
   }));
 
-  // add a keyboard listener to toggle rotation
-  useEffect(() => {
-    function onKeyUp(event: KeyboardEvent) {
-      if (event.key === " ") {
-        setDebug({ rotate: !debug.rotate });
-      }
-    }
-
-    window.addEventListener("keyup", onKeyUp);
-
-    return () => {
-      window.removeEventListener("keyup", onKeyUp);
-    };
-  }, [debug.rotate]);
-
-  // rotate the camera around the origin if debug.rotate is true
-  useFrame(({ clock, camera }) => {
-    if (!debug.rotate) {
-      return;
-    }
-    const radius = 25;
-    const speed = 0.4;
-    const angle = clock.getElapsedTime() * speed;
-    camera.position.x = radius * Math.cos(angle);
-    camera.position.y = radius * Math.sin(angle);
-    camera.position.z = radius * Math.sin(angle);
-    camera.lookAt(0, 0, 0);
-  });
-
   const points = meshPoints({ cubicA, cubicB, aspect });
-  const color = debug.color.r * 256 ** 2 + debug.color.g * 256 + debug.color.b;
+  const color = mesh.color.r * 256 ** 2 + mesh.color.g * 256 + mesh.color.b;
 
   return (
     <>
-      {debug.show &&
-        (debug.polygon ? (
+      {mesh.show &&
+        (mesh.polygon ? (
           <PolygonMesh
-            wireframe={debug.wireframe}
+            wireframe={mesh.wireframe}
             color={color}
             points={points}
           />
@@ -472,8 +442,7 @@ function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
           <PointsMesh color={color} points={points} />
         ))}
       <ambientLight intensity={2} color={0xffffff} />
-      <PointLightCube radius={20} intensity={debug.light} />
-      <OrbitControls makeDefault />
+      <PointLightCube radius={20} intensity={mesh.light} />
     </>
   );
 }
@@ -600,7 +569,7 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
     ];
   }, [videoTexture, plane.wireframe]);
 
-  const boxGeometry = new BoxGeometry(19.9, 19.9 / aspect, 0.01);
+  const boxGeometry = new BoxGeometry(19, 19 / aspect, 0.01);
   boxGeometry.groups.forEach((group, i) => {
     group.materialIndex = i;
   });
@@ -634,7 +603,7 @@ interface SlitscanProps {
 
 function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
   // add leva controls in the "slitscan" folder
-  const [slitscan] = useControls("slitscan", () => ({
+  const [slitscan, setSlitscan] = useControls("slitscan", () => ({
     aspect: {
       value: 4 / 3,
       options: {
@@ -645,7 +614,37 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
         "9:16": 9 / 16,
       },
     },
+    rotate: true,
   }));
+
+  // add a keyboard listener to toggle rotation
+  useEffect(() => {
+    function onKeyUp(event: KeyboardEvent) {
+      if (event.key === " ") {
+        setSlitscan({ rotate: !slitscan.rotate });
+      }
+    }
+
+    window.addEventListener("keyup", onKeyUp);
+
+    return () => {
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, [slitscan.rotate]);
+
+  // rotate the camera around the origin if slitscan.rotate is true
+  useFrame(({ clock, camera }) => {
+    if (!slitscan.rotate) {
+      return;
+    }
+    const radius = 25;
+    const speed = 0.4;
+    const angle = clock.getElapsedTime() * speed;
+    camera.position.x = radius * Math.cos(angle);
+    camera.position.y = radius * Math.sin(angle);
+    camera.position.z = radius * Math.sin(angle);
+    camera.lookAt(0, 0, 0);
+  });
 
   // add leva controls in the "helper" folder
   const [helpers] = useControls("helpers", () => ({
@@ -673,6 +672,7 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
           ]}
         />
       )}
+      <OrbitControls makeDefault />
       <BezierMesh cubicA={cubicA} cubicB={cubicB} aspect={slitscan.aspect} />
       <FramePlane aspect={slitscan.aspect} mesh={meshProps} />
     </>
