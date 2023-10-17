@@ -13,7 +13,7 @@ import {
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
 import { Leva, useControls } from "leva";
-import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
 import {
   Box3,
   BufferAttribute,
@@ -21,6 +21,7 @@ import {
   Color,
   CubicBezierCurve3,
   DoubleSide,
+  MeshBasicMaterial,
   Texture,
   TextureLoader,
   Vector3,
@@ -578,7 +579,25 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
 
   const subtraction: BufferGeometry = meshGeometry(meshPoints(mesh), true);
 
-  const videoTexture: Texture = useVideoTexture("/videos/output.mp4");
+  const videoTexture: Texture = useVideoTexture("/videos/waves.mp4");
+
+  const transparentMaterial = new MeshBasicMaterial({
+    transparent: true,
+    opacity: 0,
+  });
+
+  // create array of six materials to use for the six sides of the cube
+  const materials = useMemo(
+    () => [
+      videoTexture,
+      transparentMaterial,
+      transparentMaterial,
+      transparentMaterial,
+      transparentMaterial,
+      transparentMaterial,
+    ],
+    [videoTexture],
+  );
 
   return (
     <>
