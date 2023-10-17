@@ -20,6 +20,7 @@ import {
   Color,
   CubicBezierCurve3,
   DoubleSide,
+  Texture,
   TextureLoader,
   Vector3,
 } from "three";
@@ -581,17 +582,19 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
       {plane.show &&
         positions.map((position, index) => (
           <mesh key={index}>
-            <Geometry computeVertexNormals>
+            <Geometry computeVertexNormals useGroups>
               <Base position={position} rotation={[-Math.PI / 2, 0, 0]}>
                 <boxGeometry args={[20, 20 / aspect, 0.01]} />
+                <meshBasicMaterial
+                  transparent
+                  map={new TextureLoader().load("/textures/clown.jpeg")}
+                  opacity={plane.opacity}
+                />
               </Base>
-              <Subtraction geometry={subtraction} />
+              <Subtraction geometry={subtraction}>
+                <meshBasicMaterial color="white" transparent opacity={0} />
+              </Subtraction>
             </Geometry>
-            <meshBasicMaterial
-              transparent
-              map={new TextureLoader().load("/textures/clown.jpeg")}
-              opacity={plane.opacity}
-            />
           </mesh>
         ))}
     </>
