@@ -424,7 +424,7 @@ function meshGeometry(points: Vector3[][], solid: Boolean): BufferGeometry {
 
 function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
   const [mesh, setMesh] = useControls("mesh", () => ({
-    show: true,
+    show: false,
     color: {
       value: {
         r: 255 * Math.random(),
@@ -530,14 +530,14 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
       render: (get) => get("plane.show"),
     },
     number: {
-      value: 1,
+      value: 120,
       min: 1,
-      max: 120,
+      max: 240,
       step: 1,
       render: (get) => get("plane.show"),
     },
     spacing: {
-      value: 0.5,
+      value: 1.0,
       min: 0,
       max: 1,
       step: 0.01,
@@ -593,7 +593,7 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
     ];
   }, [videoTexture, plane.wireframe]);
 
-  const boxGeometry = new BoxGeometry(19.5, 19.5 / aspect, 0.01);
+  const boxGeometry = new BoxGeometry(19.8, 19.8 / aspect, 0.01);
   boxGeometry.groups.forEach((group, i) => {
     group.materialIndex = i;
   });
@@ -665,14 +665,14 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
     const speed = 0.4;
     const angle = clock.getElapsedTime() * speed;
     camera.position.x = radius * Math.cos(angle);
-    camera.position.y = radius * Math.sin(angle);
+    camera.position.y = (radius * Math.sin(angle) + radius) / 2;
     camera.position.z = radius * Math.sin(angle);
     camera.lookAt(0, 0, 0);
   });
 
   // add leva controls in the "helper" folder
   const [helpers] = useControls("helpers", () => ({
-    axes: true,
+    axes: false,
     "bounding box": true,
   }));
 
@@ -689,8 +689,8 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
         <box3Helper
           args={[
             new Box3(
-              new Vector3(-10, -10, -10 / slitscan.aspect),
-              new Vector3(10, 10, 10 / slitscan.aspect),
+              new Vector3(-9.9, -10, -9.9 / slitscan.aspect),
+              new Vector3(9.9, 10, 9.9 / slitscan.aspect),
             ),
             new Color("black"),
           ]}
