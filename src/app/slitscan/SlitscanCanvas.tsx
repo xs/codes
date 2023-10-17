@@ -24,7 +24,6 @@ import {
   DoubleSide,
   MeshBasicMaterial,
   Texture,
-  TextureLoader,
   Vector3,
 } from "three";
 
@@ -535,11 +534,9 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
       step: 0.01,
       render: (get) => get("plane.show"),
     },
-    opacity: {
-      value: 0.9,
-      min: 0,
-      max: 1,
-      step: 0.01,
+    wireframe: {
+      value: false,
+      render: (get) => get("plane.show"),
     },
     number: {
       value: 1,
@@ -586,22 +583,24 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
   const materials = useMemo(() => {
     const videoMaterial = new MeshBasicMaterial({
       map: videoTexture,
+      wireframe: plane.wireframe,
     });
     const transparentMaterial = new MeshBasicMaterial({
       transparent: true,
       opacity: 0,
+      wireframe: plane.wireframe,
     });
     return [
       transparentMaterial,
       transparentMaterial,
       transparentMaterial,
       transparentMaterial,
-      videoMaterial,
+      videoMaterial, // top
       transparentMaterial,
     ];
-  }, [videoTexture]);
+  }, [videoTexture, plane.wireframe]);
 
-  const boxGeometry = new BoxGeometry(20, 20 / aspect, 0.01);
+  const boxGeometry = new BoxGeometry(19.9, 19.9 / aspect, 0.01);
   boxGeometry.groups.forEach((group, i) => {
     group.materialIndex = i;
   });
