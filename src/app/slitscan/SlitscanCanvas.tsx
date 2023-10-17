@@ -357,32 +357,54 @@ function meshGeometry(points: Vector3[][], solid: Boolean): BufferGeometry {
     );
 
     for (let i = 0; i < numCols - 1; i++) {
-      const a = firstRowIndices[i];
-      const b = firstRowIndices[i + 1];
-      const c = projectedFirstRowIndices[i];
-      const d = projectedFirstRowIndices[i + 1];
-      const e = lastRowIndices[i];
-      const f = lastRowIndices[i + 1];
-      const g = projectedLastRowIndices[i];
-      const h = projectedLastRowIndices[i + 1];
-      indices.push(a, b, c, b, d, c, e, f, g, f, h, g, c, d, g, d, h, g);
+      // the vertices are arranged as follows:
+      //     a---------b
+      //    /|        /|
+      //   / |       / |
+      //  e---------f  |
+      //  |  |      |  |
+      //  |  c------|--d
+      //  | /       | /
+      //  |/        |/
+      //  g---------h
+      // note that the c-d-g-h face is already drawn by the previous loop;
+      // use the right-hand rule to determine the order of the vertices:
+      // curl your fingers in vertex order, thumb points out of mesh
+      const a = projectedFirstRowIndices[i];
+      const b = projectedFirstRowIndices[i + 1];
+      const c = firstRowIndices[i];
+      const d = firstRowIndices[i + 1];
+      const e = projectedLastRowIndices[i];
+      const f = projectedLastRowIndices[i + 1];
+      const g = lastRowIndices[i];
+      const h = lastRowIndices[i + 1];
+      indices.push(a, b, c, b, d, c);
+      indices.push(e, g, f, f, g, h);
+      indices.push(a, e, b, b, e, f);
     }
 
-    // draw triangles to connect the first and last rows
-    indices.push(
-      firstRowIndices[0],
-      projectedFirstRowIndices[0],
-      lastRowIndices[0],
-      projectedFirstRowIndices[0],
-      projectedLastRowIndices[0],
-      lastRowIndices[0],
-      firstRowIndices[numCols - 1],
-      projectedFirstRowIndices[numCols - 1],
-      lastRowIndices[numCols - 1],
-      projectedFirstRowIndices[numCols - 1],
-      projectedLastRowIndices[numCols - 1],
-      lastRowIndices[numCols - 1],
-    );
+    // draw triangles to connect the first and last rows.
+    // again, the vertices are arranged as follows:
+    //     a---------b
+    //    /|        /|
+    //   / |       / |
+    //  e---------f  |
+    //  |  |      |  |
+    //  |  c------|--d
+    //  | /       | /
+    //  |/        |/
+    //  g---------h
+    // but this time we draw the a-c-g-e and b-d-h-f faces
+    const a = projectedFirstRowIndices[0];
+    const b = projectedFirstRowIndices[numCols - 1];
+    const c = firstRowIndices[0];
+    const d = firstRowIndices[numCols - 1];
+    const e = projectedLastRowIndices[0];
+    const f = projectedLastRowIndices[numCols - 1];
+    const g = lastRowIndices[0];
+    const h = lastRowIndices[numCols - 1];
+
+    indices.push(a, c, e, e, c, g, b, f, d, d, f, h);
   }
 
   // set geometry from vertices
@@ -523,6 +545,8 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
     },
   }));
 
+  const [frames, setFrames] = useState<Texture[]>([]);
+
   const positions = [];
 
   // if number is 1, then spacing is irrelevant and position is the only thing that matters; 0 means a y position of -10, 1 means a y position of 10
@@ -569,7 +593,7 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
     ];
   }, [videoTexture, plane.wireframe]);
 
-  const boxGeometry = new BoxGeometry(19, 19 / aspect, 0.01);
+  const boxGeometry = new BoxGeometry(19.5, 19.5 / aspect, 0.01);
   boxGeometry.groups.forEach((group, i) => {
     group.materialIndex = i;
   });
