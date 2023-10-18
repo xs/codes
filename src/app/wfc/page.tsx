@@ -1,11 +1,11 @@
 "use client";
 
-import InputBitmap from "./components/InputBitmap";
+import WFC from "./components/WFC";
 
 export default function Page() {
   return (
-    <div className="h-[calc(100dvh)] flex justify-center items-center">
-      <InputBitmap />
+    <div className="h-[calc(100dvh)]">
+      <WFC />
     </div>
   );
 }

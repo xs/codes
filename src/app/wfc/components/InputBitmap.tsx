@@ -1,13 +1,14 @@
 import { Grid } from "../lib/Grid";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const InputBitmap: React.FC = () => {
-  const [inputGrid, setInputGrid] = useState<Grid<number>>(
-    new Grid({ rows: 4, cols: 4, init: 0 }),
-  );
+interface InputBitmapProps {
+  input: Grid<number>;
+  setInput: React.Dispatch<React.SetStateAction<Grid<number>>>;
+}
 
+const InputBitmap: React.FC<InputBitmapProps> = ({ input, setInput }) => {
   const togglePixel = (row: number, col: number) => {
-    setInputGrid((prevGrid) => {
+    setInput((prevGrid) => {
       const newGrid = prevGrid.clone();
       newGrid.set(row, col, prevGrid.get(row, col) === 0 ? 1 : 0);
       return newGrid;
@@ -20,12 +21,16 @@ const InputBitmap: React.FC = () => {
         <div key={i} className="flex">
           {[...Array(3)].map((_, j) => (
             <div key={j}>
-              {inputGrid.map((row, rowIndex) => (
+              {input.grid.map((row, rowIndex) => (
                 <div key={rowIndex} className="flex">
                   {row.map((pixel, colIndex) => (
                     <div
                       className={`w-6 h-6 ${
                         i != 1 || j != 1 ? "opacity-40" : ""
+                      } ${
+                        pixel === 0
+                          ? "bg-yellow-400 hover:bg-yellow-500"
+                          : "bg-green-500 hover:bg-green-600"
                       }`}
                       key={`${rowIndex}-${colIndex}`}
                       onClick={() => {
@@ -40,7 +45,6 @@ const InputBitmap: React.FC = () => {
                         );
                         togglePixel(rowIndex, colIndex);
                       }}
-                      style={{ backgroundColor: pixel === 0 ? "red" : "blue" }}
                     />
                   ))}
                 </div>
