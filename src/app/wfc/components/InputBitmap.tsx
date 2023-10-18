@@ -16,26 +16,36 @@ const InputBitmap: React.FC = () => {
 
   return (
     <div>
-      {inputGrid.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex">
-          {row.map((pixel, colIndex) => (
-            <div
-              className="w-6 h-6"
-              key={`${rowIndex}-${colIndex}}`}
-              onClick={() => {
-                console.log(
-                  "toggling pixel",
-                  rowIndex,
-                  colIndex,
-                  "from",
-                  pixel,
-                  "to",
-                  pixel === 0 ? 1 : 0,
-                );
-                togglePixel(rowIndex, colIndex);
-              }}
-              style={{ backgroundColor: pixel === 0 ? "red" : "blue" }}
-            />
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="flex">
+          {[...Array(3)].map((_, j) => (
+            <div key={j}>
+              {inputGrid.map((row, rowIndex) => (
+                <div key={rowIndex} className="flex">
+                  {row.map((pixel, colIndex) => (
+                    <div
+                      className={`w-6 h-6 ${
+                        i != 1 || j != 1 ? "opacity-40" : ""
+                      }`}
+                      key={`${rowIndex}-${colIndex}`}
+                      onClick={() => {
+                        console.log(
+                          "toggling pixel",
+                          rowIndex,
+                          colIndex,
+                          "from",
+                          pixel,
+                          "to",
+                          pixel === 0 ? 1 : 0,
+                        );
+                        togglePixel(rowIndex, colIndex);
+                      }}
+                      style={{ backgroundColor: pixel === 0 ? "red" : "blue" }}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
           ))}
         </div>
       ))}
