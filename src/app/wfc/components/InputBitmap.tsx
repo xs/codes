@@ -1,33 +1,37 @@
+import { Grid } from "../lib/Grid";
 import React, { useState } from "react";
 
-type Grid = number[][];
-
-interface InputBitmapProps {
-  initialGrid: Grid;
-}
-
-const InputBitmap: React.FC<InputBitmapProps> = ({ initialGrid }) => {
-  const [grid, setGrid] = useState<Grid>(initialGrid);
+const InputBitmap: React.FC = () => {
+  const [inputGrid, setInputGrid] = useState<Grid<number>>(
+    new Grid({ rows: 4, cols: 4, init: 0 }),
+  );
 
   const togglePixel = (row: number, col: number) => {
-    setGrid((prevGrid) => {
-      const newGrid = [...prevGrid];
-      newGrid[row][col] = newGrid[row][col] === 0 ? 1 : 0;
-      console.table(newGrid);
+    setInputGrid((prevGrid) => {
+      const newGrid = prevGrid.clone();
+      newGrid.set(row, col, prevGrid.get(row, col) === 0 ? 1 : 0);
       return newGrid;
     });
   };
 
   return (
     <div>
-      {grid.map((row, rowIndex) => (
+      {inputGrid.map((row, rowIndex) => (
         <div key={rowIndex} className="flex">
           {row.map((pixel, colIndex) => (
             <div
               className="w-6 h-6"
               key={`${rowIndex}-${colIndex}}`}
               onClick={() => {
-                console.log("toggling pixel", rowIndex, colIndex);
+                console.log(
+                  "toggling pixel",
+                  rowIndex,
+                  colIndex,
+                  "from",
+                  pixel,
+                  "to",
+                  pixel === 0 ? 1 : 0,
+                );
                 togglePixel(rowIndex, colIndex);
               }}
               style={{ backgroundColor: pixel === 0 ? "red" : "blue" }}
