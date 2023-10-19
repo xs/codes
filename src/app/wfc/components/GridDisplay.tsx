@@ -3,20 +3,20 @@ import { Grid } from "../lib/Grid";
 interface GridDisplayProps<T> {
   grid: Grid<T>;
   pixelSize: number;
-  colorMap: { [key: number]: [string, number] };
+  colorMap: { [key: number]: string };
   opacity?: number;
+  onClick?: (row: number, col: number) => void;
 }
 
 const GridDisplay: React.FC<GridDisplayProps<number | undefined>> = ({
   grid,
   pixelSize,
   colorMap,
+  onClick = () => {},
   opacity = 100,
 }) => {
   const className = (pixel: number | undefined): string => {
-    let hue = "gray";
-    let shade = 300;
-    let hoverShade = 600;
+    let colorClasses = "bg-gray-300 hover:bg-gray-400";
 
     if (pixel !== undefined) {
       const color = colorMap[pixel];
@@ -27,12 +27,11 @@ const GridDisplay: React.FC<GridDisplayProps<number | undefined>> = ({
           "defaulting to gray",
         );
       } else {
-        [hue, shade] = color;
-        hoverShade = shade + 100;
+        colorClasses = color;
       }
     }
 
-    return `w-${pixelSize} h-${pixelSize} bg-${hue}-${shade} hover:bg-${hue}-${hoverShade} opacity-${opacity}`;
+    return `w-${pixelSize} h-${pixelSize} ${colorClasses} opacity-${opacity}`;
   };
 
   return (
@@ -40,7 +39,15 @@ const GridDisplay: React.FC<GridDisplayProps<number | undefined>> = ({
       {Array.from({ length: grid.height() }, (_, row) => (
         <div key={row} className="flex">
           {Array.from({ length: grid.width() }, (_, col) => {
-            return <div key={col} className={className(grid.get(row, col))} />;
+            return (
+              <div
+                key={col}
+                className={className(grid.get(row, col))}
+                onClick={() => {
+                  onClick(row, col);
+                }}
+              />
+            );
           })}
         </div>
       ))}

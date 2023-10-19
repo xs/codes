@@ -195,8 +195,8 @@ const Wave: React.FC<WaveProps> = ({
       grid={output}
       pixelSize={3}
       colorMap={{
-        0: ["yellow", 400],
-        1: ["green", 500],
+        0: "bg-yellow-400 hover:bg-yellow-500",
+        1: "bg-green-500 hover:bg-green-600",
       }}
     />
   );

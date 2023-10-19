@@ -1,6 +1,7 @@
 import { Grid } from "../lib/Grid";
 import GridDisplay from "./GridDisplay";
-import React, { useEffect, useState } from "react";
+import { useControls } from "leva";
+import React from "react";
 
 interface InputBitmapProps {
   input: Grid<number>;
@@ -8,6 +9,15 @@ interface InputBitmapProps {
 }
 
 const InputBitmap: React.FC<InputBitmapProps> = ({ input, setInput }) => {
+  const [inputSetting] = useControls("input", () => ({
+    pixelSize: {
+      value: 6,
+      min: 3,
+      max: 10,
+      step: 1,
+    },
+  }));
+
   const togglePixel = (row: number, col: number) => {
     const newInput = input.clone();
     newInput.set(row, col, input.get(row, col) === 0 ? 1 : 0);
@@ -22,12 +32,13 @@ const InputBitmap: React.FC<InputBitmapProps> = ({ input, setInput }) => {
             <div key={j}>
               <GridDisplay
                 grid={input}
-                pixelSize={6}
+                pixelSize={inputSetting.pixelSize}
                 opacity={i === 1 && j === 1 ? 100 : 40}
                 colorMap={{
-                  0: ["yellow", 400],
-                  1: ["green", 500],
+                  0: "bg-yellow-400 hover:bg-yellow-500",
+                  1: "bg-green-500 hover:bg-green-600",
                 }}
+                onClick={togglePixel}
               />
             </div>
           ))}
