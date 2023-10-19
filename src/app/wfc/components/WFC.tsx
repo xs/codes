@@ -1,6 +1,7 @@
 import { Grid } from "../lib/Grid";
 import InputBitmap from "./InputBitmap";
-import Wave from "./Wave";
+import OutputWave from "./OutputWave";
+import Patterns from "./Patterns";
 import { Leva, useControls } from "leva";
 import React, { useEffect, useState } from "react";
 
@@ -66,10 +67,21 @@ const WFC: React.FC = () => {
         }}
       />
       <div className="landscape:w-1/2 landscape:h-full portrait:h-1/2 portrait:w-full items-center justify-center flex">
-        <InputBitmap input={inputGrid} setInput={setInputGrid} />
+        <div className="flex flex-col items-center justify-center">
+          <div>
+            <InputBitmap input={inputGrid} setInput={setInputGrid} />
+          </div>
+          <div>
+            <Patterns input={inputGrid} />
+          </div>
+        </div>
       </div>
       <div className="flex landscape:w-1/2 landscape:h-full portrait:h-1/2 portrait:w-full items-center justify-center">
-        <Wave width={output.width} height={output.height} input={inputGrid} />
+        <OutputWave
+          width={output.width}
+          height={output.height}
+          input={inputGrid}
+        />
       </div>
     </div>
   );

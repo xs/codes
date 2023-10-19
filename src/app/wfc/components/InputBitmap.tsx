@@ -9,7 +9,7 @@ interface InputBitmapProps {
 }
 
 const InputBitmap: React.FC<InputBitmapProps> = ({ input, setInput }) => {
-  const [inputSetting] = useControls("input", () => ({
+  const [inputSettings] = useControls("input", () => ({
     pixelSize: {
       value: 6,
       min: 3,
@@ -32,7 +32,7 @@ const InputBitmap: React.FC<InputBitmapProps> = ({ input, setInput }) => {
             <div key={j}>
               <GridDisplay
                 grid={input}
-                pixelSize={inputSetting.pixelSize}
+                pixelSize={inputSettings.pixelSize}
                 opacity={i === 1 && j === 1 ? 100 : 40}
                 colorMap={{
                   0: "bg-yellow-400 hover:bg-yellow-500",
