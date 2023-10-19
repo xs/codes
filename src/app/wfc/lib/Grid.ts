@@ -43,7 +43,6 @@ export class Grid<T> {
 
   // overwrite with given grid at given row and column
   write(row: number, col: number, grid: Grid<T>): void {
-    console.log("writing!");
     for (let r = 0; r < grid.height(); r++) {
       for (let c = 0; c < grid.width(); c++) {
         this.set(row + r, col + c, grid.get(r, c));
@@ -52,6 +51,9 @@ export class Grid<T> {
   }
 
   get(row: number, col: number): T {
+    if (!this.inBounds(row, col)) {
+      throw new Error("Row or column out of bounds");
+    }
     return this.grid[row][col];
   }
 
@@ -65,6 +67,29 @@ export class Grid<T> {
     for (let row = 0; row < this.height(); row++) {
       for (let col = 0; col < this.width(); col++) {
         newGrid.set(row, col, this.get(row, col));
+      }
+    }
+
+    return newGrid;
+  }
+
+  inBounds(row: number, col: number): boolean {
+    return row >= 0 && row < this.height() && col >= 0 && col < this.width();
+  }
+
+  // shifts the grid by the given row and column offsets, filling in the new space with undefined
+  shift(rowOffset: number, colOffset: number): Grid<T | undefined> {
+    let newGrid = new Grid<T | undefined>({
+      rows: this.height(),
+      cols: this.width(),
+      init: undefined,
+    });
+
+    for (let row = 0; row < this.height(); row++) {
+      for (let col = 0; col < this.width(); col++) {
+        if (this.inBounds(row + rowOffset, col + colOffset)) {
+          newGrid.set(row + rowOffset, col + colOffset, this.get(row, col));
+        }
       }
     }
 
@@ -133,11 +158,12 @@ export class Grid<T> {
     return patterns;
   }
 
-  slice(row: number, col: number, n: number): Grid<T> {
+  // return a slice of the grid starting at the given row and column
+  slice(row: number, col: number, n: number): Grid<T | undefined> {
     const newSlice = new Grid<T>({
       rows: n,
       cols: n,
-      init: this.init,
+      init: undefined,
     });
 
     for (let i = 0; i < n; i++) {

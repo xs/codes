@@ -32,15 +32,6 @@ const InputBitmap: React.FC<InputBitmapProps> = ({ input, setInput }) => {
                       }`}
                       key={`${rowIndex}-${colIndex}`}
                       onClick={() => {
-                        console.log(
-                          "toggling pixel",
-                          rowIndex,
-                          colIndex,
-                          "from",
-                          pixel,
-                          "to",
-                          pixel === 0 ? 1 : 0,
-                        );
                         togglePixel(rowIndex, colIndex);
                       }}
                     />

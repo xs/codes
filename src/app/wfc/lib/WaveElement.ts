@@ -1,4 +1,5 @@
 import { Grid } from "./Grid";
+import sample from "lodash/sample";
 
 interface WaveElementProps<T> {
   output: Grid<T | undefined>; // pixels are either observed or not
@@ -6,7 +7,7 @@ interface WaveElementProps<T> {
 }
 
 export class WaveElement<T> {
-  output: Grid<T>;
+  output: Grid<T | undefined>;
   patterns: Grid<T>[];
 
   constructor({ output, patterns }: WaveElementProps<any>) {
@@ -16,18 +17,27 @@ export class WaveElement<T> {
 
   legal(pattern: Grid<T>): boolean {
     return this.output.grid.every((row, r: number) => {
-      return row.every((pixel: T, c: number) => {
+      return row.every((pixel: T | undefined, c: number) => {
         return pixel === undefined || pattern.get(r, c) === pixel;
       });
     });
   }
 
   // return 0 if there is only one legal pattern left, otherwise return legal patterns / total patterns
-  entropy(): number {
+  // first number is available patterns, second number is observed pixels
+  entropy(): [number, number] {
     let legalPatterns = this.patterns.filter((pattern) => this.legal(pattern));
-    return legalPatterns.length <= 1
-      ? 0
-      : legalPatterns.length / this.patterns.length;
+
+    const patternEntropy =
+      legalPatterns.length <= 1
+        ? 0
+        : legalPatterns.length / this.patterns.length;
+
+    const pixelEntropy = this.output.grid.reduce((acc, row) => {
+      return acc + row.filter((pixel) => pixel === undefined).length;
+    }, 0);
+
+    return [patternEntropy, pixelEntropy];
   }
 
   contradiction(): boolean {
@@ -51,7 +61,7 @@ export class WaveElement<T> {
   }
 
   // return a random legal pattern
-  observe(): Grid<T> {
+  collapse(): Grid<T> {
     const legalPatterns = this.patterns.filter((pattern) =>
       this.legal(pattern),
     );
@@ -60,7 +70,22 @@ export class WaveElement<T> {
       throw new Error("No legal patterns available");
     }
 
-    const randomIndex = Math.floor(Math.random() * legalPatterns.length);
-    return legalPatterns[randomIndex];
+    const pattern = sample(legalPatterns) as Grid<T>;
+    this.output = pattern;
+
+    console.log("observed out of ", legalPatterns.length, " legal patterns:");
+    console.table(pattern.grid);
+
+    return pattern;
+  }
+
+  propagate(observation: Grid<T | undefined>): void {
+    for (let row = 0; row < observation.height(); row++) {
+      for (let col = 0; col < observation.width(); col++) {
+        const currentPixel = this.output.get(row, col);
+        const observedPixel = observation.get(row, col);
+        this.output.set(row, col, currentPixel || observedPixel);
+      }
+    }
   }
 }

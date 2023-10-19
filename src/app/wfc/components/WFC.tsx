@@ -23,13 +23,13 @@ const WFC: React.FC = () => {
   const [output] = useControls("output", () => ({
     height: {
       value: 30,
-      min: 10,
+      min: 3,
       max: 100,
       step: 1,
     },
     width: {
-      value: 40,
-      min: 10,
+      value: 30,
+      min: 3,
       max: 100,
       step: 1,
     },
@@ -41,6 +41,7 @@ const WFC: React.FC = () => {
 
   // stretch / shrink input grid to match controls
   useEffect(() => {
+    console.log("resizing input grid", input);
     const newGrid = new Grid({
       rows: input.height,
       cols: input.width,
@@ -54,7 +55,7 @@ const WFC: React.FC = () => {
       });
     });
     setInputGrid(newGrid);
-  }, [input.height, input.width]);
+  }, [input]);
 
   return (
     <div className="flex w-full landscape:flex-row portrait:flex-col h-[calc(100dvh)]">
