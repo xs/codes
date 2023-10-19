@@ -1,5 +1,6 @@
 import { Grid } from "../lib/Grid";
 import { WaveElement } from "../lib/WaveElement";
+import GridDisplay from "./GridDisplay";
 import { button, useControls } from "leva";
 import { sample } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -64,6 +65,9 @@ const Wave: React.FC<WaveProps> = ({
         }
         setOutput(newOutput);
       }),
+      clear: button(() => {
+        reset();
+      }),
       "log output": button(() => {
         console.table(output.grid);
       }),
@@ -88,13 +92,13 @@ const Wave: React.FC<WaveProps> = ({
     }),
   );
 
-  useEffect(() => {
+  const reset = () => {
     let newOutput = initOutput(height, width);
 
     const makeWaveElement = (row: number, col: number): WaveElement<number> => {
       return new WaveElement({
         output: newOutput.slice(row, col, elementDim),
-        patterns: input.getPatterns(elementDim),
+        patterns: input.getPatterns(elementDim, false),
       });
     };
 
@@ -108,6 +112,10 @@ const Wave: React.FC<WaveProps> = ({
     newOutput = observe(newOutput, waveElements.current);
 
     setOutput(newOutput);
+  };
+
+  useEffect(() => {
+    reset();
   }, [height, width, input]);
 
   const observe = (
@@ -183,37 +191,14 @@ const Wave: React.FC<WaveProps> = ({
   };
 
   return (
-    <div>
-      {Array.from({ length: height }, (_, row) => (
-        <div key={row} className="flex">
-          {Array.from({ length: width }, (_, col) => {
-            switch (output.get(row, col)) {
-              case 0:
-                return (
-                  <div
-                    key={col}
-                    className="w-3 h-3 bg-yellow-400 hover:bg-yellow-500"
-                  />
-                );
-              case 1:
-                return (
-                  <div
-                    key={col}
-                    className="w-3 h-3 bg-green-500 hover:bg-green-600"
-                  />
-                );
-              default:
-                return (
-                  <div
-                    key={col}
-                    className="w-3 h-3 bg-gray-300 hover:bg-gray-600"
-                  />
-                );
-            }
-          })}
-        </div>
-      ))}
-    </div>
+    <GridDisplay
+      grid={output}
+      pixelSize={3}
+      colorMap={{
+        0: ["yellow", 400],
+        1: ["green", 500],
+      }}
+    />
   );
 };
 

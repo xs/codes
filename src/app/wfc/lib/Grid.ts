@@ -124,7 +124,7 @@ export class Grid<T> {
     console.table(this.grid);
   }
 
-  getPatterns(n: number): Grid<T>[] {
+  getPatterns(n: number, withRotations: boolean): Grid<T>[] {
     const inputHeight = this.height();
     const inputWidth = this.width();
     if (inputHeight < n || inputWidth < n) {
@@ -151,11 +151,47 @@ export class Grid<T> {
           }
         }
 
-        patterns.push(pattern);
+        if (withRotations) {
+          patterns.push(...pattern.rotations());
+        } else {
+          patterns.push(pattern);
+        }
       }
     }
 
     return patterns;
+  }
+
+  // rotate grid 90 degrees
+  rotate(): void {
+    const newGrid = new Grid<T>({
+      rows: this.width(),
+      cols: this.height(),
+      init: this.init,
+    });
+
+    for (let row = 0; row < this.height(); row++) {
+      for (let col = 0; col < this.width(); col++) {
+        newGrid.set(col, this.height() - row - 1, this.get(row, col));
+      }
+    }
+
+    this.grid = newGrid.grid;
+  }
+
+  // return all the rotations of the grid
+  rotations(): Grid<T>[] {
+    const rotations: Grid<T>[] = [];
+
+    for (let i = 0; i < 4; i++) {
+      const rotatedGrid = this.clone();
+      for (let j = 0; j < i; j++) {
+        rotatedGrid.rotate();
+      }
+      rotations.push(rotatedGrid);
+    }
+
+    return rotations;
   }
 
   // return a slice of the grid starting at the given row and column

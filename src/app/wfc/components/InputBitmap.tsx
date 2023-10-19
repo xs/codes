@@ -1,4 +1,5 @@
 import { Grid } from "../lib/Grid";
+import GridDisplay from "./GridDisplay";
 import React, { useEffect, useState } from "react";
 
 interface InputBitmapProps {
@@ -19,25 +20,15 @@ const InputBitmap: React.FC<InputBitmapProps> = ({ input, setInput }) => {
         <div key={i} className="flex">
           {[...Array(3)].map((_, j) => (
             <div key={j}>
-              {input.grid.map((row, rowIndex) => (
-                <div key={rowIndex} className="flex">
-                  {row.map((pixel, colIndex) => (
-                    <div
-                      className={`w-6 h-6 ${
-                        i != 1 || j != 1 ? "opacity-40" : ""
-                      } ${
-                        pixel === 0
-                          ? "bg-yellow-400 hover:bg-yellow-500"
-                          : "bg-green-500 hover:bg-green-600"
-                      }`}
-                      key={`${rowIndex}-${colIndex}`}
-                      onClick={() => {
-                        togglePixel(rowIndex, colIndex);
-                      }}
-                    />
-                  ))}
-                </div>
-              ))}
+              <GridDisplay
+                grid={input}
+                pixelSize={6}
+                opacity={i === 1 && j === 1 ? 100 : 40}
+                colorMap={{
+                  0: ["yellow", 400],
+                  1: ["green", 500],
+                }}
+              />
             </div>
           ))}
         </div>
