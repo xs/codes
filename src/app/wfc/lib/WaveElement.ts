@@ -33,21 +33,17 @@ export class WaveElement<T> {
         ? 0
         : legalPatterns.length / this.patterns.length;
 
-    const pixelEntropy = this.output.grid.reduce((acc, row) => {
-      return acc + row.filter((pixel) => pixel === undefined).length;
-    }, 0);
+    const pixelEntropy =
+      this.output.grid.reduce((acc, row) => {
+        return acc + row.filter((pixel) => pixel === undefined).length;
+      }, 0) /
+      (this.output.width() * this.output.height());
 
     return [patternEntropy, pixelEntropy];
   }
 
   contradiction(): boolean {
     return this.patterns.every((pattern) => !this.legal(pattern));
-  }
-
-  log(): void {
-    console.log("wave element", this);
-    console.log("output:");
-    console.table(this.output.grid);
   }
 
   observed(): boolean {
@@ -82,9 +78,11 @@ export class WaveElement<T> {
   propagate(observation: Grid<T | undefined>): void {
     for (let row = 0; row < observation.height(); row++) {
       for (let col = 0; col < observation.width(); col++) {
-        const currentPixel = this.output.get(row, col);
         const observedPixel = observation.get(row, col);
-        this.output.set(row, col, currentPixel || observedPixel);
+        if (observedPixel === undefined) {
+          continue;
+        }
+        this.output.set(row, col, observedPixel);
       }
     }
   }

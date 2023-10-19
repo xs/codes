@@ -1,5 +1,6 @@
 import { Grid } from "../lib/Grid";
 import { WaveElement } from "../lib/WaveElement";
+import { button, useControls } from "leva";
 import { sample } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
@@ -35,6 +36,50 @@ const Wave: React.FC<WaveProps> = ({
 
   const [output, setOutput] = useState(initOutput(height, width));
 
+  useControls(
+    "wave",
+    () => ({
+      observe: button(() => {
+        console.log("observe");
+        setOutput(observe(output, waveElements.current));
+      }),
+      "observe 10x": button(() => {
+        let newOutput = output.clone();
+        for (let i = 0; i < 10; i++) {
+          newOutput = observe(newOutput, waveElements.current);
+        }
+        setOutput(newOutput);
+      }),
+      "observe all": button(() => {
+        let newOutput = output.clone();
+        while (true) {
+          newOutput = observe(newOutput, waveElements.current);
+          if (
+            waveElements.current
+              .mapCells((waveElement) => waveElement.observed())
+              .grid.every((row) => row.every((observed) => observed))
+          ) {
+            break;
+          }
+        }
+        setOutput(newOutput);
+      }),
+      "log output": button(() => {
+        console.table(output.grid);
+      }),
+      "show entropies": button(() => {
+        const entropies = waveElements.current.mapCells((waveElement) => {
+          return waveElement
+            .entropy()
+            .map((entropy) => entropy.toFixed(3))
+            .toString();
+        });
+        console.table(entropies.grid);
+      }),
+    }),
+    [output, setOutput],
+  );
+
   const waveElements = useRef(
     new Grid<WaveElement<number>>({
       rows: height - elementDim + 1,
@@ -60,8 +105,6 @@ const Wave: React.FC<WaveProps> = ({
       init: makeWaveElement,
     });
 
-    newOutput = observe(newOutput, waveElements.current);
-    newOutput = observe(newOutput, waveElements.current);
     newOutput = observe(newOutput, waveElements.current);
 
     setOutput(newOutput);
@@ -149,21 +192,21 @@ const Wave: React.FC<WaveProps> = ({
                 return (
                   <div
                     key={col}
-                    className="w-4 h-4 bg-yellow-400 hover:bg-yellow-500"
+                    className="w-3 h-3 bg-yellow-400 hover:bg-yellow-500"
                   />
                 );
               case 1:
                 return (
                   <div
                     key={col}
-                    className="w-4 h-4 bg-green-500 hover:bg-green-600"
+                    className="w-3 h-3 bg-green-500 hover:bg-green-600"
                   />
                 );
               default:
                 return (
                   <div
                     key={col}
-                    className="w-4 h-4 bg-gray-300 hover:bg-gray-600"
+                    className="w-3 h-3 bg-gray-300 hover:bg-gray-600"
                   />
                 );
             }

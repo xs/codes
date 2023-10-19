@@ -22,7 +22,7 @@ const WFC: React.FC = () => {
 
   const [output] = useControls("output", () => ({
     height: {
-      value: 30,
+      value: 40,
       min: 3,
       max: 100,
       step: 1,
