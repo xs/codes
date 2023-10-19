@@ -8,11 +8,9 @@ interface InputBitmapProps {
 
 const InputBitmap: React.FC<InputBitmapProps> = ({ input, setInput }) => {
   const togglePixel = (row: number, col: number) => {
-    setInput((prevGrid) => {
-      const newGrid = prevGrid.clone();
-      newGrid.set(row, col, prevGrid.get(row, col) === 0 ? 1 : 0);
-      return newGrid;
-    });
+    const newInput = input.clone();
+    newInput.set(row, col, input.get(row, col) === 0 ? 1 : 0);
+    setInput(newInput);
   };
 
   return (

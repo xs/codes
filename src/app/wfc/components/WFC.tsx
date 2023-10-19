@@ -5,7 +5,7 @@ import { Leva, useControls } from "leva";
 import React, { useEffect, useState } from "react";
 
 const WFC: React.FC = () => {
-  const [controls, setControls] = useControls("input", () => ({
+  const [input] = useControls("input", () => ({
     height: {
       value: 4,
       min: 3,
@@ -20,35 +20,55 @@ const WFC: React.FC = () => {
     },
   }));
 
-  const [input, setInput] = useState<Grid<number>>(
-    new Grid({ rows: controls.height, cols: controls.width, init: 0 }),
+  const [output] = useControls("output", () => ({
+    height: {
+      value: 30,
+      min: 10,
+      max: 100,
+      step: 1,
+    },
+    width: {
+      value: 40,
+      min: 10,
+      max: 100,
+      step: 1,
+    },
+  }));
+
+  const [inputGrid, setInputGrid] = useState<Grid<number>>(
+    new Grid({ rows: input.height, cols: input.width, init: 0 }),
   );
 
   // stretch / shrink input grid to match controls
   useEffect(() => {
     const newGrid = new Grid({
-      rows: controls.height,
-      cols: controls.width,
+      rows: input.height,
+      cols: input.width,
       init: 0,
     });
     newGrid.grid.forEach((row, i) => {
       row.forEach((_, j) => {
-        const oldI = Math.min(i, input.height() - 1);
-        const oldJ = Math.min(j, input.width() - 1);
-        newGrid.set(i, j, input.get(oldI, oldJ));
+        const oldI = Math.min(i, inputGrid.height() - 1);
+        const oldJ = Math.min(j, inputGrid.width() - 1);
+        newGrid.set(i, j, inputGrid.get(oldI, oldJ));
       });
     });
-    setInput(newGrid);
-  }, [controls.height, controls.width]);
+    setInputGrid(newGrid);
+  }, [input.height, input.width]);
 
   return (
     <div className="flex w-full landscape:flex-row portrait:flex-col h-[calc(100dvh)]">
-      <Leva />
+      <Leva
+        hideCopyButton
+        titleBar={{
+          title: "wave function collapse",
+        }}
+      />
       <div className="landscape:w-1/2 landscape:h-full portrait:h-1/2 portrait:w-full items-center justify-center flex">
-        <InputBitmap input={input} setInput={setInput} />
+        <InputBitmap input={inputGrid} setInput={setInputGrid} />
       </div>
       <div className="flex landscape:w-1/2 landscape:h-full portrait:h-1/2 portrait:w-full items-center justify-center">
-        <Wave width={40} height={30} input={input} />
+        <Wave width={output.width} height={output.height} input={inputGrid} />
       </div>
     </div>
   );

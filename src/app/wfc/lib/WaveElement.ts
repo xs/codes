@@ -15,8 +15,8 @@ export class WaveElement<T> {
   }
 
   legal(pattern: Grid<T>): boolean {
-    return this.output.grid.every((row, r) => {
-      row.some((pixel: T, c: number) => {
+    return this.output.grid.every((row, r: number) => {
+      return row.every((pixel: T, c: number) => {
         return pixel === undefined || pattern.get(r, c) === pixel;
       });
     });
@@ -32,5 +32,35 @@ export class WaveElement<T> {
 
   contradiction(): boolean {
     return this.patterns.every((pattern) => !this.legal(pattern));
+  }
+
+  log(): void {
+    console.log("wave element", this);
+    console.log("output:");
+    console.table(this.output.grid);
+  }
+
+  observed(): boolean {
+    return this.output.grid.every((row) => {
+      return row.every((pixel) => pixel !== undefined);
+    });
+  }
+
+  collapsed(): boolean {
+    return this.patterns.length === 1;
+  }
+
+  // return a random legal pattern
+  observe(): Grid<T> {
+    const legalPatterns = this.patterns.filter((pattern) =>
+      this.legal(pattern),
+    );
+
+    if (legalPatterns.length === 0) {
+      throw new Error("No legal patterns available");
+    }
+
+    const randomIndex = Math.floor(Math.random() * legalPatterns.length);
+    return legalPatterns[randomIndex];
   }
 }

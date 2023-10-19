@@ -41,6 +41,16 @@ export class Grid<T> {
     this.grid[row][col] = val;
   }
 
+  // overwrite with given grid at given row and column
+  write(row: number, col: number, grid: Grid<T>): void {
+    console.log("writing!");
+    for (let r = 0; r < grid.height(); r++) {
+      for (let c = 0; c < grid.width(); c++) {
+        this.set(row + r, col + c, grid.get(r, c));
+      }
+    }
+  }
+
   get(row: number, col: number): T {
     return this.grid[row][col];
   }
@@ -61,7 +71,11 @@ export class Grid<T> {
     return newGrid;
   }
 
-  map<U>(func: (value: T, index: number) => U): Grid<U> {
+  map<U>(func: (value: T[], index: number) => U[]): U[][] {
+    return this.grid.map(func);
+  }
+
+  mapCells<U>(func: (value: T, index: number) => U): Grid<U> {
     let newGrid = new Grid<U>({
       rows: this.height(),
       cols: this.width(),
@@ -133,27 +147,5 @@ export class Grid<T> {
     }
 
     return newSlice;
-  }
-
-  // returns a cell, row, and col for the minimum value in the grid
-  minBy(func: (value: T) => number): [T, number, number] {
-    let min = Infinity;
-    let minRow = -1;
-    let minCol = -1;
-    let minTile: T | undefined = undefined;
-
-    this.grid.forEach((row, r) => {
-      row.forEach((tile, c) => {
-        const val = func(tile);
-        if (val < min) {
-          min = val;
-          minRow = r;
-          minCol = c;
-          minTile = tile;
-        }
-      });
-    });
-
-    return [minTile as T, minRow, minCol];
   }
 }
