@@ -1,26 +1,38 @@
 import { Grid } from "../lib/Grid";
 import GridDisplay from "./GridDisplay";
-import { useControls } from "leva";
+import { button, useControls } from "leva";
 import React from "react";
 
 interface InputBitmapProps {
   input: Grid<number>;
   setInput: React.Dispatch<React.SetStateAction<Grid<number>>>;
+  colorMap: string[];
 }
 
-const InputBitmap: React.FC<InputBitmapProps> = ({ input, setInput }) => {
-  const [inputSettings] = useControls("input", () => ({
-    pixelSize: {
-      value: 6,
-      min: 3,
-      max: 10,
-      step: 1,
-    },
-  }));
+const InputBitmap: React.FC<InputBitmapProps> = ({
+  input,
+  setInput,
+  colorMap,
+}) => {
+  const [inputSettings] = useControls(
+    "input",
+    () => ({
+      pixelSize: {
+        value: 6,
+        min: 3,
+        max: 10,
+        step: 1,
+      },
+      clear: button(() => {
+        setInput(input.clone().mapCells(() => 0));
+      }),
+    }),
+    [input, setInput],
+  );
 
   const togglePixel = (row: number, col: number) => {
     const newInput = input.clone();
-    newInput.set(row, col, input.get(row, col) === 0 ? 1 : 0);
+    newInput.set(row, col, (input.get(row, col) + 1) % colorMap.length);
     setInput(newInput);
   };
 
@@ -34,10 +46,7 @@ const InputBitmap: React.FC<InputBitmapProps> = ({ input, setInput }) => {
                 grid={input}
                 pixelSize={inputSettings.pixelSize}
                 opacity={i === 1 && j === 1 ? 100 : 40}
-                colorMap={{
-                  0: "bg-yellow-400 hover:bg-yellow-500",
-                  1: "bg-green-500 hover:bg-green-600",
-                }}
+                colorMap={colorMap}
                 onClick={togglePixel}
               />
             </div>

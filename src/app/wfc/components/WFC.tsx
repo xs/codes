@@ -10,13 +10,13 @@ const WFC: React.FC = () => {
     height: {
       value: 4,
       min: 3,
-      max: 10,
+      max: 15,
       step: 1,
     },
     width: {
       value: 4,
       min: 3,
-      max: 10,
+      max: 15,
       step: 1,
     },
   }));
@@ -36,9 +36,20 @@ const WFC: React.FC = () => {
     },
   }));
 
+  const [patterns] = useControls("patterns", () => ({
+    rotations: false,
+  }));
+
   const [inputGrid, setInputGrid] = useState<Grid<number>>(
     new Grid({ rows: input.height, cols: input.width, init: 0 }),
   );
+
+  const colorMap = [
+    "bg-yellow-400 hover:bg-yellow-500",
+    "bg-green-500 hover:bg-green-600",
+    "bg-blue-400 hover:bg-blue-500",
+    "bg-red-400 hover:bg-red-500",
+  ];
 
   // stretch / shrink input grid to match controls
   useEffect(() => {
@@ -68,10 +79,18 @@ const WFC: React.FC = () => {
       />
       <div className="landscape:w-1/2 landscape:h-full portrait:h-1/2 portrait:w-full items-center justify-center flex flex-col portrait:flex-row">
         <div className="landscape:w-full landscape:h-2/3 portrait:h-full portrait:w-2/3 bg-gray-100 items-center justify-center flex">
-          <InputBitmap input={inputGrid} setInput={setInputGrid} />
+          <InputBitmap
+            input={inputGrid}
+            setInput={setInputGrid}
+            colorMap={colorMap}
+          />
         </div>
         <div className="landscape:w-full landscape:h-1/3 portrait:h-full portrait:w-1/3 bg-gray-200 items-center justify-center overflow-scroll">
-          <Patterns input={inputGrid} />
+          <Patterns
+            input={inputGrid}
+            colorMap={colorMap}
+            rotations={patterns.rotations}
+          />
         </div>
       </div>
       <div className="flex landscape:w-1/2 landscape:h-full portrait:h-1/2 portrait:w-full items-center justify-center">
@@ -79,6 +98,8 @@ const WFC: React.FC = () => {
           width={output.width}
           height={output.height}
           input={inputGrid}
+          rotations={patterns.rotations}
+          colorMap={colorMap}
         />
       </div>
     </div>

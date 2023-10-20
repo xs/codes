@@ -9,6 +9,8 @@ interface WaveProps {
   input: Grid<number>;
   height: number;
   width: number;
+  rotations: boolean;
+  colorMap: string[];
   elementDim?: number;
 }
 
@@ -27,6 +29,8 @@ const OutputWave: React.FC<WaveProps> = ({
   input,
   height,
   width,
+  rotations,
+  colorMap,
   elementDim = 3,
 }) => {
   if (!(height >= elementDim && width >= elementDim)) {
@@ -107,7 +111,7 @@ const OutputWave: React.FC<WaveProps> = ({
     const makeWaveElement = (row: number, col: number): WaveElement<number> => {
       return new WaveElement({
         output: newOutput.slice(row, col, elementDim),
-        patterns: input.getPatterns(elementDim, false),
+        patterns: input.getPatterns(elementDim, rotations),
       });
     };
 
@@ -156,8 +160,6 @@ const OutputWave: React.FC<WaveProps> = ({
       });
     });
 
-    console.log("entropy", min);
-
     // TODO: handle edge case of no positions
     const {
       row: observedRow,
@@ -203,10 +205,7 @@ const OutputWave: React.FC<WaveProps> = ({
     <GridDisplay
       grid={output}
       pixelSize={outputSettings.pixelSize}
-      colorMap={{
-        0: "bg-yellow-400 hover:bg-yellow-500",
-        1: "bg-green-500 hover:bg-green-600",
-      }}
+      colorMap={colorMap}
     />
   );
 };

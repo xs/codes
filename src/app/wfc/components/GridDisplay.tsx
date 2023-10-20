@@ -3,7 +3,7 @@ import { Grid } from "../lib/Grid";
 interface GridDisplayProps<T> {
   grid: Grid<T>;
   pixelSize: number;
-  colorMap: { [key: number]: string };
+  colorMap: string[];
   opacity?: number;
   onClick?: (row: number, col: number) => void;
 }
