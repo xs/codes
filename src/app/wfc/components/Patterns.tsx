@@ -15,16 +15,18 @@ const Patterns: React.FC<PatternsProps> = ({ input }) => {
   const patterns = input.getPatterns(3, inputSettings.rotations);
 
   return (
-    <div className="flex flex-wrap space-x-4 space-y-4">
+    <div className="flex-wrap m-2 inline-flex">
       {patterns.map((pattern, i) => (
-        <GridDisplay
-          pixelSize={3}
-          grid={pattern}
-          colorMap={{
-            0: "bg-yellow-400 hover:bg-yellow-500",
-            1: "bg-green-500 hover:bg-green-600",
-          }}
-        />
+        <div className="m-2" key={i}>
+          <GridDisplay
+            pixelSize={3}
+            grid={pattern}
+            colorMap={{
+              0: "bg-yellow-400 hover:bg-yellow-500",
+              1: "bg-green-500 hover:bg-green-600",
+            }}
+          />
+        </div>
       ))}
     </div>
   );

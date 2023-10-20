@@ -66,14 +66,12 @@ const WFC: React.FC = () => {
           title: "wave function collapse",
         }}
       />
-      <div className="landscape:w-1/2 landscape:h-full portrait:h-1/2 portrait:w-full items-center justify-center flex">
-        <div className="flex flex-col items-center justify-center">
-          <div>
-            <InputBitmap input={inputGrid} setInput={setInputGrid} />
-          </div>
-          <div>
-            <Patterns input={inputGrid} />
-          </div>
+      <div className="landscape:w-1/2 landscape:h-full portrait:h-1/2 portrait:w-full items-center justify-center flex flex-col portrait:flex-row">
+        <div className="landscape:w-full landscape:h-2/3 portrait:h-full portrait:w-2/3 bg-gray-100 items-center justify-center flex">
+          <InputBitmap input={inputGrid} setInput={setInputGrid} />
+        </div>
+        <div className="landscape:w-full landscape:h-1/3 portrait:h-full portrait:w-1/3 bg-gray-200 items-center justify-center overflow-scroll">
+          <Patterns input={inputGrid} />
         </div>
       </div>
       <div className="flex landscape:w-1/2 landscape:h-full portrait:h-1/2 portrait:w-full items-center justify-center">
