@@ -497,16 +497,20 @@ function PointLightCube({
   );
 }
 
+function nRand10(): number {
+  return Math.random() * 10 - 10;
+}
+
 function rand10(): number {
   return Math.random() * 20 - 10;
 }
 
 function randCubic(): Cubic {
   return {
-    start: new Vector3(-10, rand10(), 0),
+    start: new Vector3(-10, nRand10(), 0),
     midA: new Vector3(rand10(), rand10(), 0),
     midB: new Vector3(rand10(), rand10(), 0),
-    end: new Vector3(10, rand10(), 0),
+    end: new Vector3(10, nRand10(), 0),
   };
 }
 
@@ -698,7 +702,7 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
           ]}
         />
       )}
-      <OrbitControls makeDefault />
+      <OrbitControls makeDefault maxPolarAngle={Math.PI / 2 - 0.01} />
       <BezierMesh cubicA={cubicA} cubicB={cubicB} aspect={slitscan.aspect} />
       <FramePlane aspect={slitscan.aspect} mesh={meshProps} />
     </>
@@ -735,8 +739,11 @@ export default function SlitscanCanvas(): JSX.Element {
           />
         </div>
         <Leva hideCopyButton titleBar={{ filter: false }} />
-        {/* @ts-ignore: eventSource not worth dealing with */}
-        <Canvas eventSource={eventSource} style={{ position: "absolute" }}>
+        <Canvas
+          /* @ts-ignore: eventSource not worth dealing with */
+          eventSource={eventSource}
+          style={{ position: "absolute" }}
+        >
           <View track={divMain as MutableRefObject<HTMLElement>}>
             <Slitscan cubicA={cubicA} cubicB={cubicB} />
           </View>
