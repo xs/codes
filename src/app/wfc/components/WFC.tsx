@@ -44,6 +44,7 @@ const WFC: React.FC = () => {
     new Grid({ rows: input.height, cols: input.width, init: 0 }),
   );
 
+  // TODO: switch to hex colors
   const colorMap = [
     "bg-yellow-400 hover:bg-yellow-500",
     "bg-green-500 hover:bg-green-600",
