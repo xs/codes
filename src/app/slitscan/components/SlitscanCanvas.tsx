@@ -1,5 +1,6 @@
 "use client";
 
+import { useVideo } from "../hooks/useVideo";
 import { animated, useSpring } from "@react-spring/three";
 import { Base, Geometry, Subtraction } from "@react-three/csg";
 import {
@@ -515,11 +516,12 @@ function randCubic(): Cubic {
 }
 
 interface FramePlaneProps {
+  video: HTMLVideoElement;
   aspect: number;
   mesh: BezierMeshProps;
 }
 
-function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
+function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
   const [frames] = useControls("frames", () => ({
     show: true,
     wireframe: {
@@ -551,6 +553,9 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
     },
   }));
 
+  // with requestAnimationFrame, continually load the video frames into allTextures based on the HTMLVideoElement playing
+  // with useFrame, continually update textures by moving forward in time one frame and indexing into allTextures
+  const [allTextures, setAllTextures] = useState<Texture[]>([]);
   const [textures, setTextures] = useState<Texture[]>([]);
 
   const positions = [];
@@ -576,7 +581,7 @@ function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
 
   const subtraction: BufferGeometry = meshGeometry(meshPoints(mesh), true);
 
-  const videoTexture: Texture = useVideoTexture("/videos/waves.mp4");
+  const videoTexture: Texture = useVideoTexture("/videos/business.mp4");
 
   // create array of six materials to use for the six sides of the cube
   const materials = useMemo(() => {
@@ -645,6 +650,15 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
       },
     },
     rotate: true,
+    video: {
+      value: "waves",
+      options: {
+        business: "/videos/business.mp4",
+        breakdance: "/videos/breakdance.mp4",
+        shibuya: "/videos/shibuya.mp4",
+        waves: "/videos/waves.mp4",
+      },
+    },
   }));
 
   // add a keyboard listener to toggle rotation
@@ -661,6 +675,8 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
       window.removeEventListener("keyup", onKeyUp);
     };
   }, [slitscan.rotate]);
+
+  const video = useVideo(slitscan.video);
 
   // rotate the camera around the origin if slitscan.rotate is true
   useFrame(({ clock, camera }) => {
@@ -704,7 +720,7 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
       )}
       <OrbitControls makeDefault maxPolarAngle={Math.PI / 2 - 0.01} />
       <BezierMesh cubicA={cubicA} cubicB={cubicB} aspect={slitscan.aspect} />
-      <FramePlane aspect={slitscan.aspect} mesh={meshProps} />
+      <FramePlane video={video} aspect={slitscan.aspect} mesh={meshProps} />
     </>
   );
 }
