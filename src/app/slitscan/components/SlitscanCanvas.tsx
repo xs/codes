@@ -743,6 +743,7 @@ export default function SlitscanCanvas(): JSX.Element {
           /* @ts-ignore: eventSource not worth dealing with */
           eventSource={eventSource}
           style={{ position: "absolute" }}
+          orthographic
         >
           <View track={divMain as MutableRefObject<HTMLElement>}>
             <Slitscan cubicA={cubicA} cubicB={cubicB} />
