@@ -9,6 +9,7 @@ export const useVideo = (src: VideoSrc): HTMLVideoElement => {
       newVideo.playsInline = true;
       newVideo.muted = true;
       newVideo.controls = true;
+      newVideo.loop = true;
 
       switch (typeof src) {
         case "string":

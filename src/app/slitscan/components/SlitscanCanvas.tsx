@@ -590,13 +590,6 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
 
   // create a condition based on whether the video is playing
   const videoIsValid = useCallback(() => {
-    console.table({
-      paused: video.paused,
-      ended: video.ended,
-      videoWidth: video.videoWidth,
-      videoHeight: video.videoHeight,
-    });
-
     return (
       !video.paused &&
       !video.ended &&
@@ -618,10 +611,6 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
   // note! this is useFrame from React Three Fiber, not useFrame from useAnimationFrame
   // or even a "frame" from a video.
   useFrame(() => {
-    console.table({
-      allTexturesLength: allTextures.length,
-      texturesLength: textures.length,
-    });
     if (allTextures.length < frames.number) {
       setTextures(
         textures.map((texture, i) =>
@@ -723,7 +712,7 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
   // add leva controls in the "slitscan" folder
   const [slitscan, setSlitscan] = useControls("slitscan", () => ({
     aspect: {
-      value: 4 / 3,
+      value: 16 / 9,
       options: {
         "16:9": 16 / 9,
         "4:3": 4 / 3,
@@ -732,7 +721,7 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
         "9:16": 9 / 16,
       },
     },
-    rotate: true,
+    rotate: false,
     video: {
       value: "/videos/breakdance.mp4",
       options: {
@@ -769,7 +758,6 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
     const radius = 10;
     const speed = 0.4;
     const angle = clock.getElapsedTime() * speed;
-    camera.zoom = 10;
     camera.position.x = radius * Math.cos(angle);
     camera.position.y = 10 + (radius * Math.sin(angle) + radius) / 4;
     camera.position.z = radius * Math.sin(angle);
@@ -808,7 +796,6 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
     </>
   );
 }
-
 export default function SlitscanCanvas(): JSX.Element {
   const eventSource = useRef<HTMLDivElement>(null);
   const divMain = useRef<HTMLDivElement | null>(null);
