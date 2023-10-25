@@ -1,5 +1,6 @@
 "use client";
 
+import { useAnimationFrame } from "../hooks/useAnimationFrame";
 import { useVideo } from "../hooks/useVideo";
 import { animated, useSpring } from "@react-spring/three";
 import { Base, Geometry, Subtraction } from "@react-three/csg";
@@ -14,7 +15,14 @@ import {
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGesture } from "@use-gesture/react";
 import { Leva, useControls } from "leva";
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from "react";
+import {
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Box3,
   BoxGeometry,
@@ -22,6 +30,7 @@ import {
   BufferGeometry,
   Color,
   CubicBezierCurve3,
+  DataTexture,
   DoubleSide,
   MeshBasicMaterial,
   Texture,
@@ -499,7 +508,7 @@ function PointLightCube({
 }
 
 function nRand10(): number {
-  return Math.random() * 10 - 10;
+  return Math.random() * 10;
 }
 
 function rand10(): number {
@@ -529,7 +538,7 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
       render: (get) => get("frames.show"),
     },
     number: {
-      value: 120,
+      value: 240,
       min: 1,
       max: 240,
       step: 1,
@@ -556,7 +565,80 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
   // with requestAnimationFrame, continually load the video frames into allTextures based on the HTMLVideoElement playing
   // with useFrame, continually update textures by moving forward in time one frame and indexing into allTextures
   const [allTextures, setAllTextures] = useState<Texture[]>([]);
-  const [textures, setTextures] = useState<Texture[]>([]);
+
+  // initialize at first frame
+  const frameIndex = useRef(0);
+
+  // when video changes, reset frameIndex and allTextures
+  useEffect(() => {
+    // clear allTextures using splice to avoid memory leak
+    allTextures.splice(0, allTextures.length);
+    setAllTextures(allTextures);
+
+    frameIndex.current = 0;
+  }, [video]);
+
+  const loadFrame = useCallback(async () => {
+    const imageBitmap = await createImageBitmap(video, {
+      imageOrientation: "flipY",
+    });
+    const texture = new Texture(imageBitmap);
+    texture.needsUpdate = true;
+
+    allTextures.push(texture);
+  }, [video]);
+
+  // create a condition based on whether the video is playing
+  const videoIsValid = useCallback(() => {
+    console.table({
+      paused: video.paused,
+      ended: video.ended,
+      videoWidth: video.videoWidth,
+      videoHeight: video.videoHeight,
+    });
+
+    return (
+      !video.paused &&
+      !video.ended &&
+      video.videoWidth !== 0 &&
+      video.videoHeight !== 0
+    );
+  }, [video]);
+
+  useAnimationFrame(loadFrame, videoIsValid);
+
+  // initialize actual frame textures
+  const [textures, setTextures] = useState<Texture[]>(
+    Array.from(
+      { length: frames.number },
+      () => new DataTexture(null) as Texture,
+    ),
+  );
+
+  // note! this is useFrame from React Three Fiber, not useFrame from useAnimationFrame
+  // or even a "frame" from a video.
+  useFrame(() => {
+    console.table({
+      allTexturesLength: allTextures.length,
+      texturesLength: textures.length,
+    });
+    if (allTextures.length < frames.number) {
+      setTextures(
+        textures.map((texture, i) =>
+          i < frames.number - allTextures.length
+            ? texture
+            : allTextures[i - frames.number + allTextures.length],
+        ),
+      );
+      return;
+    }
+
+    frameIndex.current = (frameIndex.current + 1) % allTextures.length;
+    const newTextures = textures.map(
+      (_, i) => allTextures[(frameIndex.current + i) % allTextures.length],
+    );
+    setTextures(newTextures);
+  });
 
   const positions = [];
 
@@ -581,28 +663,29 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
 
   const subtraction: BufferGeometry = meshGeometry(meshPoints(mesh), true);
 
-  const videoTexture: Texture = useVideoTexture("/videos/business.mp4");
-
   // create array of six materials to use for the six sides of the cube
-  const materials = useMemo(() => {
-    const videoMaterial = new MeshBasicMaterial({
-      map: videoTexture,
-      wireframe: frames.wireframe,
-    });
-    const transparentMaterial = new MeshBasicMaterial({
-      transparent: true,
-      opacity: 0,
-      wireframe: frames.wireframe,
-    });
-    return [
-      transparentMaterial,
-      transparentMaterial,
-      transparentMaterial,
-      transparentMaterial,
-      videoMaterial, // top
-      transparentMaterial,
-    ];
-  }, [videoTexture, frames.wireframe]);
+  const materials = useCallback(
+    (index: number) => {
+      const videoMaterial = new MeshBasicMaterial({
+        map: textures[index],
+        wireframe: frames.wireframe,
+      });
+      const transparentMaterial = new MeshBasicMaterial({
+        transparent: true,
+        opacity: 0,
+        wireframe: frames.wireframe,
+      });
+      return [
+        transparentMaterial,
+        transparentMaterial,
+        transparentMaterial,
+        transparentMaterial,
+        videoMaterial, // top
+        transparentMaterial,
+      ];
+    },
+    [textures, frames.wireframe, frames.number],
+  );
 
   const boxGeometry = new BoxGeometry(19.8, 19.8 / aspect, 0.01);
   boxGeometry.groups.forEach((group, i) => {
@@ -617,7 +700,7 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
             <Geometry computeVertexNormals useGroups>
               <Base
                 geometry={boxGeometry}
-                material={materials}
+                material={materials(index)}
                 position={position}
                 rotation={[-Math.PI / 2, 0, 0]}
               ></Base>
@@ -651,7 +734,7 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
     },
     rotate: true,
     video: {
-      value: "waves",
+      value: "/videos/breakdance.mp4",
       options: {
         business: "/videos/business.mp4",
         breakdance: "/videos/breakdance.mp4",
@@ -683,9 +766,10 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
     if (!slitscan.rotate) {
       return;
     }
-    const radius = 20;
+    const radius = 10;
     const speed = 0.4;
     const angle = clock.getElapsedTime() * speed;
+    camera.zoom = 10;
     camera.position.x = radius * Math.cos(angle);
     camera.position.y = 10 + (radius * Math.sin(angle) + radius) / 4;
     camera.position.z = radius * Math.sin(angle);
