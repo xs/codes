@@ -645,7 +645,10 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
     positions.push(new Vector3(0, yPosition, 0));
   }
 
-  const subtraction: BufferGeometry = meshGeometry(meshPoints(mesh), true);
+  let subtraction: BufferGeometry = meshGeometry(meshPoints(mesh), true);
+  if (frames.intersect) {
+    subtraction.translate(100, 100, 100);
+  }
 
   // create array of six materials to use for the six sides of the cube
   console.log("rendering frameplane");
@@ -690,11 +693,9 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
                 position={position}
                 rotation={[-Math.PI / 2, 0, 0]}
               ></Base>
-              {frames.intersect && (
-                <Subtraction geometry={subtraction}>
-                  <meshBasicMaterial color="white" transparent opacity={0} />
-                </Subtraction>
-              )}
+              <Subtraction geometry={subtraction}>
+                <meshBasicMaterial color="white" transparent opacity={0} />
+              </Subtraction>
             </Geometry>
           </mesh>
         ))}
