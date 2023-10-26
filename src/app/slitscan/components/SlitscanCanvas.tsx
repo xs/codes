@@ -600,16 +600,9 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
 
   useAnimationFrame(loadFrame, videoIsValid);
 
-  // initialize actual frame textures
-  const [textures, setTextures] = useState<Texture[]>(
-    Array.from(
-      { length: frames.number },
-      () => new DataTexture(null) as Texture,
-    ),
-  );
-
   // note! this is useFrame from React Three Fiber, not useFrame from useAnimationFrame
   // or even a "frame" from a video.
+  /*
   useFrame(() => {
     if (allTextures.length < frames.number) {
       setTextures(
@@ -628,6 +621,7 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
     );
     setTextures(newTextures);
   });
+  */
 
   const positions = [];
 
@@ -655,8 +649,9 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
   // create array of six materials to use for the six sides of the cube
   const materials = useCallback(
     (index: number) => {
+      const textureIndex = allTextures.length - frames.number + index;
       const videoMaterial = new MeshBasicMaterial({
-        map: textures[index],
+        map: allTextures[textureIndex] ?? new DataTexture(null),
         wireframe: frames.wireframe,
       });
       const transparentMaterial = new MeshBasicMaterial({
@@ -673,7 +668,7 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
         transparentMaterial,
       ];
     },
-    [textures, frames.wireframe, frames.number],
+    [frameIndex, frames.wireframe, frames.number],
   );
 
   const boxGeometry = new BoxGeometry(19.8, 19.8 / aspect, 0.01);
@@ -721,15 +716,18 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
         "9:16": 9 / 16,
       },
     },
-    rotate: false,
+    rotate: true,
+    webcam: false,
     video: {
       value: "/videos/breakdance.mp4",
       options: {
-        business: "/videos/business.mp4",
         breakdance: "/videos/breakdance.mp4",
-        shibuya: "/videos/shibuya.mp4",
+        finance: "/videos/finance.mp4",
+        manhattan: "/videos/manhattan.mp4",
+        tokyo: "/videos/tokyo.mp4",
         waves: "/videos/waves.mp4",
       },
+      render: (get) => !get("slitscan.webcam"),
     },
   }));
 
