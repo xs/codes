@@ -533,7 +533,7 @@ interface FramePlaneProps {
 function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
   const [frames] = useControls("frames", () => ({
     show: true,
-    intersect: true,
+    subtract: true,
     wireframe: {
       value: false,
       render: (get) => get("frames.show"),
@@ -646,7 +646,7 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
   }
 
   let subtraction: BufferGeometry = meshGeometry(meshPoints(mesh), true);
-  if (frames.intersect) {
+  if (!frames.subtract) {
     subtraction.translate(100, 100, 100);
   }
 
