@@ -533,6 +533,7 @@ interface FramePlaneProps {
 function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
   const [frames] = useControls("frames", () => ({
     show: true,
+    intersect: true,
     wireframe: {
       value: false,
       render: (get) => get("frames.show"),
@@ -647,6 +648,7 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
   const subtraction: BufferGeometry = meshGeometry(meshPoints(mesh), true);
 
   // create array of six materials to use for the six sides of the cube
+  console.log("rendering frameplane");
   const materials = useCallback(
     (index: number) => {
       const textureIndex = allTextures.length - frames.number + index;
@@ -688,9 +690,11 @@ function FramePlane({ video, aspect, mesh }: FramePlaneProps): JSX.Element {
                 position={position}
                 rotation={[-Math.PI / 2, 0, 0]}
               ></Base>
-              <Subtraction geometry={subtraction}>
-                <meshBasicMaterial color="white" transparent opacity={0} />
-              </Subtraction>
+              {frames.intersect && (
+                <Subtraction geometry={subtraction}>
+                  <meshBasicMaterial color="white" transparent opacity={0} />
+                </Subtraction>
+              )}
             </Geometry>
           </mesh>
         ))}
@@ -704,6 +708,7 @@ interface SlitscanProps {
 }
 
 function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
+  console.log("rendering slitscan");
   // add leva controls in the "slitscan" folder
   const [slitscan, setSlitscan] = useControls("slitscan", () => ({
     aspect: {
