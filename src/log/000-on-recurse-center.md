@@ -32,4 +32,4 @@ I think I'm still struggling to figure out a succinct way to explain what Recurs
 - [x] get up
 - [x] get out there
 
-[^1]: In total, three (and a half) distinct projects: a mobile app for running a checkpoint race, an infinite navigable hallway for GLSL shader art piecers, a bezier curve slitscan video project, and a very basic wave function collapse pixel toy.
+[^1]: In total, three (and a half) distinct projects: a mobile app for running a checkpoint race, an infinite navigable hallway for GLSL shader art piecers, a bezier curve slitscan video project, and a very basic wave function collapse bitmap pixel toy.
