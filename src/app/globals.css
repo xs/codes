@@ -21,3 +21,9 @@ body {
 .slant {
   font-variation-settings: "slnt" -8;
 }
+
+/* workaround, since react-markdown overrides the classname for checkbox lists */
+.contains-task-list {
+  margin-top: 1rem /* 16px */;
+  margin-bottom: 1rem /* 16px */;
+}
