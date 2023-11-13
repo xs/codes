@@ -16,7 +16,7 @@ import SyntaxHighlighter from "react-syntax-highlighter";
 import { solarizedDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import remarkGfm from "remark-gfm";
 
-import { inconsolata } from "@/app/fonts";
+import { gentium, inconsolata, inter } from "@/app/fonts";
 import { Post } from "@/utils/log";
 
 type Props = {
@@ -50,7 +50,7 @@ function indent(depth: number) {
 }
 
 const DEFAULT_CLASSES =
-  "whitespace-normal border-gray-400 rounded-md border p-2 max-w-screen-md";
+  "whitespace-normal border-gray-400 rounded-md border p-2 max-w-screen-md text-sm";
 
 // TODO: tables
 // TODO: rehype-slug for headings
@@ -62,7 +62,7 @@ export default function LogEntry({ post, className }: Props) {
   return (
     <Container className={containerClassName}>
       <Box className="flex justify-between items-end">
-        <Heading size="8" as="h1">
+        <Heading className={`${gentium.className}`} size="8" as="h1">
           {post.metadata.title}
         </Heading>
         <Text className="ml-2 pt-5 text-gray-500">{post.metadata.date}</Text>
@@ -110,12 +110,20 @@ export default function LogEntry({ post, className }: Props) {
               );
             }
           },
-          em: ({ node, ...props }) => <Em {...props} />,
+          em: ({ node, ...props }) => (
+            <em className={`${inter.className} slant`} {...props} />
+          ),
           h1: ({ color, node, ...props }) => (
-            <Heading size="6" as="h1" className="pt-4" {...props} />
+            <>
+              <Heading size="6" as="h1" className="pt-4" {...props} />
+              <Separator size="4" />
+            </>
           ),
           h2: ({ color, node, ...props }) => (
-            <Heading size="5" as="h2" className="pt-3 pb-1" {...props} />
+            <>
+              <Heading size="5" as="h2" className="pt-3" {...props} />
+              <Separator size="4" />
+            </>
           ),
           h3: ({ color, node, ...props }) => (
             <Heading size="4" as="h3" className="pt-2 pb-1" {...props} />
@@ -139,7 +147,7 @@ export default function LogEntry({ post, className }: Props) {
             />
           ),
           p: ({ color, node, ...props }) => {
-            return <Text as="p" {...props} />;
+            return <p {...props} className="my-6" />;
           },
           section: ({ color, className, node, ...props }) => {
             if (className === "footnotes") {
@@ -157,7 +165,7 @@ export default function LogEntry({ post, className }: Props) {
           strong: ({ color, node, ...props }) => <Strong {...props} />,
           ul: ({ color, ordered, depth, node, ...props }) => (
             <ul
-              className={`list-disc list-inside ${indent(depth)}`}
+              className={`list-disc list-inside ${indent(depth)} my-4`}
               {...props}
             />
           ),

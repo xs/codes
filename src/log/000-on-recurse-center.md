@@ -4,7 +4,7 @@ date: 2023-11-10
 time: 14:23
 ---
 
-From August 7th to October 27th, 2023, I spent twelve weeks at [Recurse Center](https://www.recurse.com/). This is my take on how it went.  
+_From August 7th to October 27th, 2023, I spent twelve weeks at [Recurse Center](https://www.recurse.com/). This is my take on how it went._  
 
 ## Not a bootcamp
 
@@ -26,7 +26,7 @@ I ended up relying on the last explanation a lot. It captured the common thread
 
 I think I'm still struggling to figure out a succinct way to explain what Recurse Center is. For me, it was an important lesson in the act of creating something new and a opportunity to learn how to trust my own intuition and taste on my own projects.  
 
-### Day to day
+## Day to day
 
 - [x] wake up
 - [x] get up

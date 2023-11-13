@@ -17,3 +17,7 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.slant {
+  font-variation-settings: "slnt" -8;
+}
