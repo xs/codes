@@ -40,6 +40,7 @@
     "to-vfile": "^8.0.0",
     "typescript": "5.2.2",
     "unified": "^10.1.2",
+    "vextab": "^3.0.6",
     "vfile-matter": "^5.0.0"
   },
   "devDependencies": {
