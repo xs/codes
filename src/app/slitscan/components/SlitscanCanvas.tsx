@@ -257,7 +257,7 @@ interface BezierMeshProps {
 
 // returns the points of a mesh between two cubic bezier curves
 function meshPoints({ cubicA, cubicB, aspect }: BezierMeshProps): Vector3[][] {
-  const lerpCubics = [];
+  const lerpCubics = []; // the linear interpolated cubics
   for (let i = 0; i <= RESOLUTION; i++) {
     const t = i / RESOLUTION;
     const lerpCubic = {
@@ -637,7 +637,7 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps) {
         "9:16": 9 / 16,
       },
     },
-    rotate: false,
+    rotate: true,
   }));
 
   // add a keyboard listener to toggle rotation
