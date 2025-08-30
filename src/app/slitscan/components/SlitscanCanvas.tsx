@@ -559,7 +559,12 @@ function FramePlane({ aspect, mesh }: FramePlaneProps) {
       let offset = maxOffset * frames.position;
       yPosition = -10 + i * spacing + offset;
     }
-    positions.push(new Vector3(0, yPosition, 0));
+
+    // HACK: because mesh subtraction doesn't remove coplanar frames
+    // we just remove any frame that exists at the max position
+    if (yPosition != 10) {
+      positions.push(new Vector3(0, yPosition, 0));
+    }
   }
 
   const subtraction: BufferGeometry = meshGeometry(meshPoints(mesh), true);
@@ -632,7 +637,7 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps) {
         "9:16": 9 / 16,
       },
     },
-    rotate: true,
+    rotate: false,
   }));
 
   // add a keyboard listener to toggle rotation
