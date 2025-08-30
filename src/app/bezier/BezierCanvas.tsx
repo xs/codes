@@ -29,12 +29,7 @@ function clamp(num: number): number {
   return Math.max(LOWER_BOUND, Math.min(num, UPPER_BOUND));
 }
 
-function ControlPoint({
-  state,
-  color,
-  fixX,
-  fixY,
-}: ControlPointProps): JSX.Element {
+function ControlPoint({ state, color, fixX, fixY }: ControlPointProps) {
   const [pos, setPos] = state;
   const [initialPos] = useState(pos.clone());
   const initX = initialPos.x;
@@ -105,7 +100,7 @@ interface CurveProps {
   z: number;
 }
 
-function Curve({ state, z }: CurveProps): JSX.Element {
+function Curve({ state, z }: CurveProps) {
   const [cubic, setCubic] = state;
 
   const { start, midA, midB, end } = cubic;
@@ -163,7 +158,7 @@ interface BezierControlProps {
   state: [Cubic, (cubic: Cubic) => void];
 }
 
-function BezierControl({ color, state }: BezierControlProps): JSX.Element {
+function BezierControl({ color, state }: BezierControlProps) {
   const { viewport, camera, size } = useThree();
 
   // use the leva library to display any debug info
@@ -230,7 +225,7 @@ interface AbstractMeshProps {
   wireframe?: boolean;
 }
 
-function PointsMesh({ points, color }: AbstractMeshProps): JSX.Element {
+function PointsMesh({ points, color }: AbstractMeshProps) {
   return (
     <>
       {points.map((curve, curveIndex) =>
@@ -245,11 +240,7 @@ function PointsMesh({ points, color }: AbstractMeshProps): JSX.Element {
   );
 }
 
-function PolygonMesh({
-  points,
-  color,
-  wireframe,
-}: AbstractMeshProps): JSX.Element {
+function PolygonMesh({ points, color, wireframe }: AbstractMeshProps) {
   const vertices = points.flat();
   const geometry = new BufferGeometry().setFromPoints(vertices);
   // set indicies to be triangles based on the dimension of points
@@ -290,7 +281,7 @@ interface BezierMeshProps {
   cubicB: Cubic;
 }
 
-function BezierMesh({ cubicA, cubicB }: BezierMeshProps): JSX.Element {
+function BezierMesh({ cubicA, cubicB }: BezierMeshProps) {
   const [debug, setDebug] = useControls(() => ({
     color: {
       r: 255 * Math.random(),
@@ -377,10 +368,7 @@ interface PointLightCubeProps {
   intensity: number;
 }
 
-function PointLightCube({
-  radius,
-  intensity,
-}: PointLightCubeProps): JSX.Element {
+function PointLightCube({ radius, intensity }: PointLightCubeProps) {
   const coords = [-radius, 0, radius];
 
   // we place nine lights in a 3x3 grid above the origin and one light below the origin
@@ -413,7 +401,7 @@ function randCubic(): Cubic {
   };
 }
 
-export default function BezierCanvas(): JSX.Element {
+export default function BezierCanvas() {
   const eventSource = useRef<HTMLDivElement>(null);
   const divMain = useRef<HTMLDivElement | null>(null);
   const divA = useRef<HTMLDivElement | null>(null);

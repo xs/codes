@@ -42,12 +42,7 @@ function clamp(num: number): number {
   return Math.max(LOWER_BOUND, Math.min(num, UPPER_BOUND));
 }
 
-function ControlPoint({
-  state,
-  color,
-  fixX,
-  fixY,
-}: ControlPointProps): JSX.Element {
+function ControlPoint({ state, color, fixX, fixY }: ControlPointProps) {
   const [pos, setPos] = state;
   const [initialPos] = useState(pos.clone());
   const initX = initialPos.x;
@@ -118,7 +113,7 @@ interface CurveProps {
   z: number;
 }
 
-function Curve({ state, z }: CurveProps): JSX.Element {
+function Curve({ state, z }: CurveProps) {
   const [cubic, setCubic] = state;
 
   const { start, midA, midB, end } = cubic;
@@ -176,7 +171,7 @@ interface BezierControlProps {
   state: [Cubic, (cubic: Cubic) => void];
 }
 
-function BezierControl({ color, state }: BezierControlProps): JSX.Element {
+function BezierControl({ color, state }: BezierControlProps) {
   const { size } = useThree();
 
   const [cubic, setCubic] = state;
@@ -222,7 +217,7 @@ interface AbstractMeshProps {
   wireframe?: boolean;
 }
 
-function PointsMesh({ points, color }: AbstractMeshProps): JSX.Element {
+function PointsMesh({ points, color }: AbstractMeshProps) {
   return (
     <>
       {points.map((curve, curveIndex) =>
@@ -237,11 +232,7 @@ function PointsMesh({ points, color }: AbstractMeshProps): JSX.Element {
   );
 }
 
-function PolygonMesh({
-  points,
-  color,
-  wireframe,
-}: AbstractMeshProps): JSX.Element {
+function PolygonMesh({ points, color, wireframe }: AbstractMeshProps) {
   const geometry = meshGeometry(points, true);
 
   return (
@@ -422,7 +413,7 @@ function meshGeometry(points: Vector3[][], solid: Boolean): BufferGeometry {
   return geometry;
 }
 
-function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps): JSX.Element {
+function BezierMesh({ cubicA, cubicB, aspect }: BezierMeshProps) {
   const [mesh, setMesh] = useControls("mesh", () => ({
     show: false,
     color: {
@@ -474,10 +465,7 @@ interface PointLightCubeProps {
   intensity: number;
 }
 
-function PointLightCube({
-  radius,
-  intensity,
-}: PointLightCubeProps): JSX.Element {
+function PointLightCube({ radius, intensity }: PointLightCubeProps) {
   const coords = [-radius, 0, radius];
 
   // we place nine lights in a 3x3 grid above the origin and one light below the origin
@@ -519,7 +507,7 @@ interface FramePlaneProps {
   mesh: BezierMeshProps;
 }
 
-function FramePlane({ aspect, mesh }: FramePlaneProps): JSX.Element {
+function FramePlane({ aspect, mesh }: FramePlaneProps) {
   const [frames] = useControls("frames", () => ({
     show: true,
     wireframe: {
@@ -631,7 +619,7 @@ interface SlitscanProps {
   cubicB: Cubic;
 }
 
-function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
+function Slitscan({ cubicA, cubicB }: SlitscanProps) {
   // add leva controls in the "slitscan" folder
   const [slitscan, setSlitscan] = useControls("slitscan", () => ({
     aspect: {
@@ -709,7 +697,7 @@ function Slitscan({ cubicA, cubicB }: SlitscanProps): JSX.Element {
   );
 }
 
-export default function SlitscanCanvas(): JSX.Element {
+export default function SlitscanCanvas() {
   const eventSource = useRef<HTMLDivElement>(null);
   const divMain = useRef<HTMLDivElement | null>(null);
   const divA = useRef<HTMLDivElement | null>(null);

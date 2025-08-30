@@ -8,7 +8,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export default function ComposeContext(props: Props): JSX.Element {
+export default function ComposeContext(props: Props) {
   const { contexts = [], children } = props;
 
   return (

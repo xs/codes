@@ -9,7 +9,6 @@ export const gentium = Gentium_Book_Plus({
 export const inter = Inter({
   subsets: ["latin"],
   display: "swap",
-  axes: ["slnt"],
 });
 
 export const inconsolata = Inconsolata({
